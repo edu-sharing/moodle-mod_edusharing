@@ -66,13 +66,13 @@ echo getRepoForm();
 echo '</div></body></html>';
 exit();
 
-function callRepo($user, $pwd){
-    global $CFG;
 
+function callRepo($user, $pwd){
+
+    $data = createXmlMetadata();
     $repo_url = get_config('edusharing', 'application_cc_gui_url');
-    $apiUrl = $repo_url.'rest/admin/v1/applications?url='.$CFG->wwwroot.'/mod/edusharing/metadata.php';
-    $auth = $user.':'.$pwd;
-    $answer = json_decode(callRepoAPI('PUT', $apiUrl, null, $auth), true);
+
+    $answer = json_decode(registerPlugin($repo_url, $user, $pwd, $data), true);
     if ( isset($answer['appid']) ){
         echo('<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '.$repo_url.'</h3>');
     }else{
@@ -118,7 +118,6 @@ function getRepoForm(){
     }else{
         return false;
     }
-
 }
 
 /**

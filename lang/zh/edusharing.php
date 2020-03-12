@@ -101,6 +101,8 @@ $string['exc_NO_PERMISSION'] = '权限不够';
 $string['exc_UNKNOWN_ERROR'] = '未知错误';
 
 // metadata
+$string['currentVersion'] = 'Current plugin version';
+$string['conf_versiontext'] = 'Version:';
 $string['conf_linktext'] = 'Connect moodle to home repository:';
 $string['conf_btntext'] = 'Connect';
 $string['conf_hinttext'] = 'This will open a new window where you can load the repository metadata and register the plugin with the repository';

@@ -29,28 +29,8 @@ if (empty(get_config('edusharing', 'application_public_key'))) {
     $modedusharingapppropertyhelper->edusharing_add_ssl_keypair_to_home_config();
 }
 
-$xml = new SimpleXMLElement(
-        '<?xml version="1.0" encoding="utf-8" ?><!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"><properties></properties>');
-
-$entry = $xml->addChild('entry', get_config('edusharing', 'application_appid'));
-$entry->addAttribute('key', 'appid');
-$entry = $xml->addChild('entry', get_config('edusharing', 'application_type'));
-$entry->addAttribute('key', 'type');
-$entry = $xml->addChild('entry', 'moodle');
-$entry->addAttribute('key', 'subtype');
-$entry = $xml->addChild('entry', parse_url($CFG->wwwroot, PHP_URL_HOST));
-$entry->addAttribute('key', 'domain');
-$entry = $xml->addChild('entry', get_config('edusharing', 'application_host'));
-$entry->addAttribute('key', 'host');
-$entry = $xml->addChild('entry', 'true');
-$entry->addAttribute('key', 'trustedclient');
-$entry = $xml->addChild('entry', 'moodle:course/update');
-$entry->addAttribute('key', 'hasTeachingPermission');
-$entry = $xml->addChild('entry', get_config('edusharing', 'application_public_key'));
-$entry->addAttribute('key', 'public_key');
-$entry = $xml->addChild('entry', get_config('edusharing', 'EDU_AUTH_AFFILIATION_NAME'));
-$entry->addAttribute('key', 'appcaption');
+$metadata = createXmlMetadata();
 
 header('Content-type: text/xml');
-print(html_entity_decode($xml->asXML()));
+print($metadata);
 exit();

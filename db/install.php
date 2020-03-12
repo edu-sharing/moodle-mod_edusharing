@@ -28,20 +28,19 @@ require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 function xmldb_edusharing_install() {
     global $CFG;
 
-    // Fill this to automatically register the plugin with the repo upon installation
-    //$metadataurl = 'http://localhost:8080/edu-sharing/metadata?format=lms';
-    $metadataurl = null;
-    $repo_admin = 'admin';
-    $repo_pw = 'pw';
+    if (file_exists(dirname(__FILE__).'/install_config.php')) {
+        require_once dirname(__FILE__). '/install_config.php';
+        $metadataurl = REPO_URL.'/metadata?format=lms';
+        $repo_admin = REPO_ADMIN;
+        $repo_pw = REPO_PW;
 
-    $auth = $repo_admin.':'.$repo_pw;
+        $auth = $repo_admin.':'.$repo_pw;
 
-    if (!empty($metadataurl)){
         if (edusharing_import_metadata($metadataurl)){
             error_log('Successfully imported metadata from '.$metadataurl);
             $repo_url = get_config('edusharing', 'application_cc_gui_url');
-            $apiUrl = $repo_url.'rest/admin/v1/applications?url='.$CFG->wwwroot.'/mod/edusharing/metadata.php';
-            $answer = json_decode(callRepoAPI('PUT', $apiUrl, null, $auth), true);
+            $data = createXmlMetadata();
+            $answer = json_decode(registerPlugin($repo_url, $repo_admin, $repo_pw, $data), true);
             if (isset($answer['appid'])){
                 error_log('Successfully registered the edusharing-moodle-plugin at: '.$repo_url);
             }else{
@@ -50,6 +49,8 @@ function xmldb_edusharing_install() {
         }else{
             error_log('INSTALL ERROR: Could not import metadata from '.$metadataurl);
         }
+        unlink(dirname(__FILE__).'/install_config.php');
     }
+
 }
 

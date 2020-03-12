@@ -330,53 +330,66 @@ function edusharing_import_metadata($metadataurl){
     }
 }
 
-function callRepoAPI($method, $url, $ticket=NULL, $auth=NULL, $data=NULL){
-    $curl = curl_init();
-    switch ($method){
-        case "POST":
-            curl_setopt($curl, CURLOPT_POST, 1);
-            if ($data){
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            }
-            break;
-        case "PUT":
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-            if ($data){
-                $fields = array(
-                    'file[0]' => new CURLFile($data, 'text/xml', 'metadata.xml')
-                );
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            }
-            break;
-        default:
-            if ($data){
-                $url = sprintf("%s?%s", $url, http_build_query($data));
-            }
-    }
-    // OPTIONS:
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_USERPWD, $auth);
-    if (empty($ticket)){
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Accept: application/json',
-            'Content-Type: application/json',
-        ));
-    }else{
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Authorization: EDU-TICKET '.$ticket,
-            'Accept: application/json',
-            'Content-Type: application/json',
-        ));
-    }
+function createXmlMetadata(){
+    $xml = new SimpleXMLElement(
+        '<?xml version="1.0" encoding="utf-8" ?><!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"><properties></properties>');
 
+    $entry = $xml->addChild('entry', get_config('edusharing', 'application_appid'));
+    $entry->addAttribute('key', 'appid');
+    $entry = $xml->addChild('entry', get_config('edusharing', 'application_type'));
+    $entry->addAttribute('key', 'type');
+    $entry = $xml->addChild('entry', 'moodle');
+    $entry->addAttribute('key', 'subtype');
+    $entry = $xml->addChild('entry', parse_url($CFG->wwwroot, PHP_URL_HOST));
+    $entry->addAttribute('key', 'domain');
+    $entry = $xml->addChild('entry', get_config('edusharing', 'application_host'));
+    $entry->addAttribute('key', 'host');
+    $entry = $xml->addChild('entry', 'true');
+    $entry->addAttribute('key', 'trustedclient');
+    $entry = $xml->addChild('entry', 'moodle:course/update');
+    $entry->addAttribute('key', 'hasTeachingPermission');
+    $entry = $xml->addChild('entry', get_config('edusharing', 'application_public_key'));
+    $entry->addAttribute('key', 'public_key');
+    $entry = $xml->addChild('entry', get_config('edusharing', 'EDU_AUTH_AFFILIATION_NAME'));
+    $entry->addAttribute('key', 'appcaption');
+
+    return html_entity_decode($xml->asXML());
+}
+
+function createApiBody($data, $delimiter){
+    $body = '';
+    $body .= '--' . $delimiter. "\r\n";
+    $body .= 'Content-Disposition: form-data; name="' . 'xml' . '"';
+    $body .= '; filename="metadata.xml"' . "\r\n";
+    $body .= 'Content-Type: text/xml' ."\r\n\r\n";
+    $body .= $data."\r\n";
+    $body .= "--" . $delimiter . "--\r\n";
+
+    return $body;
+}
+
+function registerPlugin($repoUrl, $login, $pwd, $data){
+    $url = $repoUrl.'rest/admin/v1/applications/xml';
+    $auth = $login.':'.$pwd;
+    $delimiter = '-------------'.uniqid();
+    $post = createApiBody( $data, $delimiter);
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_setopt($curl, CURLOPT_USERPWD, $auth);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+        'Content-Type: multipart/form-data; boundary=' . $delimiter,
+        'Content-Length: ' . strlen($post),
+        'Accept: application/json'
+    ));
 
     // EXECUTE:
     try{
         $result = curl_exec($curl);
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        //error_log('$httpcode: '.$httpcode);
         if($result === false) {
             trigger_error(curl_error($curl), E_USER_WARNING);
         }
@@ -387,7 +400,6 @@ function callRepoAPI($method, $url, $ticket=NULL, $auth=NULL, $data=NULL){
         error_log('error: '.$e->getMessage());
         trigger_error($e->getMessage(), E_USER_WARNING);
     }
-    //error_log('api called: '.$result);
     if(!$result){
         $result = "Connection Failure";
     }

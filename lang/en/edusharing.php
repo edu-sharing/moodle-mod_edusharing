@@ -101,6 +101,8 @@ $string['exc_NO_PERMISSION'] = 'Insufficient permissions.';
 $string['exc_UNKNOWN_ERROR'] = 'Unknown error.';
 
 // metadata
+$string['currentVersion'] = 'Current plugin version';
+$string['conf_versiontext'] = 'Version:';
 $string['connectToHomeRepository'] = 'Connect to Home Reposiory';
 $string['conf_linktext'] = 'Connect moodle to home repository:';
 $string['conf_btntext'] = 'Connect';

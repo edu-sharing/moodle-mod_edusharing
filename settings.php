@@ -29,8 +29,7 @@ if ($ADMIN->fulltree) {
     $hint = '';
     $str = '<div class="form-item row">
                 <div class="form-label col-sm-3 text-sm-right">
-                    <p>'.get_string('conf_linktext', 'edusharing').'</p>
-                    
+                    <p>'.get_string('conf_linktext', 'edusharing').'</p>                    
                 </div>
                 <div class="form-setting col-sm-9">
                     <div class="form-text defaultsnext">
@@ -41,10 +40,21 @@ if ($ADMIN->fulltree) {
                 </div>
         </div>';
 
-    $settings->add(
-            new admin_setting_heading('edusharing',
-                get_string('connectToHomeRepository', 'edusharing'), $str));
+    $str_version = '<div class="form-item row">
+                <div class="form-label col-sm-3 text-sm-right">
+                    <p>'.get_string('conf_versiontext', 'edusharing').'</p>                    
+                </div>
+                <div class="form-setting col-sm-9">
+                    <div class="form-text defaultsnext">
+                        <div class="form-defaultinfo">Release: '.get_config('mod_edusharing', 'version').'</div>
+                        <div class="form-defaultinfo small text-muted " style="margin-top: 6px">Release'.get_config('mod_edusharing', 'release').'</div>
+                    </div>'.$hint.'
+                </div>
+        </div>';
 
+    $settings->add(new admin_setting_heading('edusharing', get_string('currentVersion', 'edusharing'), $str_version));
+
+    $settings->add(new admin_setting_heading('edusharing/repo', get_string('connectToHomeRepository', 'edusharing'), $str));
 
     $settings->add(new admin_setting_heading('edusharing/app', get_string('appProperties', 'edusharing'), ''));
 
