@@ -34,8 +34,6 @@ function xmldb_edusharing_install() {
         $repo_admin = REPO_ADMIN;
         $repo_pw = REPO_PW;
 
-        $auth = $repo_admin.':'.$repo_pw;
-
         if (edusharing_import_metadata($metadataurl)){
             error_log('Successfully imported metadata from '.$metadataurl);
             $repo_url = get_config('edusharing', 'application_cc_gui_url');

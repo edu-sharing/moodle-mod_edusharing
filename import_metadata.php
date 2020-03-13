@@ -47,7 +47,7 @@ if (!is_siteadmin()) {
 }
 
 if(isset($_POST['repoReg'])){
-    callRepo($_POST['repoAdmin'], $_POST['repoPwd']);
+    callRepo($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
     exit();
 }
 
@@ -67,23 +67,22 @@ echo '</div></body></html>';
 exit();
 
 
-function callRepo($user, $pwd){
+function callRepo($repoUrl, $user, $pwd){
 
     $data = createXmlMetadata();
-    $repo_url = get_config('edusharing', 'application_cc_gui_url');
 
-    $answer = json_decode(registerPlugin($repo_url, $user, $pwd, $data), true);
+    $answer = json_decode(registerPlugin($repoUrl, $user, $pwd, $data), true);
     if ( isset($answer['appid']) ){
-        echo('<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '.$repo_url.'</h3>');
+        echo('<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '.$repoUrl.'</h3>');
     }else{
-        echo('<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: '.$repo_url.'</h3>');
+        echo('<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: '.$repoUrl.'</h3>');
         if ( isset($answer['message']) ){
             echo '<p class="edu_error">'.$answer['message'].'</p>';
         }
         echo '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
         echo '
             <p class="edu_metadata"> To register the Moodle-PlugIn manually got to the 
-            <a href="'.$repo_url.'" target="_blank">Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
+            <a href="'.$repoUrl.'" target="_blank">Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
             Only the system administrator may use this tool.<br>
             Enter the URL of the Moodle you want to connect. The URL should look like this:  
             „[Moodle-install-directory]/mod/edusharing/metadata.php".<br>
@@ -105,7 +104,7 @@ function getRepoForm(){
                 <p>If your moodle is behind a proxy-server, this might not work and you have to register the plugin manually.</p>
                 <div class="edu_metadata">
                     <div class="repo_input">
-                        <p>Repo-URL:</p><input type="text" value="'.$repo_url.'" name=repoUrl />
+                        <p>Repo-URL:</p><input type="text" value="'.$repo_url.'" name="repoUrl" />
                     </div>
                     <div class="repo_input">
                         <p>Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
