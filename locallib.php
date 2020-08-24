@@ -268,21 +268,30 @@ function edusharing_import_metadata($metadataurl){
 
         libxml_use_internal_errors(true);
 
-        $curlhandle = curl_init($metadataurl);
-        curl_setopt($curlhandle, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curlhandle, CURLOPT_HEADER, 0);
-        curl_setopt($curlhandle, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curlhandle, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-        curl_setopt($curlhandle, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curlhandle, CURLOPT_SSL_VERIFYHOST, false);
-        $properties = curl_exec($curlhandle);
+        $curl = new curl();
+        $curl->setopt( array(
+            'CURLOPT_SSL_VERIFYPEER' => false,
+            'CURLOPT_SSL_VERIFYHOST' => false,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_HEADER' => 0,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_USERAGENT' => $_SERVER['HTTP_USER_AGENT'],
+        ));
+
+        $properties = $curl->get($metadataurl);
         if ($xml->loadXML($properties) == false) {
             echo ('<p style="background: #FF8170">could not load ' . $metadataurl .
                     ' please check url') . "<br></p>";
             echo get_form($metadataurl);
             return false;
         }
-        curl_close($curlhandle);
+
+        if ($curl->error) {
+            debugging('cURL Error: '.$curl->error);
+            echo 'cURL Error: '.$curl->error;
+            exit();
+        }
+
         $xml->preserveWhiteSpace = false;
         $xml->formatOutput = true;
         $entrys = $xml->getElementsByTagName('entry');
@@ -375,36 +384,28 @@ function registerPlugin($repoUrl, $login, $pwd, $data){
     $delimiter = '-------------'.uniqid();
     $post = createApiBody( $data, $delimiter);
 
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    curl_setopt($curl, CURLOPT_USERPWD, $auth);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $post);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-        'Content-Type: multipart/form-data; boundary=' . $delimiter,
-        'Content-Length: ' . strlen($post),
-        'Accept: application/json'
+    $curl = new curl();
+    $curl->setopt( array(
+        'CURLOPT_URL' => $url,
+        'CURLOPT_CUSTOMREQUEST' => 'PUT',
+        'CURLOPT_HTTPAUTH' => 'CURLOPT_HTTPAUTH',
+        'CURLOPT_USERPWD' => $auth,
+        'CURLOPT_POSTFIELDS' => $post,
+        'CURLOPT_HEADER' => array(
+            'Content-Type: multipart/form-data; boundary=' . $delimiter,
+            'Content-Length: ' . strlen($post),
+            'Accept: application/json'
+        ),
+        'CURLOPT_RETURNTRANSFER' => 1,
     ));
 
-    // EXECUTE:
-    try{
-        $result = curl_exec($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if($result === false) {
-            trigger_error(curl_error($curl), E_USER_WARNING);
-        }
-        if ($httpcode === 401){
-            $result = json_encode(array('message' => 'Error 401: Unauthorized. Please check your credentials.'));
-        }
-    } catch (Exception $e) {
-        error_log('error: '.$e->getMessage());
-        trigger_error($e->getMessage(), E_USER_WARNING);
+    $result = $curl->get();
+
+    if ($curl->error) {
+        debugging('cURL Error: '.$curl->error);
+        $result = 'cURL Error: '.$curl->error;
     }
-    if(!$result){
-        $result = "Connection Failure";
-    }
-    curl_close($curl);
+
     return $result;
 }
+

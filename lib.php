@@ -159,7 +159,6 @@ function edusharing_add_instance(stdClass $edusharing) {
 
     } catch (Exception $e) {
         $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
-        error_log(print_r($e, true));
         trigger_error($e->getMessage());
         return false;
     }
@@ -248,9 +247,6 @@ function edusharing_delete_instance($id) {
     global $CFG;
     global $COURSE;
 
-    error_log('edusharing_delete_instance id: '.$id);
-    echo 'edusharing_delete_instance';
-
     // Load from DATABASE to get object-data for repository-operations.
     if (! $edusharing = $DB->get_record(EDUSHARING_TABLE, array('id'  => $id))) {
         throw new Exception(get_string('error_load_resource', 'edusharing'));
@@ -274,7 +270,6 @@ function edusharing_delete_instance($id) {
         );
 
         $ccwsusage->deleteUsage($params);
-        error_log($edusharing->id . ' usage deleted :)');
 
     } catch (Exception $exception) {
         trigger_error($exception->getMessage(), E_USER_WARNING);

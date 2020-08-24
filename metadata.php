@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(__FILE__) . '/../../config.php');
+require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 
 if (empty(get_config('edusharing', 'application_public_key'))) {
     require_once(dirname(__FILE__) . '/AppPropertyHelper.php');

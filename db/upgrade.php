@@ -158,7 +158,6 @@ function xmldb_edusharing_upgrade($oldversion=0) {
             $dbman->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
-            error_log($e->getMessage());
         }
 
     }
@@ -180,12 +179,32 @@ function xmldb_edusharing_upgrade($oldversion=0) {
             $dbman->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
-            error_log($e->getMessage());
         }
 
     }
 
 
+    if (file_exists(dirname(__FILE__).'/install_config.php')) {
+        require_once dirname(__FILE__). '/install_config.php';
+        $metadataurl = REPO_URL.'/metadata?format=lms';
+        $repo_admin = REPO_ADMIN;
+        $repo_pw = REPO_PW;
+
+        if (edusharing_import_metadata($metadataurl)){
+            error_log('Successfully imported metadata from '.$metadataurl);
+            $repo_url = get_config('edusharing', 'application_cc_gui_url');
+            $data = createXmlMetadata();
+            $answer = json_decode(registerPlugin($repo_url, $repo_admin, $repo_pw, $data), true);
+            if (isset($answer['appid'])){
+                error_log('Successfully registered the edusharing-moodle-plugin at: '.$repo_url);
+            }else{
+                error_log('INSTALL ERROR: Could not register the edusharing-moodle-plugin at: '.$repo_url.' because: '.$answer['message']);
+            }
+        }else{
+            error_log('INSTALL ERROR: Could not import metadata from '.$metadataurl);
+        }
+        unlink(dirname(__FILE__).'/install_config.php');
+    }
 
     return $result;
 }
