@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+
 /**
  * Extend PHP SoapClient with some header information
  *
@@ -49,6 +51,8 @@ class mod_edusharing_sig_soap_client extends SoapClient {
      * @throws Exception
      */
     private function edusharing_set_soap_headers() {
+        global $CFG;
+
         try {
             $timestamp = round(microtime(true) * 1000);
             $signdata = get_config('edusharing', 'application_appid') . $timestamp;
@@ -63,6 +67,16 @@ class mod_edusharing_sig_soap_client extends SoapClient {
             $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'timestamp', $timestamp);
             $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'signature', $signature);
             $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'signed', $signdata);
+
+            if (!empty($CFG->proxyhost)){
+                $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'proxy_host', $CFG->proxyhost);
+                $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'proxy_port', $CFG->proxyport);
+                if (!empty($CFG->proxyuser) && !empty($CFG->proxypassword)){
+                    $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'proxy_login', $CFG->proxyuser);
+                    $headers[] = new SOAPHeader('http://webservices.edu_sharing.org', 'proxy_password', $CFG->proxypassword);
+                }
+            }
+
             parent::__setSoapHeaders($headers);
         } catch (Exception $e) {
             throw new Exception(get_string('error_set_soap_headers', 'edusharing') . $e->getMessage());
