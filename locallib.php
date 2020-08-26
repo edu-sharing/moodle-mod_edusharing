@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/mod/edusharing/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 /**
  * Get the parameter for authentication
