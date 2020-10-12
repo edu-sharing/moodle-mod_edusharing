@@ -380,31 +380,44 @@ function createApiBody($data, $delimiter){
 }
 
 function registerPlugin($repoUrl, $login, $pwd, $data){
-    $url = $repoUrl.'rest/admin/v1/applications/xml';
+    $url = $repoUrl.'rest/authentication/v1/validateSession';
+
     $auth = $login.':'.$pwd;
     $delimiter = '-------------'.uniqid();
     $post = createApiBody( $data, $delimiter);
 
-    $curl = new curl();
-    $curl->setopt( array(
-        'CURLOPT_URL' => $url,
-        'CURLOPT_CUSTOMREQUEST' => 'PUT',
-        'CURLOPT_HTTPAUTH' => 'CURLOPT_HTTPAUTH',
-        'CURLOPT_USERPWD' => $auth,
-        'CURLOPT_POSTFIELDS' => $post,
-        'CURLOPT_HEADER' => array(
-            'Content-Type: multipart/form-data; boundary=' . $delimiter,
-            'Content-Length: ' . strlen($post),
-            'Accept: application/json'
-        ),
+    $curlSession = new curl();
+    $curlSession->header = array(
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'Authorization: Basic '.base64_encode( $auth )
+    );
+    $curlSession->setopt( array(
         'CURLOPT_RETURNTRANSFER' => 1,
     ));
 
-    $result = $curl->get();
+    $result = $curlSession->get($url);
+    if(json_decode($result)->isAdmin == false){
+        throw new \Exception('Given user / password was not accepted as admin: ' . $result);
+    }
 
-    if ($curl->error) {
-        debugging('cURL Error: '.$curl->error);
-        $result = 'cURL Error: '.$curl->error;
+    $urlXML = $repoUrl.'rest/admin/v1/applications/xml';
+    $curlXML = new curl();
+    $curlXML->header = array(
+        'Content-Type: multipart/form-data; boundary=' . $delimiter,
+        'Content-Length: ' . strlen($post),
+        'Accept: application/json',
+        'Authorization: Basic '.base64_encode( $auth )
+    );
+    $curlXML->setopt( array(
+        'CURLOPT_RETURNTRANSFER' => 1,
+    ));
+
+    $result = $curlXML->put($urlXML, $post);
+
+    if ($curlXML->error) {
+        debugging('cURL Error: '.$curlXML->error);
+        $result = 'cURL Error: '.$curlXML->error;
     }
 
     return $result;
