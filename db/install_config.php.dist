@@ -5,3 +5,5 @@
 define('REPO_URL', 'http://localhost:8080/edu-sharing');
 define('REPO_ADMIN', '');
 define('REPO_PW', '');
+define('MOODLE_APPID', ''); // optional
+define('MOODLE_HOST_ALIASES', ''); // optional

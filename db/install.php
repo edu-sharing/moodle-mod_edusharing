@@ -16,11 +16,12 @@ function xmldb_edusharing_install() {
 
     if (file_exists(dirname(__FILE__).'/install_config.php')) {
         require_once dirname(__FILE__). '/install_config.php';
-        $metadataurl = REPO_URL.'/metadata?format=lms';
+        $metadataurl = REPO_URL.'/metadata?format=lms&external=true';
         $repo_admin = REPO_ADMIN;
         $repo_pw = REPO_PW;
 
-        if (edusharing_import_metadata($metadataurl)){
+
+        if (edusharing_import_metadata($metadataurl, MOODLE_APPID, MOODLE_HOST_ALIASES)){
             error_log('Successfully imported metadata from '.$metadataurl);
             $repo_url = get_config('edusharing', 'application_cc_gui_url');
             $data = createXmlMetadata();

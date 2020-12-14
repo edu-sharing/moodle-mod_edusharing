@@ -261,7 +261,7 @@ function edusharing_encrypt_with_repo_public($data) {
  * @param string $metadataurl
  * @return bool
  */
-function edusharing_import_metadata($metadataurl){
+function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = null){
     global $CFG;
     try {
 
@@ -305,20 +305,32 @@ function edusharing_import_metadata($metadataurl){
         $sslkeypair = $modedusharingapppropertyhelper->edusharing_get_ssl_keypair();
 
         $host = $_SERVER['SERVER_ADDR'];
-        if(empty($host))
+        if(empty($host)){
             $host = gethostbyname($_SERVER['SERVER_NAME']);
+        }
+
+        if(empty($appId)){
+            $appId = uniqid('moodle_');
+        }
+
 
         set_config('application_host', $host, 'edusharing');
-        set_config('application_appid', uniqid('moodle_'), 'edusharing');
+        set_config('application_appid', $appId, 'edusharing');
         set_config('application_type', 'LMS', 'edusharing');
         set_config('application_homerepid', get_config('edusharing', 'repository_appid'), 'edusharing');
         set_config('application_cc_gui_url', get_config('edusharing', 'repository_clientprotocol') . '://' .
             get_config('edusharing', 'repository_domain') . ':' .
             get_config('edusharing', 'repository_clientport') . '/edu-sharing/', 'edusharing');
+
+        if (!empty($hostAliases)){
+            set_config('application_host_aliases', $hostAliases, 'edusharing');
+        }
+
         set_config('application_private_key', $sslkeypair['privateKey'], 'edusharing');
         set_config('application_public_key', $sslkeypair['publicKey'], 'edusharing');
         set_config('application_blowfishkey', 'thetestkey', 'edusharing');
         set_config('application_blowfishiv', 'initvect', 'edusharing');
+
 
         set_config('EDU_AUTH_KEY', 'username', 'edusharing');
         set_config('EDU_AUTH_PARAM_NAME_USERID', 'userid', 'edusharing');
@@ -355,6 +367,8 @@ function createXmlMetadata(){
     $entry->addAttribute('key', 'domain');
     $entry = $xml->addChild('entry', get_config('edusharing', 'application_host'));
     $entry->addAttribute('key', 'host');
+    $entry = $xml->addChild('entry', get_config('edusharing', 'application_host_aliases'));
+    $entry->addAttribute('key', 'host_aliases');
     $entry = $xml->addChild('entry', 'true');
     $entry->addAttribute('key', 'trustedclient');
     $entry = $xml->addChild('entry', 'moodle:course/update');

@@ -47,6 +47,13 @@ if (!is_siteadmin()) {
 }
 
 if(isset($_POST['repoReg'])){
+    if (!empty($_POST['appId'])){
+        set_config('application_appid', $_POST['appId'], 'edusharing');
+        error_log('appid set: '.$_POST['appId']);
+    }
+    if (!empty($_POST['host_aliases'])){
+        set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
+    }
     callRepo($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
     exit();
 }
@@ -97,6 +104,8 @@ function callRepo($repoUrl, $user, $pwd){
 
 function getRepoForm(){
     $repo_url = get_config('edusharing', 'application_cc_gui_url');
+    $appId = get_config('edusharing', 'application_appid');
+    $host_aliases = get_config('edusharing', 'application_host_aliases');
     if (!empty($repo_url)){
         return '
             <form class="repo-reg" action="import_metadata.php" method="post">
@@ -104,11 +113,19 @@ function getRepoForm(){
                 <p>If your moodle is behind a proxy-server, this might not work and you have to register the plugin manually.</p>
                 <div class="edu_metadata">
                     <div class="repo_input">
-                        <p>Repo-URL:</p><input type="text" value="'.$repo_url.'" name="repoUrl" />
+                        <p class="repo_input_name">Repo-URL:</p><input type="text" value="'.$repo_url.'" name="repoUrl" />
                     </div>
                     <div class="repo_input">
-                        <p>Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
-                        <p>Repo-Admin-Password:</p><input class="short_input" type="password" name="repoPwd">
+                        <p class="repo_input_name">Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
+                        <p class="repo_input_name">Repo-Admin-Password:</p><input class="short_input" type="password" name="repoPwd">
+                    </div>
+                    <div class="repo_input">
+                        <p class="repo_input_name">Change Moodle-AppID:</p><input type="text" value="'.$appId.'" name="appId" />
+                        <p>(optional)</p>
+                    </div>
+                    <div class="repo_input">
+                        <p class="repo_input_name">Add Host-Alias:</p><input type="text" value="'.$host_aliases.'" name="host_aliases" />
+                        <p>(optional)</p>
                     </div>
                     <input class="btn" type="submit" value="Register Repo" name="repoReg">
                 </div>            
@@ -139,8 +156,8 @@ function get_form() {
                 </div>
                 <div class="edu_example">
                     <p>(Example: <a href="javascript:void();"
-                                   onclick="document.forms[0].mdataurl.value=\'http://your-server-name/edu-sharing/metadata?format=lms\'">
-                                   http://your-server-name/edu-sharing/metadata?format=lms</a>)
+                                   onclick="document.forms[0].mdataurl.value=\'http://your-server-name/edu-sharing/metadata?format=lms&external=true\'">
+                                   http://your-server-name/edu-sharing/metadata?format=lms&external=true</a>)
                    </p>
                 </div>
             </div>
