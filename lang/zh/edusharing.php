@@ -37,6 +37,8 @@ $string['modulename'] = $string['pluginname'] = 'edu-sharing 资源';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
 
+$string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
+
 // mod_form.php
 $string['edusharingname'] = '标题';
 

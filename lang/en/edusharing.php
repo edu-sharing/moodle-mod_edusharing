@@ -31,6 +31,8 @@ $string['newwindow'] = 'Display in new window';
 $string['display'] = 'Display';
 $string['show_course_blocks'] = 'Show course blocks';
 
+$string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
+
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
 $string['modulename'] = $string['pluginname'] = 'edu-sharing resource';
