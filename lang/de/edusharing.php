@@ -26,7 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = $string['pluginname'] = 'edu-sharing Objekt';
+$string['modulename'] = 'edu-sharing Objekt';
+$string['pluginname'] = 'edu-sharing Objekt';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
 $string['pluginadministration'] = 'edu-sharing';

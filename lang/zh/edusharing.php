@@ -33,7 +33,8 @@ $string['show_course_blocks'] = '显示课程板块';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = $string['pluginname'] = 'edu-sharing 资源';
+$string['modulename'] = 'edu-sharing 资源';
+$string['pluginname'] = 'edu-sharing 资源';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
 

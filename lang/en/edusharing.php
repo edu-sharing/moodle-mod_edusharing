@@ -35,7 +35,8 @@ $string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = $string['pluginname'] = 'edu-sharing resource';
+$string['modulename'] = 'edu-sharing resource';
+$string['pluginname'] = 'edu-sharing resource';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
 $string['pluginadministration'] = 'edu-sharing';
