@@ -540,7 +540,7 @@ function edusharing_get_usage_xml($edusharing) {
     $data4xml[1]["specific"]['courseShortname'] = $course->shortname;
     $data4xml[1]["specific"]['courseSummary'] = $course->summary;
     $data4xml[1]["specific"]['categoryId'] = $course->category;
-    $data4xml[1]["specific"]['categoryName'] = $category->name;
+    $data4xml[1]["specific"]['categoryName'] = @$category->name;
     $myxml  = new mod_edusharing_render_parameter();
     $xml = $myxml->edusharing_get_xml($data4xml);
     return $xml;
