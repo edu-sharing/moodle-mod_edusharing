@@ -19,9 +19,13 @@ function xmldb_edusharing_install() {
         $metadataurl = REPO_URL.'/metadata?format=lms&external=true';
         $repo_admin = REPO_ADMIN;
         $repo_pw = REPO_PW;
+        $appID = MOODLE_APPID;
 
+        if (AUTO_APPID_FROM_URL == 'true'){
+            $appID = basename($CFG->wwwroot);
+        }
 
-        if (edusharing_import_metadata($metadataurl, MOODLE_APPID, MOODLE_HOST_ALIASES)){
+        if (edusharing_import_metadata($metadataurl, $appID, MOODLE_HOST_ALIASES)){
             error_log('Successfully imported metadata from '.$metadataurl);
             $repo_url = get_config('edusharing', 'application_cc_gui_url');
             $data = createXmlMetadata();
