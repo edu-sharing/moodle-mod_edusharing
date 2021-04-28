@@ -42,6 +42,7 @@ $string['edusharing'] = 'edu-sharing';
 $string['pluginadministration'] = 'edu-sharing';
 // mod_form.php
 $string['edusharingname'] = 'Title';
+$string['description'] = 'Description';
 
 $string['object_url_fieldset'] = 'edu-sharing Learning-object';
 $string['object_url'] = 'Object';

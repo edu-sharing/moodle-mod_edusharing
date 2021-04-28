@@ -33,6 +33,7 @@ $string['edusharing'] = 'edu-sharing';
 $string['pluginadministration'] = 'edu-sharing';
 // mod_form.php
 $string['edusharingname'] = 'Titel';
+$string['description'] = 'Beschreibung';
 
 $string['edusharing:addinstance'] = 'Fügt das Haupt edu-sharing plugin hinzu';
 

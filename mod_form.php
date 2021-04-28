@@ -67,20 +67,11 @@ class mod_edusharing_mod_form extends moodleform_mod
 
         // Adding the standard "name" field
         $mform->addElement('text', 'name', get_string('edusharingname', EDUSHARING_MODULE_NAME), array('size' => '64'));
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('name', PARAM_TEXT);
-        } else {
-            $mform->setType('name', PARAM_CLEAN);
-        }
-
+        $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        if (method_exists($this, 'standard_intro_elements')) {
-            $this->standard_intro_elements();
-        } else {
-            $this->add_intro_editor();
-        }
+        $this->standard_intro_elements(get_string('description', EDUSHARING_MODULE_NAME));
 
         // object-section
         $mform->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME));

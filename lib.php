@@ -66,6 +66,7 @@ function edusharing_supports($feature) {
             return MOD_ARCHETYPE_RESOURCE;
             break;
         case FEATURE_MOD_INTRO:
+        case FEATURE_SHOW_DESCRIPTION:
         case FEATURE_BACKUP_MOODLE2:
             return true;
             break;
@@ -423,7 +424,18 @@ function edusharing_get_coursemodule_info($coursemodule) {
     global $CFG;
     global $DB;
 
+    $dbparams = array('id'=>$coursemodule->instance);
+    $fields = 'id, name, intro, introformat';
+    if (! $edusharing = $DB->get_record('edusharing', $dbparams, $fields)) {
+        return false;
+    }
+
     $info = new cached_cm_info();
+
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $info->content = format_module_intro('edusharing', $edusharing, $coursemodule->id, false);
+    }
 
     $resource = $DB->get_record(EDUSHARING_TABLE, array('id'  => $coursemodule->instance));
     if ( ! $resource ) {
