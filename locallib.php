@@ -309,10 +309,13 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
             $host = gethostbyname($_SERVER['SERVER_NAME']);
         }
 
-        if(empty($appId)){
+        // only update appId on new install
+        $currentAppId = get_config('edusharing', 'application_appid');
+        if( empty($appId) && empty($currentAppId) ){
             $appId = uniqid('moodle_');
+        }else if (!empty($currentAppId)){
+            $appId = $currentAppId;
         }
-
 
         set_config('application_host', $host, 'edusharing');
         set_config('application_appid', $appId, 'edusharing');

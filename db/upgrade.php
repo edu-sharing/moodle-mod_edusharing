@@ -186,11 +186,16 @@ function xmldb_edusharing_upgrade($oldversion=0) {
 
     if (file_exists(dirname(__FILE__).'/install_config.php')) {
         require_once dirname(__FILE__). '/install_config.php';
-        $metadataurl = REPO_URL.'/metadata?format=lms';
+        $metadataurl = REPO_URL.'/metadata?format=lms&external=true';
         $repo_admin = REPO_ADMIN;
         $repo_pw = REPO_PW;
+        $appID = null;
 
-        if (edusharing_import_metadata($metadataurl)){
+        if (AUTO_APPID_FROM_URL == 'true'){
+            $appID = basename($CFG->wwwroot);
+        }
+
+        if (edusharing_import_metadata($metadataurl, $appID, MOODLE_HOST_ALIASES)){
             error_log('Successfully imported metadata from '.$metadataurl);
             $repo_url = get_config('edusharing', 'application_cc_gui_url');
             $data = createXmlMetadata();
