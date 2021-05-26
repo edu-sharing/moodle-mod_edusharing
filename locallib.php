@@ -301,8 +301,7 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
         }
 
         require_once(dirname(__FILE__) . '/AppPropertyHelper.php');
-        $modedusharingapppropertyhelper = new mod_edusharing_app_property_helper();
-        $sslkeypair = $modedusharingapppropertyhelper->edusharing_get_ssl_keypair();
+
 
         $host = $_SERVER['SERVER_ADDR'];
         if(empty($host)){
@@ -329,11 +328,15 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
             set_config('application_host_aliases', $hostAliases, 'edusharing');
         }
 
-        set_config('application_private_key', $sslkeypair['privateKey'], 'edusharing');
-        set_config('application_public_key', $sslkeypair['publicKey'], 'edusharing');
+        if (empty(get_config('edusharing', 'application_private_key')) || empty(get_config('edusharing', 'application_public_key')) ){
+            $modedusharingapppropertyhelper = new mod_edusharing_app_property_helper();
+            $sslkeypair = $modedusharingapppropertyhelper->edusharing_get_ssl_keypair();
+            set_config('application_private_key', $sslkeypair['privateKey'], 'edusharing');
+            set_config('application_public_key', $sslkeypair['publicKey'], 'edusharing');
+        }
+
         set_config('application_blowfishkey', 'thetestkey', 'edusharing');
         set_config('application_blowfishiv', 'initvect', 'edusharing');
-
 
         set_config('EDU_AUTH_KEY', 'username', 'edusharing');
         set_config('EDU_AUTH_PARAM_NAME_USERID', 'userid', 'edusharing');
@@ -343,7 +346,7 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
         set_config('EDU_AUTH_AFFILIATION', $CFG->siteidentifier, 'edusharing');
         set_config('EDU_AUTH_AFFILIATION_NAME', $CFG->siteidentifier, 'edusharing');
 
-        if (empty($sslkeypair['privateKey'])) {
+        if (empty($sslkeypair['privateKey']) && empty(get_config('edusharing', 'application_private_key')) ) {
             echo '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>';
         } else {
             echo '<h3 class="edu_success">Import successful.</h3>';
