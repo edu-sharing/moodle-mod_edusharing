@@ -45,7 +45,7 @@ $string['display'] = 'Anzeige';
 $string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
 $string['object_url_fieldset'] = 'edu-sharing Lernobjekt';
-$string['object_url'] = 'Objekt-URI';
+$string['object_url'] = 'Link zum Objekt';
 $string['object_url_help'] = 'Bitte nutzen Sie die Buttons, um ein Objekt zu suchen oder hochzuladen. Die ID des Objekts wird dann automatisch eingefügt.';
 
 $string['object_version_fieldset'] = 'Objekt-Versionierung';
