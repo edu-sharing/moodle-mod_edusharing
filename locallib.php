@@ -261,7 +261,7 @@ function edusharing_encrypt_with_repo_public($data) {
  * @param string $metadataurl
  * @return bool
  */
-function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = null){
+function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = null, $wlo_guestuser = null){
     global $CFG;
     try {
 
@@ -328,6 +328,11 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
             set_config('application_host_aliases', $hostAliases, 'edusharing');
         }
 
+        if (!empty($wlo_guestuser)){
+            set_config('wlo_guest_option', '1', 'edusharing');
+            set_config('edu_guest_guest_id', $wlo_guestuser, 'edusharing');
+        }
+
         if (empty(get_config('edusharing', 'application_private_key')) || empty(get_config('edusharing', 'application_public_key')) ){
             $modedusharingapppropertyhelper = new mod_edusharing_app_property_helper();
             $sslkeypair = $modedusharingapppropertyhelper->edusharing_get_ssl_keypair();
@@ -383,6 +388,11 @@ function createXmlMetadata(){
     $entry->addAttribute('key', 'public_key');
     $entry = $xml->addChild('entry', get_config('edusharing', 'EDU_AUTH_AFFILIATION_NAME'));
     $entry->addAttribute('key', 'appcaption');
+
+    if(get_config('edusharing', 'wlo_guest_option')){
+        $entry = $xml->addChild('entry', get_config('edusharing', 'edu_guest_guest_id'));
+        $entry->addAttribute('key', 'auth_by_app_user_whitelist');
+    }
 
     return html_entity_decode($xml->asXML());
 }

@@ -8,3 +8,6 @@ define('REPO_PW', '');
 define('AUTO_APPID_FROM_URL', 'false'); // set true to enable
 define('MOODLE_APPID', ''); // optional
 define('MOODLE_HOST_ALIASES', ''); // optional
+
+define('WLO_GUESTMODE', 'false'); // optional
+define('WLO_GUESTUSER', ''); // optional
