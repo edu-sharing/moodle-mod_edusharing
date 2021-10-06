@@ -83,41 +83,34 @@ class mod_edusharing_mod_form extends moodleform_mod
         $mform->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('object_url', 'object_url', EDUSHARING_MODULE_NAME);
 
-        $ccresourcesearch  = trim(get_config('edusharing', 'application_cc_gui_url'), '/');
-        if(version_compare(get_config('edusharing', 'repository_version'), '4' ) >= 0) {
-            $ccresourcesearch .= '/components/search';
-            $ccresourcesearch .= '?locale=' . current_language();
-        } else {
-            $ccresourcesearch .= "/?mode=0";
-            $ccresourcesearch .= "&user=" . urlencode(edusharing_get_auth_key());
-            $ccresourcesearch .= "&locale=" . current_language();
-        }
-        $ccresourcesearch .= '&ticket='.$ticket;
-        $ccresourcesearch .= "&reurl=".urlencode($CFG->wwwroot."/mod/edusharing/makelink.php");
-        $ccresourcesearch = $CFG->wwwroot .'/mod/edusharing/selectResourceHelper.php?sesskey='.sesskey().'&rurl=' . urlencode($ccresourcesearch);
-
-        $searchbutton = $mform->addElement('button', 'searchbutton', get_string('searchrec', EDUSHARING_MODULE_NAME));
-        $buttonattributes = array('title' => get_string('searchrec', EDUSHARING_MODULE_NAME), 'onclick' => "return window.open('"
-                          . "$ccresourcesearch', '_blank', 'menubar=0,location=0,directories=0,toolbar=0,"
-                          . "scrollbars,resizable,width=1000,height=580');");
+        $repoSearch = trim(get_config('edusharing', 'application_cc_gui_url'), '/') . '/components/search?&applyDirectories=true&reurl=WINDOW&ticket=' . $ticket;
+        $searchbutton = $mform->addElement('button', 'searchbutton', get_string('searchrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
+        $repoOnClick = "
+                            function openRepo(){
+                                window.addEventListener('message', function handleRepo(event) {
+                                    if (event.data.event == 'APPLY_NODE') {
+                                        const node = event.data.data;
+                                        window.console.log(node);
+                                        window.win.close();
+                                        
+                                        window.document.getElementById('id_object_url').value = node.objectUrl;
+                                        let title = node.title;
+                                        if(!title){
+                                            title = node.properties['cm:name'];
+                                        }
+                                        if(window.document.getElementById('id_name').value === ''){
+                                            window.document.getElementById('id_name').value = title;
+                                        }
+                                        
+                                        window.removeEventListener('message', handleRepo, false );
+                                    }                                    
+                                }, false);
+                                window.win = window.open('".$repoSearch."');                                                          
+                            }
+                            openRepo();
+                        ";
+        $buttonattributes = array('title' => get_string('uploadrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')), 'onclick' => $repoOnClick);
         $searchbutton->updateAttributes($buttonattributes);
-
-        if(version_compare(get_config('edusharing', 'repository_version'), '4' ) >= 0) {
-
-        } else {
-            $ccresourceupload  = trim(get_config('edusharing', 'application_cc_gui_url'), '/');
-            $ccresourceupload .= "?mode=2";
-            $ccresourceupload .= "&user=" . urlencode(edusharing_get_auth_key());
-            $ccresourceupload .= "&locale=" . current_language();
-            $ccresourceupload .= "&reurl=" . urlencode($CFG->wwwroot . "/mod/edusharing/makelink.php");
-            $ccresourceupload .= '&ticket='.$ticket;
-            $ccresourceupload = $CFG->wwwroot . '/mod/edusharing/selectResourceHelper.php?sesskey=' . sesskey() . '&rurl=' . urlencode($ccresourceupload);
-            $uploadbutton = $mform->addElement('button', 'uploadbutton', get_string('uploadrec', EDUSHARING_MODULE_NAME));
-            $buttonattributes = array('title' => get_string('uploadrec', EDUSHARING_MODULE_NAME), 'onclick' => "return window.open('"
-                . "$ccresourceupload', '_blank', 'menubar=0,location=0,directories=0,toolbar=0,"
-                . "scrollbars,resizable,width=1000,height=580');");
-            $uploadbutton->updateAttributes($buttonattributes);
-        }
 
         // version-section
         $mform->addElement('header', 'version_fieldset', get_string('object_version_fieldset', EDUSHARING_MODULE_NAME));

@@ -137,10 +137,6 @@ function xmldb_edusharing_upgrade($oldversion=0) {
         }
     }
 
-    if ($result && $oldversion < 2018031901) {
-        set_config('repository_version', '4.1', 'edusharing');
-    }
-
     if ($result && $oldversion < 2019062110) {
 
         try {
