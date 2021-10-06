@@ -72,14 +72,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtextarea('edusharing/application_public_key', 'public_key', '', '', PARAM_TEXT, 50));
 
-    if(version_compare(get_config('edusharing', 'repository_version'), '4.1' ) < 0) {
-
-        $settings->add(new admin_setting_configtext('edusharing/application_blowfishkey', 'blowfishkey', '', '', PARAM_TEXT, 50));
-
-        $settings->add(new admin_setting_configtext('edusharing/application_blowfishiv', 'blowfishiv', '', '', PARAM_TEXT, 50));
-
-    }
-
     $settings->add(new admin_setting_heading('edusharing/rep', get_string('homerepProperties', 'edusharing'), ''));
 
     $settings->add(new admin_setting_configtextarea('edusharing/repository_public_key', 'public_key', '', '', PARAM_TEXT, 50));
@@ -103,10 +95,6 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/repository_protocol', 'protocol', '', '', PARAM_TEXT, 50));
 
     $settings->add(new admin_setting_configtext('edusharing/repository_host', 'host', '', '', PARAM_TEXT, 50));
-
-    $settings->add(new admin_setting_configtext('edusharing/repository_version', 'version', '', '4.1', PARAM_TEXT, 50));
-
-
 
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));
 
@@ -136,6 +124,17 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('edusharing/wlo_guest_option', 'wlo_guest_option', '', ''));
 
     $settings->add(new admin_setting_configtext('edusharing/edu_guest_guest_id', 'guest_id', '', 'esguest', PARAM_TEXT, 50));
+
+
+    $settings->add(new admin_setting_heading('edusharing/branding', get_string('brandingSettings', 'edusharing'), get_string('brandingInfo', 'edusharing')));
+
+    $nameSetting = new admin_setting_configtext('edusharing/application_appname', 'appname', '', 'edu-sharing', PARAM_TEXT, 50);
+    $nameSetting->set_updatedcallback('edusharing_update_settings_name');
+    $settings->add($nameSetting);
+
+    $imgSetting = new admin_setting_configstoredfile('edusharing/appicon', 'appicon', get_string('appiconDescr', 'edusharing'), 'appicon');
+    $imgSetting->set_updatedcallback('edusharing_update_settings_images');
+    $settings->add($imgSetting);
 
 
     $settings->add(new admin_setting_heading('edusharing/save', get_string('save', 'edusharing'), ''));

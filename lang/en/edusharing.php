@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['searchrec'] = 'Search the edu-sharing repository ...';
-$string['uploadrec'] = 'Upload to edu-sharing repository ...';
+$string['searchrec'] = 'Search the {$a} repository ...';
+$string['uploadrec'] = 'Upload to {$a} repository ...';
 $string['pagewindow'] = 'In-page display';
 $string['newwindow'] = 'Display in new window';
 $string['display'] = 'Display';
@@ -35,16 +35,15 @@ $string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = 'edu-sharing resource';
+$string['modulename'] = get_config('edusharing', 'application_appname') . ' resource';
 $string['pluginname'] = 'edu-sharing resource';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
 $string['pluginadministration'] = 'edu-sharing';
-// mod_form.php
 $string['edusharingname'] = 'Title';
 $string['description'] = 'Description';
 
-$string['object_url_fieldset'] = 'edu-sharing Learning-object';
+$string['object_url_fieldset'] = '{$a} Learning-object';
 $string['object_url'] = 'Object';
 $string['object_url_help'] = 'Please use the buttons below to select an object from repository. Its object-ID will be inserted here automatically.';
 
@@ -55,9 +54,10 @@ $string['object_version_use_exact'] = 'Use selected object-version.';
 $string['object_version_use_latest'] = 'Use latest object-version';
 
 $string['object_display_fieldset'] = 'Object-display options';
+$string['object_display_fieldset_help'] = '';
+
 $string['force_download'] = 'Force download';
 $string['force_download_help'] = 'Force object-download.';
-$string['object_display_fieldset_help'] = '';
 
 $string['show_course_blocks'] = 'Show course-blocks';
 $string['show_course_blocks_help'] = 'Show course-blocks in target-window.';
@@ -115,6 +115,9 @@ $string['appProperties'] = 'Application Properties';
 $string['homerepProperties'] = 'Home Repository Properties';
 $string['authparameters'] = 'Authentication Parameters';
 $string['guestProperties'] = 'Guest properties';
+$string['brandingSettings'] = 'Branding settings (experimental)';
+$string['brandingInfo'] = 'Change the branding of the edu-sharing plugin (name and icon).';
+$string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
 $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 $string['filter_not_authorized'] = 'You are not authorized to access the requested content.';

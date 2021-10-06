@@ -74,7 +74,7 @@ class mod_edusharing_mod_form extends moodleform_mod
         $this->standard_intro_elements(get_string('description', EDUSHARING_MODULE_NAME));
 
         // object-section
-        $mform->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME));
+        $mform->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
 
         // object-uri
         $mform->addElement('text', 'object_url', get_string('object_url', EDUSHARING_MODULE_NAME), array('readonly' => 'true'));

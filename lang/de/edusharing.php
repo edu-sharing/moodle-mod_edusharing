@@ -24,27 +24,26 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// modulename seems to be used in admin-panels
-// pluginname seems to be used in course-view
-$string['modulename'] = 'edu-sharing Objekt';
-$string['pluginname'] = 'edu-sharing Objekt';
-$string['modulenameplural'] = 'edu-sharing';
-$string['edusharing'] = 'edu-sharing';
-$string['pluginadministration'] = 'edu-sharing';
-// mod_form.php
-$string['edusharingname'] = 'Titel';
-$string['description'] = 'Beschreibung';
-
-$string['edusharing:addinstance'] = 'Fügt das Haupt edu-sharing plugin hinzu';
-
-$string['searchrec'] = 'Suche im edu-sharing Repositorium ...';
-$string['uploadrec'] = 'Hochladen in edu-sharing Repositorium ...';
+$string['searchrec'] = 'Suche im {$a} Repositorium ...';
+$string['uploadrec'] = 'Hochladen in das {$a} Repositorium ...';
 $string['pagewindow'] = 'Anzeige im gleichen Fenster';
 $string['newwindow'] = 'Anzeige in neuem Fenster';
 $string['display'] = 'Anzeige';
 $string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
-$string['object_url_fieldset'] = 'edu-sharing Lernobjekt';
+$string['edusharing:addinstance'] = 'Fügt das Haupt edu-sharing Plugin hinzu';
+
+// modulename seems to be used in admin-panels
+// pluginname seems to be used in course-view
+$string['modulename'] = get_config('edusharing', 'application_appname') . ' Objekt';
+$string['pluginname'] = 'edu-sharing Objekt';
+$string['modulenameplural'] = 'edu-sharing';
+$string['edusharing'] = 'edu-sharing';
+$string['pluginadministration'] = 'edu-sharing';
+$string['edusharingname'] = 'Titel';
+$string['description'] = 'Beschreibung';
+
+$string['object_url_fieldset'] = '{$a} Lernobjekt';
 $string['object_url'] = 'Link zum Objekt';
 $string['object_url_help'] = 'Bitte nutzen Sie die Buttons, um ein Objekt zu suchen oder hochzuladen. Die ID des Objekts wird dann automatisch eingefügt.';
 
@@ -117,6 +116,9 @@ $string['appProperties'] = 'Konfiguration Moodle-Plugin';
 $string['homerepProperties'] = 'Konfiguration Heim-Repositorium';
 $string['authparameters'] = 'Authentifizierungsparameter';
 $string['guestProperties'] = 'Konfiguration Gäste';
+$string['brandingSettings'] = 'Branding Einstellungen (experimental)';
+$string['brandingInfo'] = 'Passe das Aussehen vom edu-sharing Plugin an (Name und Icon).';
+$string['appiconDescr'] = 'Das "appIcon" ersetzt das edu-sharing Icon. Auch beim Atto-Editor.<br>(Quadratisches Seitenverhältnis)';
 $string['save'] = 'Änderungen sichern';
 $string['emptyForDefault'] = 'leer für';
 
