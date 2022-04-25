@@ -270,17 +270,19 @@ function edusharing_import_metadata($metadataurl, $appId = null, $hostAliases = 
         ));
 
         $properties = $curl->get($metadataurl);
+
+        if ($curl->error) {
+            debugging('cURL Error: '.$curl->error);
+            echo ('<p style="background: #FF8170">cURL Error: '.$curl->error ) . '<br></p>';
+            echo get_form($metadataurl);
+            return false;
+        }
+
         if ($xml->loadXML($properties) == false) {
             echo ('<p style="background: #FF8170">could not load ' . $metadataurl .
                     ' please check url') . "<br></p>";
             echo get_form($metadataurl);
             return false;
-        }
-
-        if ($curl->error) {
-            debugging('cURL Error: '.$curl->error);
-            echo 'cURL Error: '.$curl->error;
-            exit();
         }
 
         $xml->preserveWhiteSpace = false;

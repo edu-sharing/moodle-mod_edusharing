@@ -136,6 +136,10 @@ if ($ADMIN->fulltree) {
     $imgSetting->set_updatedcallback('edusharing_update_settings_images');
     $settings->add($imgSetting);
 
+    $hintSetting = new admin_setting_configtextarea('edusharing/atto_hint', 'atto_hint', get_string('atto_hintDescr', 'edusharing'), '');
+    $hintSetting->set_updatedcallback('edusharing_update_settings_name');
+    $settings->add($hintSetting);
+
 
     $settings->add(new admin_setting_heading('edusharing/save', get_string('save', 'edusharing'), ''));
 

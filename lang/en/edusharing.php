@@ -31,8 +31,6 @@ $string['newwindow'] = 'Display in new window';
 $string['display'] = 'Display';
 $string['show_course_blocks'] = 'Show course blocks';
 
-$string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
-
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
 $string['modulename'] = get_config('edusharing', 'application_appname') . ' resource';
@@ -118,6 +116,7 @@ $string['guestProperties'] = 'Guest properties';
 $string['brandingSettings'] = 'Branding settings (experimental)';
 $string['brandingInfo'] = 'Change the branding of the edu-sharing plugin (name and icon).';
 $string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
+$string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
 $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 $string['filter_not_authorized'] = 'You are not authorized to access the requested content.';
