@@ -27,8 +27,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once($CFG->dirroot.'/mod/edusharing/lib/cclib.php');
+require_once($CFG->dirroot.'/mod/edusharing/lib/EduSharingService.php');
 require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 
 /**
@@ -44,17 +46,12 @@ class mod_edusharing_mod_form extends moodleform_mod
      * (non-PHPdoc)
      * @see lib/moodleform::definition()
      */
-    public function definition()
-    {
-        global $CFG;
-        global $COURSE;
-        global $SESSION;
-        global $USER;
+    public function definition() {
 
         try {
             // @TODO make dynamic
-            $ccauth = new mod_edusharing_web_service_factory();
-            $ticket = $ccauth->edusharing_authentication_get_ticket();
+            $eduSharingService = new EduSharingService();
+            $ticket = $eduSharingService->getTicket();
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
             return false;

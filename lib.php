@@ -39,8 +39,9 @@ define('EDUSHARING_DISPLAY_MODE_INLINE', 'inline');
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) .'/lib');
 require_once(dirname(__FILE__).'/lib/RenderParameter.php');
-require_once(dirname(__FILE__).'/lib/cclib.php');
 require_once(dirname(__FILE__).'/locallib.php');
+//require_once(dirname(__FILE__).'/sigSoapClient.php');
+require_once(dirname(__FILE__).'/lib/EduSharingService.php');
 
 /**
  * If you for some reason need to use global variables instead of constants, do not forget to make them
@@ -77,7 +78,6 @@ function edusharing_supports($feature) {
         case FEATURE_IDNUMBER:
         case FEATURE_GROUPS:
         case FEATURE_GROUPINGS:
-        case FEATURE_GROUPMEMBERSONLY:
         case FEATURE_MOD_ARCHETYPE:
         case FEATURE_MOD_INTRO:
         case FEATURE_MODEDIT_DEFAULT_COMPLETION:
@@ -123,7 +123,6 @@ function edusharing_add_instance(stdClass $edusharing) {
                 $edusharing->object_version = 0;
             }
         } else {
-
             if (isset($edusharing->window_versionshow) && $edusharing->window_versionshow == 'current') {
                 $edusharing->object_version = $edusharing->window_version;
             } else {
@@ -133,6 +132,35 @@ function edusharing_add_instance(stdClass $edusharing) {
     }
 
     $id = $DB->insert_record(EDUSHARING_TABLE, $edusharing);
+
+    $eduService = new EduSharingService();
+    $usageData   = new stdClass ();
+
+    $usageData->ticket       = $eduService->getTicket();
+    $usageData->containerId  = $edusharing->course;
+    $usageData->resourceId   = $id;
+    $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
+    $usageData->nodeVersion  = $edusharing->object_version;
+
+    $usage = $eduService -> createUsage( $usageData );
+
+    if (isset($updateversion) && $updateversion === true) {
+        $edusharing->object_version = $usage->nodeVersion;
+        $edusharing->id = $id;
+        $DB->update_record(EDUSHARING_TABLE, $edusharing);
+    }
+
+    if ( $usage ) {
+        $edusharing->usage_id = $usage->usageId;
+        $DB->update_record(EDUSHARING_TABLE, $edusharing);
+        return $id;
+    }else{
+        $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
+        //trigger_error($e->getMessage());
+        return false;
+    }
+
+/*
     $soapclientparams = array();
     $client = new mod_edusharing_sig_soap_client(get_config('edusharing', 'repository_usagewebservice_wsdl'), $soapclientparams);
     $xml = edusharing_get_usage_xml($edusharing);
@@ -163,8 +191,9 @@ function edusharing_add_instance(stdClass $edusharing) {
         trigger_error($e->getMessage());
         return false;
     }
-
     return $id;
+*/
+
 }
 
 /**
@@ -195,6 +224,30 @@ function edusharing_update_instance(stdClass $edusharing) {
     // You may have to add extra stuff in here.
     $edusharing = edusharing_postprocess($edusharing);
 
+
+
+    $eduService = new EduSharingService();
+    $usageData   = new stdClass ();
+
+    $usageData->ticket       = $eduService->getTicket();
+    $usageData->containerId  = $edusharing->course;
+    $usageData->resourceId   = $edusharing->id;
+    $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
+    $usageData->nodeVersion  = $edusharing->object_version;
+
+    $usage = $eduService -> createUsage( $usageData );
+
+    if ( !$usage ) {
+        // Roll back.
+        $DB->update_record(EDUSHARING_TABLE, $memento);
+        return false;
+    }
+
+    $edusharing->usage_id = $usage->usageId;
+    $DB->update_record(EDUSHARING_TABLE, $edusharing);
+    return true;
+
+/*
     $xml = edusharing_get_usage_xml($edusharing);
 
     try {
@@ -230,7 +283,7 @@ function edusharing_update_instance(stdClass $edusharing) {
         trigger_error($exception->getMessage(), E_USER_WARNING);
 
         return false;
-    }
+    }*/
 
     return true;
 }
@@ -245,14 +298,24 @@ function edusharing_update_instance(stdClass $edusharing) {
  */
 function edusharing_delete_instance($id) {
     global $DB;
-    global $CFG;
-    global $COURSE;
 
     // Load from DATABASE to get object-data for repository-operations.
     if (! $edusharing = $DB->get_record(EDUSHARING_TABLE, array('id'  => $id))) {
         throw new Exception(get_string('error_load_resource', 'edusharing'));
     }
 
+    $usageData           = new stdClass ();
+    $usageData->nodeId   = edusharing_get_object_id_from_url($edusharing->object_url);
+    $usageData->usageId  = $edusharing->usage_id;
+
+    $eduService = new EduSharingService();
+    $usage = $eduService -> deleteUsage( $usageData );
+
+    if (!$usage){
+        return false;
+    }
+
+/*
     try {
 
         $connectionurl = get_config('edusharing', 'repository_usagewebservice_wsdl');
@@ -263,7 +326,7 @@ function edusharing_delete_instance($id) {
         $ccwsusage = new mod_edusharing_sig_soap_client($connectionurl, array());
 
         $params = array(
-            'eduRef'  => $edusharing->object_url,
+            'eduRef'  => $edusharing->object_url,  // node-id
             'user'  => edusharing_get_auth_key(),
             'lmsId'  => get_config('edusharing', 'application_appid'),
             'courseId'  => $edusharing->course,
@@ -275,6 +338,7 @@ function edusharing_delete_instance($id) {
     } catch (Exception $exception) {
         trigger_error($exception->getMessage(), E_USER_WARNING);
     }
+*/
 
     // Usage is removed so it can be deleted from DATABASE .
     $DB->delete_records(EDUSHARING_TABLE, array('id'  => $edusharing->id));

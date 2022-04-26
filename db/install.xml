@@ -33,25 +33,36 @@
                     PREVIOUS="id"
                     NEXT="module_id" />
                 <FIELD
-                        NAME="module_id"
-                        TYPE="int"
-                        LENGTH="10"
-                        NOTNULL="false"
-                        UNSIGNED="true"
-                        SEQUENCE="false"
-                        COMMENT="The module this edu-sharing activity belongs to"
-                        PREVIOUS="course"
-                        NEXT="section_id" />
+                    NAME="module_id"
+                    TYPE="int"
+                    LENGTH="10"
+                    NOTNULL="false"
+                    UNSIGNED="true"
+                    SEQUENCE="false"
+                    COMMENT="The module this edu-sharing activity belongs to"
+                    PREVIOUS="course"
+                    NEXT="section_id" />
                 <FIELD
-                        NAME="section_id"
-                        TYPE="int"
-                        LENGTH="10"
-                        NOTNULL="false"
-                        UNSIGNED="true"
-                        SEQUENCE="false"
-                        COMMENT="The section this edu-sharing activity belongs to"
-                        PREVIOUS="module_id"
-                        NEXT="name" />
+                    NAME="section_id"
+                    TYPE="int"
+                    LENGTH="10"
+                    NOTNULL="false"
+                    UNSIGNED="true"
+                    SEQUENCE="false"
+                    COMMENT="The section this edu-sharing activity belongs to"
+                    PREVIOUS="module_id"
+                    NEXT="usage_id" />
+                <FIELD
+                    NAME="usage_id"
+                    TYPE="char"
+                    LENGTH="255"
+                    NOTNULL="false"
+                    DEFAULT="0"
+                    UNSIGNED="true"
+                    SEQUENCE="false"
+                    COMMENT="The edu-sharing usage-ID"
+                    PREVIOUS="section_id"
+                    NEXT="name" />
                 <FIELD
                     NAME="name"
                     TYPE="char"

@@ -24,7 +24,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/lib/cclib.php');
+require_once(dirname(__FILE__).'/lib/EduSharingService.php');
 
 global $CFG, $PAGE;
 
@@ -54,8 +54,8 @@ require_login($course, true, $cm);
 
 // Authenticate to assure requesting user exists in home-repository.
 try {
-    $servicefactory = new mod_edusharing_web_service_factory();
-    $ticket = $servicefactory->edusharing_authentication_get_ticket();
+    $eduSharingService = new EduSharingService();
+    $ticket = $eduSharingService->getTicket();
 } catch (Exception $exception) {
     trigger_error($exception->getMessage(), E_USER_WARNING);
     return false;
@@ -77,9 +77,7 @@ if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'modedi
 }
 
 $redirecturl .= $backAction;
-
-$cclib = new mod_edusharing_web_service_factory();
-$redirecturl .= '&ticket=' . urlencode(base64_encode(edusharing_encrypt_with_repo_public($cclib -> edusharing_authentication_get_ticket())));
+$redirecturl .= '&ticket=' . urlencode(base64_encode(edusharing_encrypt_with_repo_public($ticket)));
 
 redirect($redirecturl);
 

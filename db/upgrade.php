@@ -179,6 +179,27 @@ function xmldb_edusharing_upgrade($oldversion=0) {
 
     }
 
+    if ($result && $oldversion < 2022042501) {
+
+        try {
+            $xmldbtable = new xmldb_table('edusharing');
+            $xmldbfield = new xmldb_field(
+                'usage_id',
+                XMLDB_TYPE_CHAR,
+                '255',
+                null,
+                false,
+                false,
+                null,
+                'section_id'
+            );
+            $dbman->add_field($xmldbtable, $xmldbfield);
+        } catch (Exception $e) {
+            trigger_error($e->getMessage(), E_USER_WARNING);
+        }
+
+    }
+
 
     if (file_exists(dirname(__FILE__).'/install_config.php')) {
         require_once dirname(__FILE__). '/install_config.php';
