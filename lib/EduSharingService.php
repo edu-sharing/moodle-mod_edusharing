@@ -15,6 +15,18 @@ class EduSharingService {
     public function __construct() {
         $this -> helperBase = new EduSharingHelperBase(  get_config('edusharing', 'application_cc_gui_url'), get_config('edusharing', 'application_private_key'), get_config('edusharing', 'application_appid') );
         $this -> authHelper = new EduSharingAuthHelper( $this->helperBase );
+
+        $this -> helperBase->registerCurlHandler(new class extends CurlHandler {
+
+            public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
+
+                error_log('$curlOptions');
+                error_log(print_r($url, true));
+                error_log(print_r($curlOptions, true));
+
+                return new CurlResult('', 0, []);
+            }
+        });
     }
 
 
