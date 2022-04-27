@@ -101,8 +101,7 @@ function edusharing_supports($feature) {
  * @return int The id of the newly inserted edusharing record
  */
 function edusharing_add_instance(stdClass $edusharing) {
-
-    global $DB, $USER;
+    global $DB;
 
     $edusharing->timecreated = time();
     $edusharing->timemodified = time();
@@ -130,7 +129,6 @@ function edusharing_add_instance(stdClass $edusharing) {
             }
         }
     }
-
     $id = $DB->insert_record(EDUSHARING_TABLE, $edusharing);
 
     $eduService = new EduSharingService();
@@ -146,11 +144,10 @@ function edusharing_add_instance(stdClass $edusharing) {
 
     if (isset($updateversion) && $updateversion === true) {
         $edusharing->object_version = $usage->nodeVersion;
-        $edusharing->id = $id;
-        $DB->update_record(EDUSHARING_TABLE, $edusharing);
     }
 
-    if ( $usage ) {
+    if ($usage) {
+        $edusharing->id = $id;
         $edusharing->usage_id = $usage->usageId;
         $DB->update_record(EDUSHARING_TABLE, $edusharing);
         return $id;
@@ -304,11 +301,20 @@ function edusharing_delete_instance($id) {
         throw new Exception(get_string('error_load_resource', 'edusharing'));
     }
 
-    $usageData           = new stdClass ();
-    $usageData->nodeId   = edusharing_get_object_id_from_url($edusharing->object_url);
-    $usageData->usageId  = $edusharing->usage_id;
-
     $eduService = new EduSharingService();
+
+    $usageData                  = new stdClass ();
+    $usageData->ticket          = $eduService->getTicket();
+    $usageData->nodeId          = edusharing_get_object_id_from_url($edusharing->object_url);
+    $usageData->containerId     = $edusharing->containerId;
+    $usageData->resourceId      = $edusharing->resourceId;
+
+    if (empty($edusharing->usage_id)){
+        $usageData->usage_id = $eduService->getUsageId( $usageData );
+    }else {
+        $usageData->usageId  = $edusharing->usage_id;
+    }
+
     $usage = $eduService -> deleteUsage( $usageData );
 
     if (!$usage){

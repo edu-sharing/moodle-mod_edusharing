@@ -20,15 +20,37 @@ class EduSharingService {
 
             public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
 
-                error_log('$curlOptions');
-                error_log(print_r($url, true));
-                error_log(print_r($curlOptions, true));
+                $curl = new curl();
+                $options = array();
+                $params = '';
+                $post = false;
+                foreach ($curlOptions as $key => $value){
+                    if ($key == 'CURLOPT_HTTPHEADER'){
+                        $curl->header = $value;
+                    }else if ($key == 'CURLOPT_POSTFIELDS'){
+                        $params = $value;
+                    }else if ($key == 'CURLOPT_POST' && $value == 1){
+                        $post = true;
+                    }else{
+                        $options[$key] = $value;
+                    }
+                }
 
-                return new CurlResult('', 0, []);
+                if ($post){
+                    $curlContent = $curl->post($url, $params, $options);
+                }else{
+                    $curlContent = $curl->get($url, $params, $options);
+                }
+
+                $curlError = $curl->error;
+                if (empty($curlError)){
+                    $curlError = 0;
+                }
+                return new CurlResult($curlContent, $curlError, $curl->info);
             }
         });
-    }
 
+    }
 
     public function createUsage( $usageData)  {
 
@@ -39,6 +61,19 @@ class EduSharingService {
             $usageData->resourceId,
             $usageData->nodeId,
             $usageData->nodeVersion
+        );
+        return $result;
+
+    }
+
+    public function getUsageId( $usageData)  {
+
+        $nodeHelper = new EduSharingNodeHelper( $this->helperBase );
+        $result = $nodeHelper->getUsageIdByParameters(
+            $usageData->ticket,
+            $usageData->nodeId,
+            $usageData->containerId,
+            $usageData->resourceId
         );
         return $result;
 

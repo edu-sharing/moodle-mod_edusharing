@@ -167,7 +167,7 @@ function xmldb_edusharing_upgrade($oldversion=0) {
                 XMLDB_TYPE_INTEGER,
                 '10',
                 null,
-                false,
+                true,
                 false,
                 null,
                 'module_id'
