@@ -86,7 +86,7 @@ class mod_edusharing_observer {
         global $DB;
         $data = $event->get_data();
         $objectid = $data['objectid'];
-        $eduObjects = $DB -> get_records('edusharing', array('course_id' => $objectid));
+        $eduObjects = $DB -> get_records('edusharing', array('course' => $objectid));
         foreach($eduObjects as $object) {
             edusharing_delete_instance($object['id']);
         }
