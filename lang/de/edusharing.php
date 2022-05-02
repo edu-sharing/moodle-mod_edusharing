@@ -117,7 +117,7 @@ $string['guestProperties'] = 'Konfiguration Gäste';
 $string['brandingSettings'] = 'Branding Einstellungen (experimental)';
 $string['brandingInfo'] = 'Passe das Aussehen vom edu-sharing Plugin an (Name und Icon).';
 $string['appiconDescr'] = 'Das "appIcon" ersetzt das edu-sharing Icon. Auch beim Atto-Editor.<br>(Quadratisches Seitenverhältnis)';
-$string['atto_hintDescr'] = 'Der Hilfstext beim edus-haring Atto Popup.';
+$string['atto_hintDescr'] = 'Der Hilfstext beim edu-sharing Atto Popup.';
 $string['save'] = 'Änderungen sichern';
 $string['emptyForDefault'] = 'leer für';
 
