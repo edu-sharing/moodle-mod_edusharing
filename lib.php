@@ -40,7 +40,7 @@ define('EDUSHARING_DISPLAY_MODE_INLINE', 'inline');
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) .'/lib');
 require_once(dirname(__FILE__).'/lib/RenderParameter.php');
 require_once(dirname(__FILE__).'/locallib.php');
-//require_once(dirname(__FILE__).'/sigSoapClient.php');
+require_once(dirname(__FILE__).'/sigSoapClient.php');
 require_once(dirname(__FILE__).'/lib/EduSharingService.php');
 
 /**
@@ -101,7 +101,7 @@ function edusharing_supports($feature) {
  * @return int The id of the newly inserted edusharing record
  */
 function edusharing_add_instance(stdClass $edusharing) {
-    global $DB;
+    global $DB, $USER;
 
     $edusharing->timecreated = time();
     $edusharing->timemodified = time();
@@ -131,65 +131,68 @@ function edusharing_add_instance(stdClass $edusharing) {
     }
     $id = $DB->insert_record(EDUSHARING_TABLE, $edusharing);
 
-    $eduService = new EduSharingService();
-    $usageData   = new stdClass ();
+    if (!empty(get_config('edusharing', 'repository_restApi'))) {
 
-    $usageData->ticket       = $eduService->getTicket();
-    $usageData->containerId  = $edusharing->course;
-    $usageData->resourceId   = $id;
-    $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
-    $usageData->nodeVersion  = $edusharing->object_version;
+        $eduService = new EduSharingService();
+        $usageData   = new stdClass ();
 
-    $usage = $eduService -> createUsage( $usageData );
+        $usageData->ticket       = $eduService->getTicket();
+        $usageData->containerId  = $edusharing->course;
+        $usageData->resourceId   = $id;
+        $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
+        $usageData->nodeVersion  = $edusharing->object_version;
 
-    if (isset($updateversion) && $updateversion === true) {
-        $edusharing->object_version = $usage->nodeVersion;
-    }
-
-    if ($usage) {
-        $edusharing->id = $id;
-        $edusharing->usage_id = $usage->usageId;
-        $DB->update_record(EDUSHARING_TABLE, $edusharing);
-        return $id;
-    }else{
-        $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
-        //trigger_error($e->getMessage());
-        return false;
-    }
-
-/*
-    $soapclientparams = array();
-    $client = new mod_edusharing_sig_soap_client(get_config('edusharing', 'repository_usagewebservice_wsdl'), $soapclientparams);
-    $xml = edusharing_get_usage_xml($edusharing);
-    try {
-        $params = array(
-            "eduRef"  => $edusharing->object_url,
-            "user"  => edusharing_get_auth_key(),
-            "lmsId"  => get_config('edusharing', 'application_appid'),
-            "courseId"  => $edusharing->course,
-            "userMail"  => $USER->email,
-            "fromUsed"  => '2002-05-30T09:00:00',
-            "toUsed"  => '2222-05-30T09:00:00',
-            "distinctPersons"  => '0',
-            "version"  => $edusharing->object_version,
-            "resourceId"  => $id,
-            "xmlParams"  => $xml,
-        );
-        $setusage = $client->setUsage($params);
+        $usage = $eduService -> createUsage( $usageData );
 
         if (isset($updateversion) && $updateversion === true) {
-            $edusharing->object_version = $setusage->setUsageReturn->usageVersion;
-            $edusharing->id = $id;
-            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            $edusharing->object_version = $usage->nodeVersion;
         }
 
-    } catch (Exception $e) {
-        $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
-        trigger_error($e->getMessage());
-        return false;
+        if ($usage) {
+            $edusharing->id = $id;
+            $edusharing->usage_id = $usage->usageId;
+            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            return $id;
+        }else{
+            $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
+            //trigger_error($e->getMessage());
+            return false;
+        }
+
+    }else{
+
+        $soapclientparams = array();
+        $client = new mod_edusharing_sig_soap_client(get_config('edusharing', 'repository_usagewebservice_wsdl'), $soapclientparams);
+        $xml = edusharing_get_usage_xml($edusharing);
+        try {
+            $params = array(
+                "eduRef"  => $edusharing->object_url,
+                "user"  => edusharing_get_auth_key(),
+                "lmsId"  => get_config('edusharing', 'application_appid'),
+                "courseId"  => $edusharing->course,
+                "userMail"  => $USER->email,
+                "fromUsed"  => '2002-05-30T09:00:00',
+                "toUsed"  => '2222-05-30T09:00:00',
+                "distinctPersons"  => '0',
+                "version"  => $edusharing->object_version,
+                "resourceId"  => $id,
+                "xmlParams"  => $xml,
+            );
+            $setusage = $client->setUsage($params);
+
+            if (isset($updateversion) && $updateversion === true) {
+                $edusharing->object_version = $setusage->setUsageReturn->usageVersion;
+                $edusharing->id = $id;
+                $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            }
+
+        } catch (Exception $e) {
+            $DB->delete_records(EDUSHARING_TABLE, array('id'  => $id));
+            trigger_error($e->getMessage());
+            return false;
+        }
+        return $id;
     }
-    return $id;
-*/
 
 }
 
@@ -221,66 +224,68 @@ function edusharing_update_instance(stdClass $edusharing) {
     // You may have to add extra stuff in here.
     $edusharing = edusharing_postprocess($edusharing);
 
+    if (!empty(get_config('edusharing', 'repository_restApi'))) {
 
+        $eduService = new EduSharingService();
+        $usageData   = new stdClass ();
 
-    $eduService = new EduSharingService();
-    $usageData   = new stdClass ();
+        $usageData->ticket       = $eduService->getTicket();
+        $usageData->containerId  = $edusharing->course;
+        $usageData->resourceId   = $edusharing->id;
+        $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
+        $usageData->nodeVersion  = $edusharing->object_version;
 
-    $usageData->ticket       = $eduService->getTicket();
-    $usageData->containerId  = $edusharing->course;
-    $usageData->resourceId   = $edusharing->id;
-    $usageData->nodeId       = edusharing_get_object_id_from_url($edusharing->object_url);
-    $usageData->nodeVersion  = $edusharing->object_version;
+        $usage = $eduService -> createUsage( $usageData );
 
-    $usage = $eduService -> createUsage( $usageData );
-
-    if ( !$usage ) {
-        // Roll back.
-        $DB->update_record(EDUSHARING_TABLE, $memento);
-        return false;
-    }
-
-    $edusharing->usage_id = $usage->usageId;
-    $DB->update_record(EDUSHARING_TABLE, $edusharing);
-    return true;
-
-/*
-    $xml = edusharing_get_usage_xml($edusharing);
-
-    try {
-        $connectionurl = get_config('edusharing', 'repository_usagewebservice_wsdl');
-        if (!$connectionurl) {
-            trigger_error(get_string('error_missing_usagewsdl', 'edusharing'), E_USER_WARNING);
+        if ( !$usage ) {
+            // Roll back.
+            $DB->update_record(EDUSHARING_TABLE, $memento);
+            return false;
         }
 
-        $client = new mod_edusharing_sig_soap_client($connectionurl, array());
-
-        $params = array(
-            "eduRef"  => $edusharing->object_url,
-            "user"  => edusharing_get_auth_key(),
-            "lmsId"  => get_config('edusharing', 'application_appid'),
-            "courseId"  => $edusharing->course,
-            "userMail"  => $USER->email,
-            "fromUsed"  => '2002-05-30T09:00:00',
-            "toUsed"  => '2222-05-30T09:00:00',
-            "distinctPersons"  => '0',
-            "version"  => $memento->object_version,
-            "resourceId"  => $edusharing->id,
-            "xmlParams"  => $xml,
-        );
-
-        $setusage = $client->setUsage($params);
-        $edusharing->object_version = $memento->object_version;
-        // Throws exception on error, so no further checking required.
+        $edusharing->usage_id = $usage->usageId;
         $DB->update_record(EDUSHARING_TABLE, $edusharing);
-    } catch (SoapFault $exception) {
-        // Roll back.
-        $DB->update_record(EDUSHARING_TABLE, $memento);
+        return true;
 
-        trigger_error($exception->getMessage(), E_USER_WARNING);
+    }else {
+        $xml = edusharing_get_usage_xml($edusharing);
 
-        return false;
-    }*/
+        try {
+            $connectionurl = get_config('edusharing', 'repository_usagewebservice_wsdl');
+            if (!$connectionurl) {
+                trigger_error(get_string('error_missing_usagewsdl', 'edusharing'), E_USER_WARNING);
+            }
+
+            $client = new mod_edusharing_sig_soap_client($connectionurl, array());
+
+            $params = array(
+                "eduRef" => $edusharing->object_url,
+                "user" => edusharing_get_auth_key(),
+                "lmsId" => get_config('edusharing', 'application_appid'),
+                "courseId" => $edusharing->course,
+                "userMail" => $USER->email,
+                "fromUsed" => '2002-05-30T09:00:00',
+                "toUsed" => '2222-05-30T09:00:00',
+                "distinctPersons" => '0',
+                "version" => $memento->object_version,
+                "resourceId" => $edusharing->id,
+                "xmlParams" => $xml,
+            );
+
+            $setusage = $client->setUsage($params);
+            $edusharing->object_version = $memento->object_version;
+            // Throws exception on error, so no further checking required.
+            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+        } catch (SoapFault $exception) {
+            // Roll back.
+            $DB->update_record(EDUSHARING_TABLE, $memento);
+
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+
+            return false;
+        }
+
+    }
 
     return true;
 }
@@ -301,50 +306,54 @@ function edusharing_delete_instance($id) {
         throw new Exception(get_string('error_load_resource', 'edusharing'));
     }
 
-    $eduService = new EduSharingService();
+    if (!empty(get_config('edusharing', 'repository_restApi'))){
 
-    $usageData                  = new stdClass ();
-    $usageData->ticket          = $eduService->getTicket();
-    $usageData->nodeId          = edusharing_get_object_id_from_url($edusharing->object_url);
-    $usageData->containerId     = $edusharing->containerId;
-    $usageData->resourceId      = $edusharing->resourceId;
+        $eduService = new EduSharingService();
 
-    if (empty($edusharing->usage_id)){
-        $usageData->usage_id = $eduService->getUsageId( $usageData );
-    }else {
-        $usageData->usageId  = $edusharing->usage_id;
-    }
+        $usageData                  = new stdClass ();
+        $usageData->ticket          = $eduService->getTicket();
+        $usageData->nodeId          = edusharing_get_object_id_from_url($edusharing->object_url);
+        $usageData->containerId     = $edusharing->containerId;
+        $usageData->resourceId      = $edusharing->resourceId;
 
-    $usage = $eduService -> deleteUsage( $usageData );
-
-    if (!$usage){
-        return false;
-    }
-
-/*
-    try {
-
-        $connectionurl = get_config('edusharing', 'repository_usagewebservice_wsdl');
-        if ( ! $connectionurl ) {
-            throw new Exception(get_string('error_missing_usagewsdl', 'edusharing'));
+        if (empty($edusharing->usage_id)){
+            $usageData->usage_id = $eduService->getUsageId( $usageData );
+        }else {
+            $usageData->usageId  = $edusharing->usage_id;
         }
 
-        $ccwsusage = new mod_edusharing_sig_soap_client($connectionurl, array());
+        $usage = $eduService -> deleteUsage( $usageData );
 
-        $params = array(
-            'eduRef'  => $edusharing->object_url,  // node-id
-            'user'  => edusharing_get_auth_key(),
-            'lmsId'  => get_config('edusharing', 'application_appid'),
-            'courseId'  => $edusharing->course,
-            'resourceId'  => $edusharing->id
-        );
+        if (!$usage){
+            return false;
+        }
 
-        $ccwsusage->deleteUsage($params);
+    }else{
 
-    } catch (Exception $exception) {
-        trigger_error($exception->getMessage(), E_USER_WARNING);
+        try {
+
+            $connectionurl = get_config('edusharing', 'repository_usagewebservice_wsdl');
+            if ( ! $connectionurl ) {
+                throw new Exception(get_string('error_missing_usagewsdl', 'edusharing'));
+            }
+
+            $ccwsusage = new mod_edusharing_sig_soap_client($connectionurl, array());
+
+            $params = array(
+                'eduRef'  => $edusharing->object_url,  // node-id
+                'user'  => edusharing_get_auth_key(),
+                'lmsId'  => get_config('edusharing', 'application_appid'),
+                'courseId'  => $edusharing->course,
+                'resourceId'  => $edusharing->id
+            );
+
+            $ccwsusage->deleteUsage($params);
+
+        } catch (Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+        }
+
     }
-*/
 
     // Usage is removed so it can be deleted from DATABASE .
     $DB->delete_records(EDUSHARING_TABLE, array('id'  => $edusharing->id));

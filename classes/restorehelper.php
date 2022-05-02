@@ -56,8 +56,13 @@ class mod_edusharing_restorehelper {
 
             // Ensure that user exists in repository.
             if (isloggedin()) {
-                $eduSharingService = new EduSharingService();
-                $ticket = $eduSharingService->getTicket();
+                if (!empty(get_config('edusharing', 'repository_restApi'))) {
+                    $eduSharingService = new EduSharingService();
+                    $ticket = $eduSharingService->getTicket();
+                }else{
+                    $ccauth = new mod_edusharing_web_service_factory();
+                    $ticket = $ccauth->edusharing_authentication_get_ticket();
+                }
             }
 
             preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $text, $matchesimg_atto,
@@ -108,8 +113,10 @@ class mod_edusharing_restorehelper {
 
         if($id) {
             $usage = self::edusharing_add_usage($edusharing, $id);
-            $edusharing->usageId = $usage->usageId;
-            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            if (isset($usage->usageId)){
+                $edusharing->usageId = $usage->usageId;
+                $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            }
         }
 
         if($usage) {
@@ -131,41 +138,40 @@ class mod_edusharing_restorehelper {
     }
 
     public static function edusharing_add_usage($data, $newitemid) {
-        global $CFG;
+        global $CFG, $USER;
         require_once($CFG->dirroot . '/mod/edusharing/locallib.php');
 
-        $eduService = new EduSharingService();
-        $usageData   = new stdClass ();
+        if (!empty(get_config('edusharing', 'repository_restApi'))) {
+            $eduService = new EduSharingService();
+            $usageData   = new stdClass ();
 
-        $usageData->ticket       = $eduService->getTicket();
-        $usageData->containerId  = $data->course;
-        $usageData->resourceId   = $newitemid;
-        $usageData->nodeId       = edusharing_get_object_id_from_url($data->object_url);
-        $usageData->nodeVersion  = $data->object_version;
+            $usageData->ticket       = $eduService->getTicket();
+            $usageData->containerId  = $data->course;
+            $usageData->resourceId   = $newitemid;
+            $usageData->nodeId       = edusharing_get_object_id_from_url($data->object_url);
+            $usageData->nodeVersion  = $data->object_version;
 
-        $usage = $eduService -> createUsage( $usageData );
+            return $eduService -> createUsage( $usageData );
+        }else{
+            $client = new mod_edusharing_sig_soap_client(get_config('edusharing', 'repository_usagewebservice_wsdl'), array());
+            $xml = edusharing_get_usage_xml($data);
+            $params = array(
+                "eduRef" => $data->object_url,
+                "user" => edusharing_get_auth_key(),
+                "lmsId" => get_config('edusharing', 'application_appid'),
+                "courseId" => $data->course,
+                "userMail" => $USER->email,
+                "fromUsed" => '2002-05-30T09:00:00',
+                "toUsed" => '2222-05-30T09:00:00',
+                "distinctPersons" => '0',
+                "version" => $data->object_version,
+                "resourceId" => $newitemid,
+                "xmlParams" => $xml,
+            );
+            $client->setUsage($params);
 
-        return $usage;
+            return true;
+        }
 
-        /*
-        $client = new mod_edusharing_sig_soap_client(get_config('edusharing', 'repository_usagewebservice_wsdl'), array());
-        $xml = edusharing_get_usage_xml($data);
-        $params = array(
-            "eduRef" => $data->object_url,
-            "user" => edusharing_get_auth_key(),
-            "lmsId" => get_config('edusharing', 'application_appid'),
-            "courseId" => $data->course,
-            "userMail" => $USER->email,
-            "fromUsed" => '2002-05-30T09:00:00',
-            "toUsed" => '2222-05-30T09:00:00',
-            "distinctPersons" => '0',
-            "version" => $data->object_version,
-            "resourceId" => $newitemid,
-            "xmlParams" => $xml,
-        );
-        $client->setUsage($params);
-
-        return true;
-        */
     }
 }

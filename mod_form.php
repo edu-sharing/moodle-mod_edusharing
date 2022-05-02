@@ -31,6 +31,7 @@ global $CFG;
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/edusharing/lib/EduSharingService.php');
+require_once($CFG->dirroot.'/mod/edusharing/lib/cclib.php');
 require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 
 /**
@@ -50,8 +51,14 @@ class mod_edusharing_mod_form extends moodleform_mod
 
         try {
             // @TODO make dynamic
-            $eduSharingService = new EduSharingService();
-            $ticket = $eduSharingService->getTicket();
+            if (!empty(get_config('edusharing', 'repository_restApi'))) {
+                $eduSharingService = new EduSharingService();
+                $ticket = $eduSharingService->getTicket();
+            }else{
+                $ccauth = new mod_edusharing_web_service_factory();
+                $ticket = $ccauth->edusharing_authentication_get_ticket();
+            }
+
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
             return false;

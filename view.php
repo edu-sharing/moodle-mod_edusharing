@@ -25,6 +25,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/lib/EduSharingService.php');
+require_once(dirname(__FILE__).'/lib/cclib.php');
 
 global $CFG, $PAGE;
 
@@ -54,8 +55,13 @@ require_login($course, true, $cm);
 
 // Authenticate to assure requesting user exists in home-repository.
 try {
-    $eduSharingService = new EduSharingService();
-    $ticket = $eduSharingService->getTicket();
+    if (!empty(get_config('edusharing', 'repository_restApi'))) {
+        $eduSharingService = new EduSharingService();
+        $ticket = $eduSharingService->getTicket();
+    }else{
+        $ccauth = new mod_edusharing_web_service_factory();
+        $ticket = $ccauth->edusharing_authentication_get_ticket();
+    }
 } catch (Exception $exception) {
     trigger_error($exception->getMessage(), E_USER_WARNING);
     return false;
