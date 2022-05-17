@@ -80,12 +80,12 @@ class EduSharingService {
     }
 
     public function deleteUsage( $usageData ) {
+        if (!isset($usageData->usageId)){
+            return false;
+        }
         $nodeHelper = new EduSharingNodeHelper($this->helperBase);
         try {
-            $result = $nodeHelper->deleteUsage(
-                $usageData->nodeId,
-                $usageData->usageId
-            );
+            $result = $nodeHelper->deleteUsage($usageData->nodeId, $usageData->usageId);
             return $result;
 
         } catch ( Exception $e ) {

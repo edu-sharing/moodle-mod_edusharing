@@ -43,11 +43,11 @@ class mod_edusharing_restorehelper {
             $DB -> update_record($cm -> name, $module);
 
         }
-        rebuild_course_cache($courseId);
+        rebuild_course_cache($courseId, true);
     }
 
     public static function edusharing_get_inline_objects($text) {
-        global $DB;
+
         try {
 
             if (strpos($text, 'edusharing_atto') === false) {
@@ -69,9 +69,7 @@ class mod_edusharing_restorehelper {
                 PREG_PATTERN_ORDER);
             preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $text, $matchesa_atto,
                 PREG_PATTERN_ORDER);
-            $matches_atto = array_merge($matchesimg_atto[0], $matchesa_atto[0]);
-
-            return $matches_atto;
+            return array_merge($matchesimg_atto[0], $matchesa_atto[0]);
 
         } catch (Exception $exception) {
             trigger_error($exception->getMessage(), E_USER_WARNING);
@@ -80,6 +78,7 @@ class mod_edusharing_restorehelper {
 
     public static function edusharing_convert_object($object, $courseId) {
         global $DB;
+
         $doc = new DOMDocument();
         $doc->loadHTML($object, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
@@ -113,26 +112,27 @@ class mod_edusharing_restorehelper {
 
         if($id) {
             $usage = self::edusharing_add_usage($edusharing, $id);
-            if (isset($usage->usageId)){
+            if (isset($usage->usageId)) {
+                $edusharing->id = $id;
                 $edusharing->usageId = $usage->usageId;
                 $DB->update_record(EDUSHARING_TABLE, $edusharing);
             }
-        }
 
-        if($usage) {
-            $params['resourceId'] = $id;
-            $url = strtok($qs, '?'). '?';
-            foreach($params as $paramn => $paramv) {
-                $url .= $paramn . '=' . $paramv . '&';
+            if ($usage) {
+                $params['resourceId'] = $id;
+                $url = strtok($qs, '?') . '?';
+                foreach ($params as $paramn => $paramv) {
+                    $url .= $paramn . '=' . $paramv . '&';
+                }
+                if ($type === 'a')
+                    $node->setAttribute('href', $url);
+                else
+                    $node->setAttribute('src', $url);
+
+            } else {
+                $DB->delete_records('edusharing', array('id' => $id));
+                return $object;
             }
-            if($type === 'a')
-                $node -> setAttribute('href', $url);
-            else
-                $node -> setAttribute('src', $url);
-
-        } else {
-            $DB -> delete_records('edusharing', array('id' => $id));
-            return $object;
         }
         return $doc -> saveHTML();
     }
@@ -172,6 +172,6 @@ class mod_edusharing_restorehelper {
 
             return true;
         }
-
     }
+
 }
