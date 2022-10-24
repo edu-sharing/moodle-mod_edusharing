@@ -33,7 +33,8 @@ $string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = get_config('edusharing', 'application_appname') . ' Objekt';
+$string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
+$string['modulename_help'] = get_config('edusharing', 'info_text');
 $string['pluginname'] = 'edu-sharing Objekt';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
@@ -44,6 +45,8 @@ $string['description'] = 'Beschreibung';
 $string['object_url_fieldset'] = '{$a} Lernobjekt';
 $string['object_url'] = 'Link zum Objekt';
 $string['object_url_help'] = 'Bitte nutzen Sie die Buttons, um ein Objekt zu suchen oder hochzuladen. Die ID des Objekts wird dann automatisch eingefügt.';
+$string['object_title'] = 'Ausgewähltes Objekt';
+$string['object_title_help'] = 'Bitte mit dem unterem Button ein Objekt auswählen...';
 
 $string['object_version_fieldset'] = 'Objekt-Versionierung';
 $string['object_version'] = 'Zeige ...';
@@ -114,10 +117,16 @@ $string['appProperties'] = 'Konfiguration Moodle-Plugin';
 $string['homerepProperties'] = 'Konfiguration Heim-Repositorium';
 $string['authparameters'] = 'Authentifizierungsparameter';
 $string['guestProperties'] = 'Konfiguration Gäste';
-$string['brandingSettings'] = 'Branding Einstellungen (experimental)';
-$string['brandingInfo'] = 'Passe das Aussehen vom edu-sharing Plugin an (Name und Icon).';
+$string['brandingSettings'] = 'UI Einstellungen';
+$string['brandingInfo'] = 'Passe das Aussehen vom edu-sharing Plugin an.';
 $string['appiconDescr'] = 'Das "appIcon" ersetzt das edu-sharing Icon. Auch beim Atto-Editor.<br>(Quadratisches Seitenverhältnis)';
-$string['atto_hintDescr'] = 'Der Hilfstext beim edus-haring Atto Popup.';
+$string['info_textDescr'] = 'Der Hilfstext beim einbinden des edu-sharing Moduls.';
+$string['atto_hintDescr'] = 'Der Hilfstext beim edu-sharing Atto Popup.';
+$string['repo_targetDescr'] = 'Legt die Einstiegsseite beim Repositorium fest.';
+$string['repoSearch'] = 'Suche';
+$string['repoCollection'] = 'Sammlungen';
+$string['repoWorkspace'] = 'Eigene Dateien';
+
 $string['save'] = 'Änderungen sichern';
 $string['emptyForDefault'] = 'leer für';
 
