@@ -33,7 +33,8 @@ $string['show_course_blocks'] = 'Show course blocks';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = get_config('edusharing', 'application_appname') . ' resource';
+$string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
+$string['modulename_help'] = get_config('edusharing', 'info_text');
 $string['pluginname'] = 'edu-sharing resource';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
@@ -44,6 +45,8 @@ $string['description'] = 'Description';
 $string['object_url_fieldset'] = '{$a} Learning-object';
 $string['object_url'] = 'Object';
 $string['object_url_help'] = 'Please use the buttons below to select an object from repository. Its object-ID will be inserted here automatically.';
+$string['object_title'] = 'Selected object';
+$string['object_title_help'] = 'Please use the button below to select an object...';
 
 $string['object_version_fieldset'] = 'Object-versioning';
 $string['object_version'] = 'Use ..';
@@ -113,10 +116,16 @@ $string['appProperties'] = 'Application Properties';
 $string['homerepProperties'] = 'Home Repository Properties';
 $string['authparameters'] = 'Authentication Parameters';
 $string['guestProperties'] = 'Guest properties';
-$string['brandingSettings'] = 'Branding settings (experimental)';
-$string['brandingInfo'] = 'Change the branding of the edu-sharing plugin (name and icon).';
+$string['brandingSettings'] = 'UI settings';
+$string['brandingInfo'] = 'Change the look & feel of the edu-sharing plugin.';
 $string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
-$string['atto_hintDescr'] = 'The helptext for the edu-sharing atto-popup.';
+$string['info_textDescr'] = 'The helptext for adding the edu-sharing module.';
+$string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
+$string['repo_targetDescr'] = 'Configure the startpage in the repository';
+$string['repoSearch'] = 'Search';
+$string['repoCollection'] = 'Collections';
+$string['repoWorkspace'] = 'My Files';
+
 $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 $string['filter_not_authorized'] = 'You are not authorized to access the requested content.';

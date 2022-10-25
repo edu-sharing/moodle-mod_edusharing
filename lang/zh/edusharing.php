@@ -46,6 +46,8 @@ $string['edusharingname'] = '标题';
 $string['object_url_fieldset'] = 'edu-sharing 学习对象';
 $string['object_url'] = '对象';
 $string['object_url_help'] = '请使用下方按钮从资源库中选择一个对象。对象ID将会被自动插入此处';
+$string['object_title'] = 'Selected object';
+$string['object_title_help'] = 'Please use the button below to select an object...';
 
 $string['object_version_fieldset'] = '对象版本';
 $string['object_version'] = '使用 ..';
@@ -116,6 +118,16 @@ $string['appProperties'] = 'Application Properties';
 $string['homerepProperties'] = 'Home Repository Properties';
 $string['authparameters'] = 'Authentication Parameters';
 $string['guestProperties'] = 'Guest properties';
+$string['brandingSettings'] = 'UI settings';
+$string['brandingInfo'] = 'Change the look & feel of the edu-sharing plugin.';
+$string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
+$string['info_textDescr'] = 'The helptext for adding the edu-sharing module.';
+$string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
+$string['repo_targetDescr'] = 'Configure the startpage in the repository';
+$string['repoSearch'] = 'Search';
+$string['repoCollection'] = 'Collections';
+$string['repoWorkspace'] = 'My Files';
+
 $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 

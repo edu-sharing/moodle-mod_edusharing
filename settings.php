@@ -98,6 +98,8 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configcheckbox('edusharing/repository_restApi', 'restApi', '(since edu-sharing v6.1)', ''));
 
+    $settings->add(new admin_setting_configtext('edusharing/repository_version', 'version', '', '5.1', PARAM_TEXT, 50));
+
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));
 
     // Defaults according to locallib.php.
@@ -128,19 +130,40 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/edu_guest_guest_id', 'guest_id', '', 'esguest', PARAM_TEXT, 50));
 
 
+    // UI settings
     $settings->add(new admin_setting_heading('edusharing/branding', get_string('brandingSettings', 'edusharing'), get_string('brandingInfo', 'edusharing')));
 
     $nameSetting = new admin_setting_configtext('edusharing/application_appname', 'appname', '', 'edu-sharing', PARAM_TEXT, 50);
     $nameSetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($nameSetting);
 
+    $typeSetting = new admin_setting_configtext('edusharing/module_type', 'type', '', 'Objekt', PARAM_TEXT, 50);
+    $typeSetting->set_updatedcallback('edusharing_update_settings_name');
+    $settings->add($typeSetting);
+
     $imgSetting = new admin_setting_configstoredfile('edusharing/appicon', 'appicon', get_string('appiconDescr', 'edusharing'), 'appicon');
     $imgSetting->set_updatedcallback('edusharing_update_settings_images');
     $settings->add($imgSetting);
 
+    $infoSetting = new admin_setting_configtextarea('edusharing/info_text', 'info_text', get_string('info_textDescr', 'edusharing'), 'Hallo');
+    $infoSetting->set_updatedcallback('edusharing_update_settings_name');
+    $settings->add($infoSetting);
+
     $hintSetting = new admin_setting_configtextarea('edusharing/atto_hint', 'atto_hint', get_string('atto_hintDescr', 'edusharing'), '');
     $hintSetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($hintSetting);
+
+    $hintSetting = new admin_setting_configtextarea('edusharing/atto_hint', 'atto_hint', get_string('atto_hintDescr', 'edusharing'), '');
+    $hintSetting->set_updatedcallback('edusharing_update_settings_name');
+    $settings->add($hintSetting);
+
+    $repoTargetOptions = array(
+        'search' => get_string('repoSearch', 'edusharing'),
+        'collections' => get_string('repoCollection', 'edusharing'),
+        'workspace' => get_string('repoWorkspace', 'edusharing'),
+        );
+    $repoTargetSetting = new admin_setting_configselect('edusharing/repo_target', 'repo_target', get_string('repo_targetDescr', 'edusharing'), 'search', $repoTargetOptions);
+    $settings->add($repoTargetSetting);
 
 
     $settings->add(new admin_setting_heading('edusharing/save', get_string('save', 'edusharing'), ''));

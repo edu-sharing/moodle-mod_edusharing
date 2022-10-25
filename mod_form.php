@@ -80,6 +80,9 @@ class mod_edusharing_mod_form extends moodleform_mod
         // object-section
         $mform->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
 
+
+        $mform->addElement('static', 'object_title', get_string('object_title', EDUSHARING_MODULE_NAME), get_string('object_title_help', EDUSHARING_MODULE_NAME));
+
         // object-uri
         $mform->addElement('text', 'object_url', get_string('object_url', EDUSHARING_MODULE_NAME), array('readonly' => 'true'));
         $mform->setType('object_url', PARAM_RAW_TRIMMED);
@@ -102,6 +105,9 @@ class mod_edusharing_mod_form extends moodleform_mod
                                         if(!title){
                                             title = node.properties['cm:name'];
                                         }
+                                        
+                                        window.document.getElementById('fitem_id_object_title').getElementsByClassName('form-control-static')[0].innerHTML = title;
+                                        
                                         if(window.document.getElementById('id_name').value === ''){
                                             window.document.getElementById('id_name').value = title;
                                         }
