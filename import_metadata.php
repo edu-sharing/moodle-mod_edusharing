@@ -28,7 +28,6 @@ require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 <head>
     <title>edu-sharing metadata import</title>
     <link rel="stylesheet" href="import_metadata_style.css" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" rel="stylesheet">
 </head>
 <body>
 
