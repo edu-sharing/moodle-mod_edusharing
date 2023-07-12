@@ -33,8 +33,15 @@ $string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
 // modulename seems to be used in admin-panels
 // pluginname seems to be used in course-view
-$string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
-$string['modulename_help'] = get_config('edusharing', 'info_text');
+try {
+    $string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
+    $string['modulename_help'] = get_config('edusharing', 'info_text');
+} catch (Exception $exception) {
+    $string['modulename'] = '';
+    $string['modulename_help'] = '';
+    unset($exception);
+}
+
 $string['pluginname'] = 'edu-sharing Objekt';
 $string['modulenameplural'] = 'edu-sharing';
 $string['edusharing'] = 'edu-sharing';
