@@ -25,14 +25,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_edusharing\apiService\EduSharingService;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once($CFG->dirroot.'/mod/edusharing/lib/EduSharingService.php');
-require_once($CFG->dirroot.'/mod/edusharing/lib/cclib.php');
-require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 
 /**
  * The main edusharing configuration form
@@ -42,57 +41,34 @@ require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
  */
 class mod_edusharing_mod_form extends moodleform_mod
 {
-
     /**
      * (non-PHPdoc)
      * @see lib/moodleform::definition()
      */
-    public function definition() {
-
+    public function definition(): void {
         try {
-            // @TODO make dynamic
-            if (!empty(get_config('edusharing', 'repository_restApi'))) {
-                $eduSharingService = new EduSharingService();
-                $ticket = $eduSharingService->getTicket();
-            }else{
-                $ccauth = new mod_edusharing_web_service_factory();
-                $ticket = $ccauth->edusharing_authentication_get_ticket();
-            }
-
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-            return false;
-        }
-
-        $mform =& $this->_form;
-
-        // Adding the "general" fieldset, where all the common settings are showed
-        $mform->addElement('header', 'general', get_string('general', 'form'));
-
-        // Adding the standard "name" field
-        $mform->addElement('text', 'name', get_string('edusharingname', EDUSHARING_MODULE_NAME), array('size' => '64'));
-        $mform->setType('name', PARAM_TEXT);
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-
-        $this->standard_intro_elements(get_string('description', EDUSHARING_MODULE_NAME));
-
-        // object-section
-        $mform->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
-
-
-        $mform->addElement('static', 'object_title', get_string('object_title', EDUSHARING_MODULE_NAME), get_string('object_title_help', EDUSHARING_MODULE_NAME));
-
-        // object-uri
-        $mform->addElement('text', 'object_url', get_string('object_url', EDUSHARING_MODULE_NAME), array('readonly' => 'true'));
-        $mform->setType('object_url', PARAM_RAW_TRIMMED);
-        $mform->addRule('object_url', null, 'required', null, 'client');
-        $mform->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('object_url', 'object_url', EDUSHARING_MODULE_NAME);
-
-        $repoSearch = trim(get_config('edusharing', 'application_cc_gui_url'), '/') . '/components/search?&applyDirectories=true&reurl=WINDOW&ticket=' . $ticket;
-        $searchbutton = $mform->addElement('button', 'searchbutton', get_string('searchrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
-        $repoOnClick = "
+            $eduSharingService = new EduSharingService();
+            $ticket            = $eduSharingService->getTicket();
+            // Adding the "general" fieldset, where all the common settings are showed
+            $this->_form->addElement('header', 'general', get_string('general', 'form'));
+            // Adding the standard "name" field
+            $this->_form->addElement('text', 'name', get_string('edusharingname', EDUSHARING_MODULE_NAME), ['size' => '64']);
+            $this->_form->setType('name', PARAM_TEXT);
+            $this->_form->addRule('name', null, 'required', null, 'client');
+            $this->_form->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+            $this->standard_intro_elements(get_string('description', EDUSHARING_MODULE_NAME));
+            // object-section
+            $this->_form->addElement('header', 'object_url_fieldset', get_string('object_url_fieldset', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
+            $this->_form->addElement('static', 'object_title', get_string('object_title', EDUSHARING_MODULE_NAME), get_string('object_title_help', EDUSHARING_MODULE_NAME));
+            // object-uri
+            $this->_form->addElement('text', 'object_url', get_string('object_url', EDUSHARING_MODULE_NAME), ['readonly' => 'true']);
+            $this->_form->setType('object_url', PARAM_RAW_TRIMMED);
+            $this->_form->addRule('object_url', null, 'required', null, 'client');
+            $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+            $this->_form->addHelpButton('object_url', 'object_url', EDUSHARING_MODULE_NAME);
+            $repoSearch = trim(get_config('edusharing', 'application_cc_gui_url'), '/') . '/components/search?&applyDirectories=true&reurl=WINDOW&ticket=' . $ticket;
+            $searchButton = $this->_form->addElement('button', 'searchbutton', get_string('searchrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
+            $repoOnClick = "
                             function openRepo(){
                                 window.addEventListener('message', function handleRepo(event) {
                                     if (event.data.event == 'APPLY_NODE') {
@@ -119,39 +95,34 @@ class mod_edusharing_mod_form extends moodleform_mod
                             }
                             openRepo();
                         ";
-        $buttonattributes = array('title' => get_string('uploadrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')), 'onclick' => $repoOnClick);
-        $searchbutton->updateAttributes($buttonattributes);
-
-        // version-section
-        $mform->addElement('header', 'version_fieldset', get_string('object_version_fieldset', EDUSHARING_MODULE_NAME));
-
-        $radiogroup = array();
-        $radiogroup[] = $mform->createElement('radio', 'object_version', '', get_string('object_version_use_latest', EDUSHARING_MODULE_NAME), 0, array());
-        $radiogroup[] = $mform->createElement('radio', 'object_version', '', get_string('object_version_use_exact', EDUSHARING_MODULE_NAME), 1, array());
-
-        $mform->addGroup($radiogroup, 'object_version', get_string('object_version', EDUSHARING_MODULE_NAME), array(' '), false);
-        $mform->setDefault('object_version', 0);
-
-        $mform->addHelpButton('object_version', 'object_version', EDUSHARING_MODULE_NAME);
-
-        // display-section
-        $mform->addElement('header', 'object_display_fieldset', get_string('object_display_fieldset', EDUSHARING_MODULE_NAME));
-        $windowoptions = array(0  => get_string('pagewindow', EDUSHARING_MODULE_NAME), 1  => get_string('newwindow', EDUSHARING_MODULE_NAME));
-        $mform->addElement('select', 'popup_window', get_string('display', EDUSHARING_MODULE_NAME), $windowoptions);
-        $mform->setDefault('popup_window', !empty($CFG->resource_popup));
-
-        // add standard elements, common to all modules
-        $this->standard_coursemodule_elements();
-
-        $submit2label = get_string('savechangesandreturntocourse');
-        $mform = $this->_form;
-        $buttonarray = array();
-        if ($submit2label !== false && $this->courseformat->has_view_page()) {
-            $buttonarray[] = &$mform->createElement('submit', 'submitbutton2', $submit2label);
+            $searchButton->updateAttributes(['title' => get_string('uploadrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')), 'onclick' => $repoOnClick]);
+            // version-section
+            $this->_form->addElement('header', 'version_fieldset', get_string('object_version_fieldset', EDUSHARING_MODULE_NAME));
+            $radioGroup   = [];
+            $radioGroup[] = $this->_form->createElement('radio', 'object_version', '', get_string('object_version_use_latest', EDUSHARING_MODULE_NAME), 0, []);
+            $radioGroup[] = $this->_form->createElement('radio', 'object_version', '', get_string('object_version_use_exact', EDUSHARING_MODULE_NAME), 1, []);
+            $this->_form->addGroup($radioGroup, 'object_version', get_string('object_version', EDUSHARING_MODULE_NAME), [' '], false);
+            $this->_form->setDefault('object_version', 0);
+            $this->_form->addHelpButton('object_version', 'object_version', EDUSHARING_MODULE_NAME);
+            // display-section
+            $this->_form->addElement('header', 'object_display_fieldset', get_string('object_display_fieldset', EDUSHARING_MODULE_NAME));
+            $windowOptions = [0  => get_string('pagewindow', EDUSHARING_MODULE_NAME), 1  => get_string('newwindow', EDUSHARING_MODULE_NAME)];
+            $this->_form->addElement('select', 'popup_window', get_string('display', EDUSHARING_MODULE_NAME), $windowOptions);
+            $this->_form->setDefault('popup_window', !empty($CFG->resource_popup));
+            // add standard elements, common to all modules
+            $this->standard_coursemodule_elements();
+            $submit2label = get_string('savechangesandreturntocourse');
+        } catch (Exception $e) {
+            trigger_error($e->getMessage(), E_USER_WARNING);
+            return;
         }
-        $buttonarray[] = &$mform->createElement('cancel');
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-        $mform->setType('buttonar', PARAM_RAW);
-        $mform->closeHeaderBefore('buttonar');
+        $buttons = [];
+        if (! empty($submit2label) && $this->courseformat->has_view_page()) {
+            $buttons[] = $this->_form->createElement('submit', 'submitbutton2', $submit2label);
+        }
+        $buttons[] = $this->_form->createElement('cancel');
+        $this->_form->addGroup($buttons, 'buttonar', '', [' '], false);
+        $this->_form->setType('buttonar', PARAM_RAW);
+        $this->_form->closeHeaderBefore('buttonar');
     }
 }

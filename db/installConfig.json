@@ -1,0 +1,9 @@
+{
+  "repoUrl": "http://localhost:8080/edu-sharing",
+  "repoAdmin": "",
+  "repoAdminPassword": "",
+  "autoAppIdFromUrl": false,
+  "moodleAppId_optional": "",
+  "hostAliases_optional": "",
+  "wloGuestUser_optional": ""
+}

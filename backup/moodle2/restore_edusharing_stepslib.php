@@ -5,8 +5,7 @@
 
 
 require_once(dirname(__FILE__).'/../../lib.php');
-require_once(dirname(__FILE__).'/../../lib/cclib.php');
-require_once(dirname(__FILE__).'/../../classes/restorehelper.php');
+require_once(dirname(__FILE__) . '/../../classes/RestoreHelper.php');
 
 
 class restore_edusharing_activity_structure_step extends restore_activity_structure_step {
@@ -33,7 +32,7 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         $newitemid = $DB->insert_record('edusharing', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
-        mod_edusharing_restorehelper::edusharing_add_usage($data, $newitemid);
+        RestoreHelper::edusharing_add_usage($data, $newitemid);
 
     }
 

@@ -82,15 +82,9 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('edusharing/repository_domain', 'domain', '', '', PARAM_TEXT, 50));
 
-    $settings->add(new admin_setting_configtext('edusharing/repository_authenticationwebservice_wsdl',
-            'authenticationwebservice_wsdl', '', '', PARAM_TEXT, 50));
-
     $settings->add(new admin_setting_configtext('edusharing/repository_type', 'type', '', '', PARAM_TEXT, 50));
 
     $settings->add(new admin_setting_configtext('edusharing/repository_appid', 'appid', '', '', PARAM_TEXT, 50));
-
-    $settings->add(new admin_setting_configtext('edusharing/repository_usagewebservice_wsdl',
-            'usagewebservice_wsdl', '', '', PARAM_TEXT, 50));
 
     $settings->add(new admin_setting_configtext('edusharing/repository_protocol', 'protocol', '', '', PARAM_TEXT, 50));
 
@@ -102,7 +96,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));
 
-    // Defaults according to locallib.php.
     $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_KEY', 'EDU_AUTH_KEY',
             '', 'username', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_PARAM_NAME_USERID',
