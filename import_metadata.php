@@ -23,6 +23,7 @@
  * @todo Implement as moustache template
  */
 
+use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\MetaDataFrontend;
 use mod_edusharing\MetadataLogic;
@@ -31,6 +32,7 @@ use mod_edusharing\PluginRegistrationFrontend;
 global $CFG;
 
 require_once(dirname(__FILE__, 3) . '/config.php');
+require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 
 echo '<html>
 <head>
@@ -47,6 +49,7 @@ if (!is_siteadmin()) {
     echo '<p>Please login with your admin account in moodle.</p>';
     exit();
 }
+
 
 if(isset($_POST['repoReg'])){
     if (!empty($_POST['appId'])){
@@ -69,7 +72,7 @@ try {
 }
 
 if (! empty($metadataUrl)) {
-    $service = new MetadataLogic();
+    $service = new MetadataLogic(new EduSharingService());
     try {
         $service->importMetadata($metadataUrl);
         echo '<h3 class="edu_success">Import successful.</h3>';

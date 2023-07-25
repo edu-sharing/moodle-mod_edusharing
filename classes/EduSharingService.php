@@ -1,0 +1,342 @@
+<?php declare(strict_types = 1);
+
+namespace mod_edusharing;
+
+use dml_exception;
+use EduSharingApiClient\CurlResult;
+use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
+use EduSharingApiClient\EduSharingAuthHelper;
+use EduSharingApiClient\EduSharingHelperBase;
+use EduSharingApiClient\EduSharingNodeHelper;
+use EduSharingApiClient\EduSharingNodeHelperConfig;
+use EduSharingApiClient\NodeDeletedException;
+use EduSharingApiClient\UrlHandling;
+use EduSharingApiClient\Usage;
+use EduSharingApiClient\UsageDeletedException;
+use Exception;
+use JsonException;
+use stdClass;
+
+/**
+ * class EduSharingService
+ *
+ * Wrapper service class for API utilities bundled in the auth plugin
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
+class EduSharingService
+{
+    private ?EduSharingAuthHelper $authHelper;
+    private ?EduSharingNodeHelper $nodeHelper;
+    private ?UtilityFunctions     $utils;
+
+    /**
+     * EduSharingService constructor
+     *
+     * constructor params are optional if you want to use DI.
+     * This possibility is needed for unit testing
+     *
+     * @throws dml_exception
+     * @throws Exception
+     */
+    public function __construct(?EduSharingAuthHelper $authHelper = null, ?EduSharingNodeHelper $nodeHelper = null, ?UtilityFunctions $utils = null) {
+        $this->authHelper = $authHelper;
+        $this->nodeHelper = $nodeHelper;
+        $this->utils      = $utils;
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+        $this->init();
+    }
+
+    /**
+     * Function init
+     *
+     * @throws dml_exception
+     * @throws Exception
+     */
+    private function init(): void {
+        $this->utils === null && $this->utils = new UtilityFunctions();
+        if ($this->authHelper === null || $this->nodeHelper === null) {
+            $baseHelper = new EduSharingHelperBase(get_config('edusharing', 'application_cc_gui_url'), get_config('edusharing', 'application_private_key'), get_config('edusharing', 'application_appid'));
+            $baseHelper->registerCurlHandler(new MoodleCurlHandler());
+            $this->authHelper === null && $this->authHelper = new EduSharingAuthHelper($baseHelper);
+            if ($this->nodeHelper === null) {
+                $nodeConfig       = new EduSharingNodeHelperConfig(new UrlHandling(true));
+                $this->nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+            }
+        }
+    }
+
+    /**
+     * Function createUsage
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function createUsage(stdClass $usageData): Usage {
+        return $this->nodeHelper->createUsage($this->getTicket(), $usageData->containerId, (string)$usageData->resourceId, (string)$usageData->nodeId, (string)$usageData->nodeVersion);
+    }
+
+    /**
+     * Function getUsageId
+     *
+     * @throws Exception
+     */
+    public function getUsageId(stdClass $usageData): string {
+        $usageId = $this->nodeHelper->getUsageIdByParameters($usageData->ticket, $usageData->nodeId, $usageData->containerId, $usageData->resourceId);
+        $usageId === null && throw new Exception('No usage found');
+        return $usageId;
+    }
+
+    /**
+     * Function deleteUsage
+     *
+     * @throws Exception
+     */
+    public function deleteUsage(stdClass $usageData): void {
+        ! isset($usageData->usageId) && throw new Exception('No usage id provided, deletion cannot be performed');
+        try {
+            $this->nodeHelper->deleteUsage($usageData->nodeId, $usageData->usageId);
+        } catch (UsageDeletedException $usageDeletedException) {
+            error_log( 'noted, deleting locally: ' . $usageDeletedException->getMessage());
+        }
+    }
+
+    /**
+     * Function getNode
+     *
+     * @throws NodeDeletedException
+     * @throws UsageDeletedException
+     * @throws JsonException
+     */
+    public function getNode($postData): array {
+        $usage = new Usage($postData->nodeId, $postData->nodeVersion, $postData->containerId, $postData->resourceId, $postData->usageId);
+        return $this->nodeHelper->getNodeByUsage($usage);
+    }
+
+    /**
+     * Function getTicket
+     *
+     * @throws Exception
+     */
+    public function getTicket(): string {
+        global $USER;
+        if (isset($USER->edusharing_userticket)) {
+            if (isset($USER->edusharing_userticketvalidationts) && time() - $USER->edusharing_userticketvalidationts < 10) {
+                return $USER->edusharing_userticket;
+            }
+            $ticketInfo = $this->authHelper->getTicketAuthenticationInfo($USER->edusharing_userticket);
+            if ($ticketInfo['statusCode'] === 'OK') {
+                $USER->edusharing_userticketvalidationts = time();
+
+                return $USER->edusharing_userticket;
+            }
+        }
+        return $this->authHelper->getTicketForUser($this->utils->getAuthKey());
+    }
+
+    /**
+     * Function deleteInstance
+     *
+     * Given an ID of an instance of this module,
+     * this function will permanently delete the instance
+     * and any data that depends on it.
+     *
+     * @param string $id
+     * @return void
+     * @throws dml_exception
+     * @throws Exception
+     */
+    public function deleteInstance(string $id): void {
+        global $DB;
+        $eduSharing             = $DB->get_record('edusharing', ['id'  => $id], '*', MUST_EXIST);
+        $usageData              = new stdClass();
+        $usageData->ticket      = $this->getTicket();
+        $usageData->nodeId      = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
+        $usageData->containerId = $eduSharing->containerId;
+        $usageData->resourceId  = $eduSharing->resourceId;
+        $usageData->usage_id    = empty($edusharing->usage_id) ? $this->getUsageId($usageData) : $edusharing->usage_id;
+        $this->deleteUsage($usageData);
+        $DB->delete_records(EDUSHARING_TABLE, ['id' => $eduSharing->id]);
+    }
+
+    /**
+     * Function addInstance
+     *
+     * @param stdClass $eduSharing
+     * @return bool|int
+     */
+    public function addInstance(stdClass $eduSharing): bool|int
+    {
+        global $DB;
+
+        $eduSharing->timecreated  = time();
+        $eduSharing->timemodified = time();
+
+        // You may have to add extra stuff in here.
+        $this->postProcessEdusharingObject($eduSharing);
+        $updateVersion = false;
+
+        //use simple version handling for atto plugin or legacy code
+        if (isset($eduSharing -> editor_atto)) {
+            //avoid database error
+            $eduSharing->introformat = 0;
+        } else {
+            if (isset($eduSharing->object_version)) {
+                if ((int)$eduSharing->object_version === 1) {
+                    $updateVersion= true;
+                    $eduSharing->object_version = '';
+                } else {
+                    $eduSharing->object_version = 0;
+                }
+            } else {
+                if (isset($eduSharing->window_versionshow) && $eduSharing->window_versionshow == 'current') {
+                    $eduSharing->object_version = $eduSharing->window_version;
+                } else {
+                    $eduSharing->object_version = 0;
+                }
+            }
+        }
+        try {
+            $id = $DB->insert_record(EDUSHARING_TABLE, $eduSharing);
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            return false;
+        }
+        $usageData               = new stdClass();
+        $usageData->containerId  = $eduSharing->course;
+        $usageData->resourceId   = $id;
+        $usageData->nodeId       = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
+        $usageData->nodeVersion  = $eduSharing->object_version;
+        try {
+            $usage                = $this->createUsage($usageData);
+            $eduSharing->id       = $id;
+            $eduSharing->usage_id = $usage->usageId;
+            if ($updateVersion) {
+                $eduSharing->object_version = $usage->nodeVersion;
+            }
+            $DB->update_record(EDUSHARING_TABLE, $eduSharing);
+            return $id;
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            try {
+                $DB->delete_records(EDUSHARING_TABLE, ['id'  => $id]);
+            } catch (Exception $deleteException) {
+                error_log($deleteException->getMessage());
+            }
+            return false;
+        }
+    }
+
+    public function updateInstance(stdClass $edusharing): bool {
+        global $DB;
+        // FIX: when editing a moodle-course-module the $edusharing->id will be named $edusharing->instance
+        if (!empty($edusharing->instance)) {
+            $edusharing->id = $edusharing->instance;
+        }
+        $this->postProcessEdusharingObject($edusharing);
+        $usageData               = new stdClass ();
+        $usageData->containerId  = $edusharing->course;
+        $usageData->resourceId   = $edusharing->id;
+        $usageData->nodeId       = $this->utils->getObjectIdFromUrl($edusharing->object_url);
+        $usageData->nodeVersion  = $edusharing->object_version;
+        try {
+            $memento           = $DB->get_record(EDUSHARING_TABLE,  ['id'  => $edusharing->id], '*', MUST_EXIST);
+            $usageData->ticket = $this->getTicket();
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            return false;
+        }
+        try {
+            $usage                = $this->createUsage($usageData);
+            $edusharing->usage_id = $usage->usageId;
+            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            try {
+                $DB->update_record(EDUSHARING_TABLE, $memento);
+            } catch (Exception $updateException) {
+                error_log($updateException->getMessage());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Function postProcessEdusharingObject
+     *
+     * @param stdClass $edusharing
+     * @return void
+     */
+    private function postProcessEdusharingObject(stdClass $edusharing): void {
+        global $COURSE;
+        if (empty($edusharing->timecreated)) {
+            $edusharing->timecreated = time();
+        }
+        $edusharing->timeupdated = time();
+        if (!empty($edusharing->force_download)) {
+            $edusharing->force_download = 1;
+            $edusharing->popup_window = 0;
+        } else if (!empty($edusharing->popup_window)) {
+            $edusharing->force_download = 0;
+            $edusharing->options = '';
+        } else {
+            if (empty($edusharing->blockdisplay)) {
+                $edusharing->options = '';
+            }
+            $edusharing->popup_window = '';
+        }
+        $edusharing->tracking = empty($edusharing->tracking) ? 0 : $edusharing->tracking;
+        if (!$edusharing->course) {
+            $edusharing->course = $COURSE->id;
+        }
+    }
+
+    /**
+     * Function importMetadata
+     *
+     * @param string $url
+     * @return CurlResult
+     */
+    public function importMetadata(string $url): CurlResult {
+        $curlOptions = [
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_HEADER         => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT']
+        ];
+        return $this->authHelper->base->handleCurlRequest($url, $curlOptions);
+    }
+
+    public function validateSession(string $url, string $auth): CurlResult {
+        $headers     = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Basic '. base64_encode($auth)
+        ];
+        $url    = $url . 'rest/authentication/v1/validateSession';
+        return $this->authHelper->base->handleCurlRequest($url, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+    }
+
+    public function registerPlugin(string $url, string $delimiter, string $body, string $auth): CurlResult {
+        $registrationUrl = $url . 'rest/admin/v1/applications/xml';
+        $headers         = [
+            'Content-Type: multipart/form-data; boundary=' . $delimiter,
+            'Content-Length: ' . strlen($body),
+            'Accept: application/json',
+            'Authorization: Basic '. base64_encode($auth)
+        ];
+        $this->authHelper->base->curlHandler->setMethod(EdusharingCurlHandler::METHOD_PUT);
+        return $this->authHelper->base->handleCurlRequest($registrationUrl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_POSTFIELDS     => $body
+        ]);
+    }
+}

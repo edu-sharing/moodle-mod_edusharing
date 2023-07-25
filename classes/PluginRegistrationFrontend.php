@@ -9,8 +9,9 @@ class PluginRegistrationFrontend
     public static function registerPlugin(string $repoUrl, string $login, string $pwd): string {
         $return            = '';
         $errorMessage      = '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: '.$repoUrl.'</h3>';
-        $registrationLogic = new PluginRegistration();
-        $metadataLogic     = new MetadataLogic();
+        $service           = new EduSharingService();
+        $registrationLogic = new PluginRegistration($service);
+        $metadataLogic     = new MetadataLogic($service);
         $data              = $metadataLogic->createXmlMetadata();
         try {
             $result = $registrationLogic->registerPlugin($repoUrl, $login, $pwd, $data);

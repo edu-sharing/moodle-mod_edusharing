@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_edusharing\apiService\EduSharingService;
+use mod_edusharing\EduSharingService;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -66,7 +66,9 @@ class mod_edusharing_mod_form extends moodleform_mod
             $this->_form->addRule('object_url', null, 'required', null, 'client');
             $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
             $this->_form->addHelpButton('object_url', 'object_url', EDUSHARING_MODULE_NAME);
-            $repoSearch = trim(get_config('edusharing', 'application_cc_gui_url'), '/') . '/components/search?&applyDirectories=true&reurl=WINDOW&ticket=' . $ticket;
+            $searchUrl = get_config('edusharing', 'application_cc_gui_url');
+            $searchUrl = str_contains($searchUrl, '-service') ? 'http://repository.127.0.0.1.nip.io:8100/edu-sharing' : $searchUrl;
+            $repoSearch = trim($searchUrl, '/') . '/components/search?&applyDirectories=true&reurl=WINDOW&ticket=' . $ticket;
             $searchButton = $this->_form->addElement('button', 'searchbutton', get_string('searchrec', EDUSHARING_MODULE_NAME, get_config('edusharing', 'application_appname')));
             $repoOnClick = "
                             function openRepo(){
@@ -113,8 +115,13 @@ class mod_edusharing_mod_form extends moodleform_mod
             $this->standard_coursemodule_elements();
             $submit2label = get_string('savechangesandreturntocourse');
         } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-            return;
+            var_dump('+++++file++++++');
+            var_dump($e->getFile());
+            var_dump('+++++line++++++');
+            var_dump($e->getLine());
+            var_dump('+++++message++++++');
+            var_dump($e->getMessage());
+            die;
         }
         $buttons = [];
         if (! empty($submit2label) && $this->courseformat->has_view_page()) {

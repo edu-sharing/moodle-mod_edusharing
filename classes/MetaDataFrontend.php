@@ -8,9 +8,9 @@ class MetaDataFrontend
 {
     public static function getRepoForm(): ?string {
         try {
-            $repoUrl     = get_config('edusharing', 'application_cc_gui_url') === false ? get_config('edusharing', 'application_cc_gui_url') : '';
-            $appId       = get_config('edusharing', 'application_appid') === false ? get_config('edusharing', 'application_appid') : '';
-            $hostAliases = get_config('edusharing', 'application_host_aliases') === false ? get_config('edusharing', 'application_host_aliases') : '';
+            $repoUrl     = get_config('edusharing', 'application_cc_gui_url') !== false ? get_config('edusharing', 'application_cc_gui_url') : '';
+            $appId       = get_config('edusharing', 'application_appid') !== false ? get_config('edusharing', 'application_appid') : '';
+            $hostAliases = get_config('edusharing', 'application_host_aliases') !== false ? get_config('edusharing', 'application_host_aliases') : '';
         } catch (Exception $exception) {
             unset($exception);
             return '<p style="background: #FF8170">Error<br></p>';

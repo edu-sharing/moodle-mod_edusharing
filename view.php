@@ -23,7 +23,7 @@
  */
 
 use EduSharingApiClient\EduSharingHelperBase;
-use mod_edusharing\apiService\EduSharingService;
+use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__, 3) .'/config.php');
@@ -38,7 +38,7 @@ try {
         $cm         = get_coursemodule_from_id('edusharing', $id, 0, false, MUST_EXIST);
         $course     = $DB->get_record('course', ['id'  => $cm->course], '*', MUST_EXIST);
         $edusharing = $DB->get_record(EDUSHARING_TABLE, ['id'  => $cm->instance], '*', MUST_EXIST);
-        $vid        =  $id;
+        $vid        = $id;
         $courseId   = $course->id;
     } else if ($n !== 0) {
         $edusharing = $DB->get_record(EDUSHARING_TABLE, ['id'  => $n], '*', MUST_EXIST);
@@ -59,10 +59,11 @@ try {
         trigger_error($exception->getMessage(), E_USER_WARNING);
         exit();
     }
-    $redirectUrl = UtilityFunctions::getRedirectUrl($edusharing);
+    $utils       = new UtilityFunctions();
+    $redirectUrl = $utils->getRedirectUrl($edusharing);
     $ts          = round(microtime(true) * 1000);
     $redirectUrl .= '&ts=' . $ts;
-    $data        = get_config('edusharing', 'application_appid') . $ts . UtilityFunctions::getObjectIdFromUrl($edusharing->object_url);
+    $data        = get_config('edusharing', 'application_appid') . $ts . $utils->getObjectIdFromUrl($edusharing->object_url);
     $baseHelper  = new EduSharingHelperBase(get_config('edusharing', 'application_cc_gui_url'), get_config('edusharing', 'application_private_key'), get_config('edusharing', 'application_appid'));
     $redirectUrl .= '&sig=' . urlencode($baseHelper->sign($data));
     $redirectUrl .= '&signed=' . urlencode($data);
@@ -74,7 +75,7 @@ try {
         $backAction = '&backLink=' . urlencode($_SERVER['HTTP_REFERER']);
     }
     $redirectUrl .= $backAction;
-    $redirectUrl .= '&ticket=' . urlencode(base64_encode(UtilityFunctions::encryptWithRepoKey($ticket)));
+    $redirectUrl .= '&ticket=' . urlencode(base64_encode($utils->encryptWithRepoKey($ticket)));
     redirect($redirectUrl);
 } catch (Exception $exception) {
     error_log($exception->getMessage());

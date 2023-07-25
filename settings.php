@@ -90,8 +90,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext('edusharing/repository_host', 'host', '', '', PARAM_TEXT, 50));
 
-    $settings->add(new admin_setting_configcheckbox('edusharing/repository_restApi', 'restApi', '(since edu-sharing v6.1)', ''));
-
     $settings->add(new admin_setting_configtext('edusharing/repository_version', 'version', '', '5.1', PARAM_TEXT, 50));
 
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));

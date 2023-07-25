@@ -29,6 +29,7 @@
  *
  */
 
+use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -66,7 +67,14 @@ function edusharing_supports(string $feature): int|bool {
  */
 function edusharing_add_instance(stdClass $eduSharing): int|bool
 {
-    return UtilityFunctions::addInstance($eduSharing);
+    $service = new EduSharingService();
+    try {
+        $id = $service->addInstance($eduSharing);
+    } catch (Exception $exception) {
+        error_log('Instance creation failed: ' . $exception->getMessage());
+        return false;
+    }
+    return $id;
 }
 
 /**
@@ -80,8 +88,35 @@ function edusharing_add_instance(stdClass $eduSharing): int|bool
  * @return boolean Success/Fail
  */
 function edusharing_update_instance(stdClass $edusharing): bool {
-    return UtilityFunctions::updateInstance($edusharing);
+    $service = new EduSharingService();
+    try {
+        $service->updateInstance($edusharing);
+    } catch (Exception $exception) {
+        error_log('Instance update failed: ' . $exception->getMessage());
+        return false;
+    }
+    return true;
 }
+
+/**
+ * Given an ID of an instance of this module,
+ * this function will permanently delete the instance
+ * and any data that depends on it.
+ *
+ * @param int $id Id of the module instance
+ * @return boolean Success/Failure
+ */
+function edusharing_delete_instance($id): bool {
+    $service = new EduSharingService();
+    try {
+        $service->deleteInstance((string)$id);
+    } catch (Exception $exception) {
+        error_log('Instance deletion failed: ' . $exception->getMessage());
+        return false;
+    }
+    return true;
+}
+
 
 /**
  * Return a small object with summary information about what a
@@ -218,7 +253,8 @@ function edusharing_uninstall() {
  * @return stdClass|bool
  */
 function edusharing_get_coursemodule_info(stdClass $courseModule): cached_cm_info|bool {
-    return UtilityFunctions::getCourseModuleInfo($courseModule);
+    $utils = new UtilityFunctions();
+    return $utils->getCourseModuleInfo($courseModule);
 }
 
 /**
@@ -241,7 +277,8 @@ function edusharing_pre_block_delete($cm) {
 }
 
 function edusharing_update_settings_images($settingName) {
-    UtilityFunctions::updateSettingsImages($settingName);
+    $utils = new UtilityFunctions();
+    $utils->updateSettingsImages($settingName);
 }
 
 function edusharing_update_settings_name(){

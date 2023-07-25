@@ -7,7 +7,6 @@ use dml_exception;
 use DOMDocument;
 use EduSharingApiClient\Usage;
 use Exception;
-use mod_edusharing\apiService\EduSharingService;
 use moodle_exception;
 use stdClass;
 
@@ -18,6 +17,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class RestoreHelper {
 
+    private EduSharingService $service;
+
+    public function __construct(EduSharingService $service) {
+        $this->service = $service;
+    }
+
     /**
      * Function convertInlineOptions
      *
@@ -27,14 +32,14 @@ class RestoreHelper {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function convertInlineOptions($courseId): void {
+    public function convertInlineOptions($courseId): void {
         global $DB;
         $sections = $DB->get_records('course_sections', ['course' => $courseId]);
         foreach ($sections as $section) {
-            $matchesAtto = static::getInlineObjects($section->summary);
+            $matchesAtto = $this->getInlineObjects($section->summary);
             if (!empty($matchesAtto)) {
                 foreach ($matchesAtto as $match) {
-                    $section -> summary = str_replace($match, static::convertObject($match, $courseId), $section -> summary);
+                    $section -> summary = str_replace($match, $this->convertObject($match, $courseId), $section -> summary);
                     $DB->update_record('course_sections', $section);
                 }
             }
@@ -45,10 +50,10 @@ class RestoreHelper {
             $modInfo = get_fast_modinfo($course);
             $cm      = $modInfo->get_cm($module->id);
             if(! empty($cm->content)) {
-                $matchesAtto = static::getInlineObjects($cm->content);
+                $matchesAtto = $this->getInlineObjects($cm->content);
                 if (!empty($matchesAtto)) {
                     foreach ($matchesAtto as $match) {
-                        $cm->set_content(str_replace($match, static::convertObject($match, $courseId), $cm->content));
+                        $cm->set_content(str_replace($match, $this->convertObject($match, $courseId), $cm->content));
                     }
                 }
             }
@@ -59,10 +64,10 @@ class RestoreHelper {
                 continue;
             }
             if(!empty($module->intro)) {
-                $matchesAtto = static::getInlineObjects($module->intro);
+                $matchesAtto = $this->getInlineObjects($module->intro);
                 if (!empty($matchesAtto)) {
                     foreach ($matchesAtto as $match) {
-                        $module->intro = str_replace($match, static::convertObject($match, $courseId), $module->intro);
+                        $module->intro = str_replace($match, $this->convertObject($match, $courseId), $module->intro);
                     }
                 }
             }
@@ -77,16 +82,13 @@ class RestoreHelper {
      * @param string $text
      * @return array
      */
-    private static function getInlineObjects(string $text): array {
+    private function getInlineObjects(string $text): array {
         if (!str_contains($text, 'edusharing_atto')) {
             return [];
         }
         if (isloggedin()) {
             try {
-                if (!empty(get_config('edusharing', 'repository_restApi'))) {
-                    $eduSharingService = new EduSharingService();
-                    $eduSharingService->getTicket();
-                }
+                $this->service->getTicket();
             } catch (Exception $exception) {
                 trigger_error($exception->getMessage(), E_USER_WARNING);
                 return [];
@@ -107,7 +109,7 @@ class RestoreHelper {
      * @throws dml_exception
      * @throws Exception
      */
-    private static function convertObject($object, $courseId): string {
+    private function convertObject($object, $courseId): string {
         global $DB;
 
         $doc = new DOMDocument();
@@ -141,7 +143,7 @@ class RestoreHelper {
         $id = $DB -> insert_record('edusharing', $edusharing);
 
         if($id) {
-            $usage = static::AddUsage($edusharing, $id);
+            $usage = $this->AddUsage($edusharing, $id);
             if ($usage !== null) {
                 if (isset($usage->usageId)) {
                     $edusharing->id = $id;
@@ -173,12 +175,13 @@ class RestoreHelper {
      * @param int $newItemId
      * @return Usage|null
      */
-    private static function addUsage(stdClass $data, int $newItemId): ?Usage {
+    private function addUsage(stdClass $data, int $newItemId): ?Usage {
         $eduService              = new EduSharingService();
         $usageData               = new stdClass();
         $usageData->containerId  = $data->course;
         $usageData->resourceId   = $newItemId;
-        $usageData->nodeId       = UtilityFunctions::getObjectIdFromUrl($data->object_url);
+        $utils                   = new UtilityFunctions();
+        $usageData->nodeId       = $utils->getObjectIdFromUrl($data->object_url);
         $usageData->nodeVersion  = $data->object_version;
         try {
             return $eduService->createUsage($usageData);

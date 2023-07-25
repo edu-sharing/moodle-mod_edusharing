@@ -30,7 +30,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_edusharing\EduSharingService;
 use mod_edusharing\InstallUpgradeLogic;
+use mod_edusharing\MetadataLogic;
+use mod_edusharing\PluginRegistration;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -192,6 +195,10 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
     }
-    InstallUpgradeLogic::perform(false);
+    $service           = new EduSharingService();
+    $metadataLogic     = new MetadataLogic($service);
+    $registrationLogic = new PluginRegistration($service);
+    $logic             = new InstallUpgradeLogic($registrationLogic, $metadataLogic);
+    $logic->perform(false);
     return $result;
 }

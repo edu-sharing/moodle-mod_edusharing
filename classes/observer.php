@@ -1,31 +1,26 @@
 <?php declare(strict_types = 1);
 
-namespace mod_edusharing;
-
-use core\event\base;
-use core\event\course_deleted;
-use core\event\course_module_deleted;
-use core\event\course_restored;
-use Exception;
-use mod_edusharing\apiService\EduSharingService;
+use mod_edusharing\EduSharingService;
+use mod_edusharing\RestoreHelper;
+use mod_edusharing\UtilityFunctions;
 
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class EdusharingObserver
+ * Class mod_edusharing_observer
  *
  * callback definitions for events.
  */
-class EdusharingObserver {
+class mod_edusharing_observer {
 
     /**
      * Function courseModuleDeleted
      *
-     * @param course_module_deleted $event
+     * @param \core\event\course_module_deleted $event
      * @return void
      */
-    public static function courseModuleDeleted(course_module_deleted $event): void {
+    public static function course_module_deleted(\core\event\course_module_deleted $event) {
         global $DB;
         $data     = $event->get_data();
         $objectId = $data['objectid'];
@@ -61,12 +56,9 @@ class EdusharingObserver {
     }
 
     /**
-     * Function courseModuleCreatedOrUpdated
-     *
-     * @param base $event
-     * @return void
+     * Function course_module_created
      */
-    public static function courseModuleCreatedOrUpdated(base $event): void {
+    public static function course_module_created(\core\event\course_module_created $event) {
         global $DB;
         $data = $event->get_data();
         try {
@@ -77,16 +69,38 @@ class EdusharingObserver {
         }
         $text   = $module->intro;
         $idType = 'module_id';
-        UtilityFunctions::setModuleIdInDb($text, $data, $idType);
+        $utils = new UtilityFunctions();
+        $utils->setModuleIdInDb($text, $data, $idType);
+    }
+
+    /**
+     * Function courseModuleCreatedOrUpdated
+     *
+     * @param \core\event\course_module_updated $event
+     * @return void
+     */
+    public static function course_module_updated(\core\event\course_module_updated $event) {
+        global $DB;
+        $data = $event->get_data();
+        try {
+            $module = $DB->get_record($data['other']['modulename'], ['id' => $data['other']['instanceid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            return;
+        }
+        $text   = $module->intro;
+        $idType = 'module_id';
+        $utils = new UtilityFunctions();
+        $utils->setModuleIdInDb($text, $data, $idType);
     }
 
     /**
      * Function courseSectionUpdatedOrCreated
      *
-     * @param base $event
+     * @param \core\event\course_section_created $event
      * @return void
      */
-    public static function courseSectionUpdatedOrCreated(base $event): void {
+    public static function course_section_created(\core\event\course_section_created $event) {
         global $DB;
         $data = $event->get_data();
         try {
@@ -95,20 +109,40 @@ class EdusharingObserver {
             error_log($exception->getMessage());
             return;
         }
-        $text    = $module->summary;
-        $id_type = 'section_id';
-        UtilityFunctions::setModuleIdInDb($text, $data, $id_type);
+        $text   = $module->summary;
+        $idType = 'section_id';
+        $utils  = new UtilityFunctions();
+        $utils->setModuleIdInDb($text, $data, $idType);
+    }
 
+    /**
+     * Function courseSectionUpdatedOrCreated
+     *
+     * @param \core\event\course_module_updated $event
+     * @return void
+     */
+    public static function course_section_updated(\core\event\course_module_updated $event) {
+        global $DB;
+        $data = $event->get_data();
+        try {
+            $module = $DB->get_record('course_sections', ['id' => $data['objectid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            return;
+        }
+        $text   = $module->summary;
+        $idType = 'section_id';
+        $utils  = new UtilityFunctions();
+        $utils->setModuleIdInDb($text, $data, $idType);;
     }
 
 
     /**
      * Function courseDeleted
      *
-     * @param course_deleted $event
-     * @return void
+     * @param \core\event\course_deleted $event
      */
-    public static function courseDeleted(course_deleted $event): void {
+    public static function course_deleted(\core\event\course_deleted $event) {
         global $DB;
         $data     = $event->get_data();
         $objectId = $data['objectid'];
@@ -131,14 +165,14 @@ class EdusharingObserver {
     /**
      * Function courseRestored
      *
-     * @param course_restored $event
-     * @return void
+     * @param \core\event\course_restored $event
      */
-    public static function courseRestored(course_restored $event): void {
+    public static function courseRestored(\core\event\course_restored $event) {
         $eventData = $event->get_data();
         $courseId  = $eventData['courseid'];
         try {
-            RestoreHelper::convertInlineOptions($courseId);
+            $helper = new RestoreHelper(new EduSharingService());
+            $helper->convertInlineOptions($courseId);
         } catch (Exception $exception) {
             error_log($exception->getMessage());
         }

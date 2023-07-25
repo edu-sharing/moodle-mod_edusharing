@@ -2,21 +2,15 @@
 
 namespace mod_edusharing;
 
-use EduSharingApiClient\CurlHandler;
 use JsonException;
-use mod_edusharing\apiService\MoodleCurlHandler;
 
 class PluginRegistration
 {
-    private CurlHandler $curlHandler;
-    public function __construct() {
+    private EduSharingService $service;
+    public function __construct(EduSharingService $service) {
+        $this->service = $service;
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
-        $this->init();
-    }
-
-    private function init(): void {
-        $this->curlHandler = new MoodleCurlHandler();
     }
 
     /**
@@ -35,16 +29,7 @@ class PluginRegistration
      * @throws JsonException
      */
     private function validateAlfrescoSession(string $repoUrl, string $auth): void {
-        $headers     = [
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'Authorization: Basic '. base64_encode($auth)
-        ];
-        $url    = $repoUrl . 'rest/authentication/v1/validateSession';
-        $result = $this->curlHandler->handleCurlRequest($url, [
-            'CURLOPT_RETURNTRANSFER' => 1,
-            'CURLOPT_HTTPHEADER'     => $headers
-        ]);
+        $result = $this->service->validateSession($repoUrl, $auth);
         if ($result->error !== 0) {
             throw new EduSharingUserException('API connection error');
         }
@@ -59,24 +44,12 @@ class PluginRegistration
      * @throws JsonException
      */
     private function performRegistration(string $repoUrl, string $data, string $auth): array {
-        $registrationUrl = $repoUrl.'rest/admin/v1/applications/xml';
-        $delimiter       = '-------------' . uniqid();
-        $body            = $this->getRegistrationApiBody($delimiter, $data);
-        $headers         = [
-            'Content-Type: multipart/form-data; boundary=' . $delimiter,
-            'Content-Length: ' . strlen($body),
-            'Accept: application/json',
-            'Authorization: Basic '. base64_encode($auth)
-        ];
-        $this->curlHandler->setMethod(CurlHandler::METHOD_PUT);
-        $result = $this->curlHandler->handleCurlRequest($registrationUrl, [
-            'CURLOPT_RETURNTRANSFER' => 1,
-            'CURLOPT_HTTPHEADER'     => $headers
-        ]);
+        $delimiter = '-------------' . uniqid();
+        $body      = $this->getRegistrationApiBody($delimiter, $data);
+        $result    = $this->service->registerPlugin($repoUrl, $delimiter, $body, $auth);
         if ($result->error !== 0) {
             throw new EduSharingUserException('API connection error');
         }
-
         return json_decode($result->content, true, 512, JSON_THROW_ON_ERROR);
     }
 

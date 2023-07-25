@@ -6,7 +6,6 @@ use dml_exception;
 use DOMDocument;
 use EduSharingApiClient\EduSharingHelper;
 use Exception;
-use mod_edusharing\apiService\MoodleCurlHandler;
 use SimpleXMLElement;
 
 class MetadataLogic
@@ -15,7 +14,9 @@ class MetadataLogic
     private ?string $hostAliases = null;
     private ?string $wloGuestUser = null;
     private ?string $appId = null;
-    public function __construct() {
+    private EduSharingService $service;
+    public function __construct(EduSharingService $service) {
+        $this->service = $service;
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     }
@@ -26,18 +27,9 @@ class MetadataLogic
      */
     public function importMetadata(string $metaDataUrl): void {
         global $CFG;
-        $xml         = new DOMDocument();
-        $curlHandler = new MoodleCurlHandler();
+        $xml = new DOMDocument();
         libxml_use_internal_errors(true);
-        $curlOptions = [
-            'CURLOPT_SSL_VERIFYPEER' => false,
-            'CURLOPT_SSL_VERIFYHOST' => false,
-            'CURLOPT_FOLLOWLOCATION' => 1,
-            'CURLOPT_HEADER'         => 0,
-            'CURLOPT_RETURNTRANSFER' => 1,
-            'CURLOPT_USERAGENT'      => $_SERVER['HTTP_USER_AGENT']
-        ];
-        $result = $curlHandler->handleCurlRequest($metaDataUrl, $curlOptions);
+        $result = $this->service->importMetadata($metaDataUrl);
         if ($result->error !== 0) {
             $message = $result->info['message'] ?? 'unknown';
             debugging('cURL Error: '. $message);
@@ -52,14 +44,14 @@ class MetadataLogic
         $xml->formatOutput       = true;
         $entries                 = $xml->getElementsByTagName('entry');
         if ($this->appId === null) {
-            $this->appId = empty(get_config('edusharing', 'application_appid')) ? get_config('edusharing', 'application_appid') : uniqid('moodle_');
+            $this->appId = ! empty(get_config('edusharing', 'application_appid')) ? get_config('edusharing', 'application_appid') : uniqid('moodle_');
         }
-        $repoId                  = get_config('edusharing', 'repository_appid');
-        $clientProtocol          = get_config('edusharing', 'repository_clientprotocol');
-        $repoDomain              = get_config('edusharing', 'repository_domain');
-        $clientPort              = get_config('edusharing', 'repository_clientport');
-        $privateKey              = get_config('edusharing', 'application_private_key');
-        $publicKey               = get_config('edusharing', 'application_public_key');
+        $repoId         = get_config('edusharing', 'repository_appid');
+        $clientProtocol = get_config('edusharing', 'repository_clientprotocol');
+        $repoDomain     = get_config('edusharing', 'repository_domain');
+        $clientPort     = get_config('edusharing', 'repository_clientport');
+        $privateKey     = get_config('edusharing', 'application_private_key');
+        $publicKey      = get_config('edusharing', 'application_public_key');
         foreach ($entries as $entry) {
             set_config('repository_' . $entry->getAttribute('key'), $entry->nodeValue, 'edusharing');
         }
@@ -76,7 +68,7 @@ class MetadataLogic
             set_config('wlo_guest_option', '1', 'edusharing');
             set_config('edu_guest_guest_id', $this->wloGuestUser, 'edusharing');
         }
-        if (empty($privateKey) || empty($publicKey) ){
+        if (empty($privateKey) || empty($publicKey)){
             $keyPair = EduSharingHelper::generateKeyPair();
             set_config('application_private_key', $keyPair['privateKey'], 'edusharing');
             set_config('application_public_key', $keyPair['publicKey'], 'edusharing');

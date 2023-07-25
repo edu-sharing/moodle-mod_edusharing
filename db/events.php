@@ -4,31 +4,31 @@ defined('MOODLE_INTERNAL') || die();
 $observers = [
     [
         'eventname' => '\core\event\course_module_deleted',
-        'callback' => 'EdusharingObserver::courseModuleDeleted',
+        'callback' => 'mod_edusharing_observer::course_module_deleted',
         'priority ' => 5000,
     ],
     [
         'eventname' => '\core\event\course_module_created',
-        'callback' => 'EdusharingObserver::courseModuleCreatedOrUpdated',
+        'callback' => 'mod_edusharing_observer::course_module_created',
     ],
     [
         'eventname' => '\core\event\course_module_updated',
-        'callback' => 'EdusharingObserver::courseModuleCreatedOrUpdated',
+        'callback' => 'mod_edusharing_observer::course_module_updated',
     ],
     [
         'eventname' => '\core\event\course_section_created',
-        'callback' => 'EdusharingObserver::courseSectionUpdatedOrCreated',
+        'callback' => 'mod_edusharing_observer::course_section_created',
     ],
     [
         'eventname' => '\core\event\course_section_updated',
-        'callback' => 'EdusharingObserver::courseSectionUpdatedOrCreated',
+        'callback' => 'mod_edusharing_observer::course_section_updated',
     ],
     [
         'eventname' => 'core\event\course_deleted',
-        'callback' => 'EdusharingObserver::courseDeleted',
+        'callback' => 'mod_edusharing_observer::course_deleted',
     ],
     [
         'eventname' => '\core\event\course_restored',
-        'callback' => 'EdusharingObserver::courseRestored',
+        'callback' => 'mod_edusharing_observer::course_restored',
     ]
 ];
