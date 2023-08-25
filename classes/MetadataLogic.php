@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace mod_edusharing;
 
@@ -8,20 +8,46 @@ use EduSharingApiClient\EduSharingHelper;
 use Exception;
 use SimpleXMLElement;
 
+/**
+ * Class MetadataLogic
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
 class MetadataLogic
 {
-    public bool $reloadForm = false;
-    private ?string $hostAliases = null;
-    private ?string $wloGuestUser = null;
-    private ?string $appId = null;
+    public bool               $reloadForm   = false;
+    private ?string           $hostAliases  = null;
+    private ?string           $wloGuestUser = null;
+    private ?string           $appId        = null;
     private EduSharingService $service;
-    public function __construct(EduSharingService $service) {
+    private ?UtilityFunctions $utils;
+
+    /**
+     * MetadataLogic constructor
+     *
+     * @param EduSharingService $service
+     * @param UtilityFunctions|null $utils
+     */
+    public function __construct(EduSharingService $service, ?UtilityFunctions $utils = null) {
         $this->service = $service;
+        $this->utils   = $utils;
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+        $this->init();
     }
 
     /**
+     * Function init
+     *
+     * @return void
+     */
+    private function init(): void {
+        $this->utils === null && $this->utils = new UtilityFunctions();
+    }
+
+    /**
+     * Function importMetadata
+     *
      * @throws EduSharingUserException
      * @throws Exception
      */
@@ -32,11 +58,11 @@ class MetadataLogic
         $result = $this->service->importMetadata($metaDataUrl);
         if ($result->error !== 0) {
             $message = $result->info['message'] ?? 'unknown';
-            debugging('cURL Error: '. $message);
+            debugging('cURL Error: ' . $message);
             $this->reloadForm = true;
-            throw new EduSharingUserException($message, 0, null, '<p style="background: #FF8170">cURL Error: '. $message . '<br></p>');
+            throw new EduSharingUserException($message, 0, null, '<p style="background: #FF8170">cURL Error: ' . $message . '<br></p>');
         }
-        if (! $xml->loadXML($result->content)) {
+        if (!$xml->loadXML($result->content)) {
             $this->reloadForm = true;
             throw new EduSharingUserException('xml error', 0, null, '<p style="background: #FF8170">could not load ' . $metaDataUrl . ' please check url <br></p>');
         }
@@ -44,49 +70,48 @@ class MetadataLogic
         $xml->formatOutput       = true;
         $entries                 = $xml->getElementsByTagName('entry');
         if ($this->appId === null) {
-            $this->appId = ! empty(get_config('edusharing', 'application_appid')) ? get_config('edusharing', 'application_appid') : uniqid('moodle_');
+            $this->appId = !empty($this->utils->getConfigEntry('application_appid')) ? $this->utils->getConfigEntry('application_appid') : uniqid('moodle_');
         }
-        $repoId         = get_config('edusharing', 'repository_appid');
-        $clientProtocol = get_config('edusharing', 'repository_clientprotocol');
-        $repoDomain     = get_config('edusharing', 'repository_domain');
-        $clientPort     = get_config('edusharing', 'repository_clientport');
-        $privateKey     = get_config('edusharing', 'application_private_key');
-        $publicKey      = get_config('edusharing', 'application_public_key');
+        $repoId         = $this->utils->getConfigEntry('repository_appid');
+        $clientProtocol = $this->utils->getConfigEntry('repository_clientprotocol');
+        $repoDomain     = $this->utils->getConfigEntry('repository_domain');
+        $clientPort     = $this->utils->getConfigEntry('repository_clientport');
+        $privateKey     = $this->utils->getConfigEntry('application_private_key');
+        $publicKey      = $this->utils->getConfigEntry('application_public_key');
         foreach ($entries as $entry) {
-            set_config('repository_' . $entry->getAttribute('key'), $entry->nodeValue, 'edusharing');
+            $this->utils->setConfigEntry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
         $host = empty($_SERVER['SERVER_ADDR']) ? gethostbyname($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_ADDR'];
-        set_config('application_host', $host, 'edusharing');
-        set_config('application_appid', $this->appId, 'edusharing');
-        set_config('application_type', 'LMS', 'edusharing');
-        set_config('application_homerepid', $repoId, 'edusharing');
-        set_config('application_cc_gui_url', $clientProtocol . '://' . $repoDomain . ':' . $clientPort . '/edu-sharing/', 'edusharing');
+        $this->utils->setConfigEntry('application_host', $host);
+        $this->utils->setConfigEntry('application_appid', $this->appId);
+        $this->utils->setConfigEntry('application_type', 'LMS');
+        $this->utils->setConfigEntry('application_homerepid', $repoId);
+        $this->utils->setConfigEntry('application_cc_gui_url', $clientProtocol . '://' . $repoDomain . ':' . $clientPort . '/edu-sharing/');
         if ($this->hostAliases !== null) {
-            set_config('application_host_aliases', $this->hostAliases, 'edusharing');
+            $this->utils->setConfigEntry('application_host_aliases', $this->hostAliases);
         }
         if ($this->wloGuestUser !== null) {
-            set_config('wlo_guest_option', '1', 'edusharing');
-            set_config('edu_guest_guest_id', $this->wloGuestUser, 'edusharing');
+            $this->utils->setConfigEntry('wlo_guest_option', '1');
+            $this->utils->setConfigEntry('edu_guest_guest_id', $this->wloGuestUser);
         }
-        if (empty($privateKey) || empty($publicKey)){
+        if (empty($privateKey) || empty($publicKey)) {
             $keyPair = EduSharingHelper::generateKeyPair();
-            set_config('application_private_key', $keyPair['privateKey'], 'edusharing');
-            set_config('application_public_key', $keyPair['publicKey'], 'edusharing');
+            $this->utils->setConfigEntry('application_private_key', $keyPair['privateKey']);
+            $this->utils->setConfigEntry('application_public_key', $keyPair['publicKey']);
         }
-        if (empty(get_config('edusharing', 'application_private_key'))) {
+        if (empty($this->utils->getConfigEntry('application_private_key'))) {
             throw new EduSharingUserException('ssl keypair generation error', 0, null, '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>');
         }
-        set_config('application_blowfishkey', 'thetestkey', 'edusharing');
-        set_config('application_blowfishiv', 'initvect', 'edusharing');
-        set_config('EDU_AUTH_KEY', 'username', 'edusharing');
-        set_config('EDU_AUTH_PARAM_NAME_USERID', 'userid', 'edusharing');
-        set_config('EDU_AUTH_PARAM_NAME_LASTNAME', 'lastname', 'edusharing');
-        set_config('EDU_AUTH_PARAM_NAME_FIRSTNAME', 'firstname', 'edusharing');
-        set_config('EDU_AUTH_PARAM_NAME_EMAIL', 'email', 'edusharing');
-        set_config('EDU_AUTH_AFFILIATION', $CFG->siteidentifier, 'edusharing');
-        set_config('EDU_AUTH_AFFILIATION_NAME', $CFG->siteidentifier, 'edusharing');
+        $this->utils->setConfigEntry('application_blowfishkey', 'thetestkey');
+        $this->utils->setConfigEntry('application_blowfishiv', 'initvect');
+        $this->utils->setConfigEntry('EDU_AUTH_KEY', 'username');
+        $this->utils->setConfigEntry('EDU_AUTH_PARAM_NAME_USERID', 'userid');
+        $this->utils->setConfigEntry('EDU_AUTH_PARAM_NAME_LASTNAME', 'lastname');
+        $this->utils->setConfigEntry('EDU_AUTH_PARAM_NAME_FIRSTNAME', 'firstname');
+        $this->utils->setConfigEntry('EDU_AUTH_PARAM_NAME_EMAIL', 'email');
+        $this->utils->setConfigEntry('EDU_AUTH_AFFILIATION', $CFG->siteidentifier);
+        $this->utils->setConfigEntry('EDU_AUTH_AFFILIATION_NAME', $CFG->siteidentifier);
     }
-
 
     /**
      * Function createXmlMetadata
@@ -98,29 +123,28 @@ class MetadataLogic
         $xml = new SimpleXMLElement(
             '<?xml version="1.0" encoding="utf-8" ?><!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"><properties></properties>');
         try {
-            $entry = $xml->addChild('entry', get_config('edusharing', 'application_appid'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('application_appid'));
             $entry->addAttribute('key', 'appid');
-            $entry = $xml->addChild('entry', get_config('edusharing', 'application_type'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('application_type'));
             $entry->addAttribute('key', 'type');
             $entry = $xml->addChild('entry', 'moodle');
             $entry->addAttribute('key', 'subtype');
             $entry = $xml->addChild('entry', parse_url($CFG->wwwroot, PHP_URL_HOST));
             $entry->addAttribute('key', 'domain');
-            $entry = $xml->addChild('entry', get_config('edusharing', 'application_host'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('application_host'));
             $entry->addAttribute('key', 'host');
-            $entry = $xml->addChild('entry', get_config('edusharing', 'application_host_aliases'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('application_host_aliases'));
             $entry->addAttribute('key', 'host_aliases');
             $entry = $xml->addChild('entry', 'true');
             $entry->addAttribute('key', 'trustedclient');
             $entry = $xml->addChild('entry', 'moodle:course/update');
             $entry->addAttribute('key', 'hasTeachingPermission');
-            $entry = $xml->addChild('entry', get_config('edusharing', 'application_public_key'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('application_public_key'));
             $entry->addAttribute('key', 'public_key');
-            $entry = $xml->addChild('entry', get_config('edusharing', 'EDU_AUTH_AFFILIATION_NAME'));
+            $entry = $xml->addChild('entry', $this->utils->getConfigEntry('EDU_AUTH_AFFILIATION_NAME'));
             $entry->addAttribute('key', 'appcaption');
-
-            if (get_config('edusharing', 'wlo_guest_option')) {
-                $entry = $xml->addChild('entry', get_config('edusharing', 'edu_guest_guest_id'));
+            if ($this->utils->getConfigEntry('wlo_guest_option')) {
+                $entry = $xml->addChild('entry', $this->utils->getConfigEntry('edu_guest_guest_id'));
                 $entry->addAttribute('key', 'auth_by_app_user_whitelist');
             }
         } catch (dml_exception $exception) {
@@ -132,14 +156,33 @@ class MetadataLogic
         return html_entity_decode($xml->asXML());
     }
 
+    /**
+     * Function setHostAliases
+     *
+     * @param string $hostAliases
+     * @return void
+     */
     public function setHostAliases(string $hostAliases): void {
         $this->hostAliases = $hostAliases;
     }
 
+    /**
+     * Function setWloGuestUser
+     *
+     * @param string $wloGuestUser
+     * @return void
+     */
     public function setWloGuestUser(string $wloGuestUser): void {
         $this->wloGuestUser = $wloGuestUser;
     }
 
+
+    /**
+     * Function setAppId
+     *
+     * @param string $appId
+     * @return void
+     */
     public function setAppId(string $appId): void {
         $this->appId = $appId;
     }

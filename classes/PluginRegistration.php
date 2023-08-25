@@ -1,12 +1,23 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace mod_edusharing;
 
 use JsonException;
 
+/**
+ * Class PluginRegistration
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
 class PluginRegistration
 {
     private EduSharingService $service;
+
+    /**
+     * PluginRegistration constructor
+     *
+     * @param EduSharingService $service
+     */
     public function __construct(EduSharingService $service) {
         $this->service = $service;
         global $CFG;
@@ -25,6 +36,8 @@ class PluginRegistration
     }
 
     /**
+     * Function validateAlfrescoSession
+     *
      * @throws EduSharingUserException
      * @throws JsonException
      */
@@ -40,6 +53,8 @@ class PluginRegistration
     }
 
     /**
+     * Function performRegistration
+     *
      * @throws EduSharingUserException
      * @throws JsonException
      */
@@ -53,12 +68,19 @@ class PluginRegistration
         return json_decode($result->content, true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * Function getRegistrationApiBody
+     *
+     * @param string $delimiter
+     * @param string $data
+     * @return string
+     */
     private function getRegistrationApiBody(string $delimiter, string $data): string {
         $body = '--' . $delimiter . "\r\n";
         $body .= 'Content-Disposition: form-data; name="' . 'xml' . '"';
         $body .= '; filename="metadata.xml"' . "\r\n";
-        $body .= 'Content-Type: text/xml' ."\r\n\r\n";
-        $body .= $data."\r\n";
+        $body .= 'Content-Type: text/xml' . "\r\n\r\n";
+        $body .= $data . "\r\n";
         $body .= "--" . $delimiter . "--\r\n";
 
         return $body;

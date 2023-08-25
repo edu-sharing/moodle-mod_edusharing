@@ -4,8 +4,10 @@
  */
 
 
+use mod_edusharing\EduSharingService;
+use mod_edusharing\RestoreHelper;
+
 require_once(dirname(__FILE__).'/../../lib.php');
-require_once(dirname(__FILE__) . '/../../classes/RestoreHelper.php');
 
 
 class restore_edusharing_activity_structure_step extends restore_activity_structure_step {
@@ -32,8 +34,8 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         $newitemid = $DB->insert_record('edusharing', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
-        RestoreHelper::edusharing_add_usage($data, $newitemid);
-
+        $helper = new RestoreHelper(new EduSharingService());
+        $helper->addUsage($data, $newitemid);
     }
 
     protected function after_execute() {

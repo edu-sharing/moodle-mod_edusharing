@@ -34,13 +34,7 @@ use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
 
-const EDUSHARING_MODULE_NAME = 'edusharing';
-const EDUSHARING_TABLE = 'edusharing';
-
-const EDUSHARING_DISPLAY_MODE_DISPLAY = 'window';
-const EDUSHARING_DISPLAY_MODE_INLINE = 'inline';
-
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) .'/lib');
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/lib');
 
 /**
  * Module feature detection.
@@ -50,9 +44,9 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) .'/lib'
  */
 function edusharing_supports(string $feature): int|bool {
     return match ($feature) {
-        FEATURE_MOD_ARCHETYPE                                               => MOD_ARCHETYPE_RESOURCE,
+        FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
         FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2 => true,
-        default                                                             => false,
+        default => false,
     };
 }
 
@@ -65,8 +59,7 @@ function edusharing_supports(string $feature): int|bool {
  * @param stdClass $eduSharing An object from the form in mod_form.php
  * @return int|bool The id of the newly inserted edusharing record
  */
-function edusharing_add_instance(stdClass $eduSharing): int|bool
-{
+function edusharing_add_instance(stdClass $eduSharing): int|bool {
     $service = new EduSharingService();
     try {
         $id = $service->addInstance($eduSharing);
@@ -281,7 +274,7 @@ function edusharing_update_settings_images($settingName) {
     $utils->updateSettingsImages($settingName);
 }
 
-function edusharing_update_settings_name(){
+function edusharing_update_settings_name() {
     // Reset language cache
     get_string_manager()->reset_caches();
 }

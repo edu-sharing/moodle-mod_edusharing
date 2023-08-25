@@ -23,11 +23,12 @@
  */
 
 use EduSharingApiClient\EduSharingHelperBase;
+use mod_edusharing\Constants;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
-require_once(dirname(__FILE__, 3) .'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
 
 global $CFG, $PAGE, $DB;
 
@@ -36,13 +37,13 @@ try {
     $n  = optional_param('n', 0, PARAM_INT);  // edusharing instance ID - it should be named as the first character of the module
     if ($id !== 0) {
         $cm         = get_coursemodule_from_id('edusharing', $id, 0, false, MUST_EXIST);
-        $course     = $DB->get_record('course', ['id'  => $cm->course], '*', MUST_EXIST);
-        $edusharing = $DB->get_record(EDUSHARING_TABLE, ['id'  => $cm->instance], '*', MUST_EXIST);
+        $course     = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+        $edusharing = $DB->get_record(Constants::EDUSHARING_TABLE, ['id' => $cm->instance], '*', MUST_EXIST);
         $vid        = $id;
         $courseId   = $course->id;
     } else if ($n !== 0) {
-        $edusharing = $DB->get_record(EDUSHARING_TABLE, ['id'  => $n], '*', MUST_EXIST);
-        $course     = $DB->get_record('course', ['id'  => $edusharing->course], '*', MUST_EXIST);
+        $edusharing = $DB->get_record(Constants::EDUSHARING_TABLE, ['id' => $n], '*', MUST_EXIST);
+        $course     = $DB->get_record('course', ['id' => $edusharing->course], '*', MUST_EXIST);
         $cm         = get_coursemodule_from_instance('edusharing', $edusharing->id, $course->id, false, MUST_EXIST);
         $vid        = $edusharing->id;
         $courseId   = $course->id;
@@ -50,7 +51,7 @@ try {
         trigger_error(get_string('error_detect_course', 'edusharing'), E_USER_WARNING);
         exit();
     }
-    $PAGE->set_url('/mod/edusharing/view.php?id='.$vid);
+    $PAGE->set_url('/mod/edusharing/view.php?id=' . $vid);
     require_login($course, true, $cm);
     try {
         $eduSharingService = new EduSharingService();

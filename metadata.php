@@ -23,20 +23,28 @@
  */
 
 use EduSharingApiClient\EduSharingHelper;
+use mod_edusharing\EduSharingService;
 use mod_edusharing\MetadataLogic;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
-if (empty(get_config('edusharing', 'application_public_key'))) {
+try {
+    $publicKey = get_config('edusharing', 'application_public_key');
+} catch (Exception $exception) {
+    $publicKey = '';
+    unset($exception);
+}
+
+if (empty($publicKey)) {
     try {
         $keyPair = EduSharingHelper::generateKeyPair();
+        set_config('application_public_key', $keyPair['publicKey'], 'edusharing');
+        set_config('application_private_key', $keyPair['privateKey'], 'edusharing');
     } catch (Exception $exception) {
         error_log($exception->getMessage());
     }
-    set_config('application_public_key', $keyPair['publicKey'], 'edusharing');
-    set_config('application_private_key', $keyPair['privateKey'], 'edusharing');
 }
-$logic    = new MetadataLogic();
+$logic    = new MetadataLogic(new EduSharingService());
 $metadata = $logic->createXmlMetadata();
 
 header('Content-type: text/xml');

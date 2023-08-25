@@ -12,6 +12,8 @@ use mod_edusharing\PluginRegistration;
 
 /**
  * class PluginRegistrationTest
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
 class PluginRegistrationTest extends advanced_testcase
 {
@@ -23,14 +25,14 @@ class PluginRegistrationTest extends advanced_testcase
      * @throws JsonException
      */
     public function testRegisterPluginReturnsContentFromServiceCallOnSuccess(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $repoUrl = 'http://test.de';
-        $user = 'uName';
-        $password = 'testPass';
-        $data = 'data';
+        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper  = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $repoUrl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $data        = 'data';
         $serviceMock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['validateSession', 'registerPlugin'])
             ->setConstructorArgs([$authHelper, $nodeHelper])
@@ -57,14 +59,14 @@ class PluginRegistrationTest extends advanced_testcase
      * @throws JsonException
      */
     public function testRegisterPluginThrowsApiConnectionExceptionWhenValidateSessionFailsWithError(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $repoUrl = 'http://test.de';
-        $user = 'uName';
-        $password = 'testPass';
-        $data = 'data';
+        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper  = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $repoUrl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $data        = 'data';
         $serviceMock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['validateSession', 'registerPlugin'])
             ->setConstructorArgs([$authHelper, $nodeHelper])
@@ -88,14 +90,14 @@ class PluginRegistrationTest extends advanced_testcase
      * @throws JsonException
      */
     public function testRegisterPluginThrowsInvalidCredentialsExceptionIfUserIsNoAdmin(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $repoUrl = 'http://test.de';
-        $user = 'uName';
-        $password = 'testPass';
-        $data = 'data';
+        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper  = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $repoUrl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $data        = 'data';
         $serviceMock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['validateSession', 'registerPlugin'])
             ->setConstructorArgs([$authHelper, $nodeHelper])
@@ -118,14 +120,14 @@ class PluginRegistrationTest extends advanced_testcase
      * @throws JsonException
      */
     public function testRegisterPluginThrowsApiConnectionExceptionWhenRegisterPluginFailsWithError(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $repoUrl = 'http://test.de';
-        $user = 'uName';
-        $password = 'testPass';
-        $data = 'data';
+        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper  = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $repoUrl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $data        = 'data';
         $serviceMock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['validateSession', 'registerPlugin'])
             ->setConstructorArgs([$authHelper, $nodeHelper])
@@ -152,14 +154,14 @@ class PluginRegistrationTest extends advanced_testcase
      * @throws JsonException
      */
     public function testRegisterPluginThrowsJsonExceptionWithInvalidJsonReturnedFromApi(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $repoUrl = 'http://test.de';
-        $user = 'uName';
-        $password = 'testPass';
-        $data = 'data';
+        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper  = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $repoUrl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $data        = 'data';
         $serviceMock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['validateSession', 'registerPlugin'])
             ->setConstructorArgs([$authHelper, $nodeHelper])

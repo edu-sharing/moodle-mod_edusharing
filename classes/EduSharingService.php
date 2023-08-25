@@ -1,7 +1,8 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace mod_edusharing;
 
+use coding_exception;
 use dml_exception;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
@@ -15,6 +16,8 @@ use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
 use Exception;
 use JsonException;
+use moodle_exception;
+use require_login_exception;
 use stdClass;
 
 /**
@@ -57,7 +60,8 @@ class EduSharingService
     private function init(): void {
         $this->utils === null && $this->utils = new UtilityFunctions();
         if ($this->authHelper === null || $this->nodeHelper === null) {
-            $baseHelper = new EduSharingHelperBase(get_config('edusharing', 'application_cc_gui_url'), get_config('edusharing', 'application_private_key'), get_config('edusharing', 'application_appid'));
+            $dockerUrl  = $this->utils->getConfigEntry('application_docker_network_url');
+            $baseHelper = new EduSharingHelperBase(empty($dockerUrl) ? $this->utils->getConfigEntry('application_cc_gui_url') : $dockerUrl, $this->utils->getConfigEntry('application_private_key'), $this->utils->getConfigEntry('application_appid'));
             $baseHelper->registerCurlHandler(new MoodleCurlHandler());
             $this->authHelper === null && $this->authHelper = new EduSharingAuthHelper($baseHelper);
             if ($this->nodeHelper === null) {
@@ -74,7 +78,7 @@ class EduSharingService
      * @throws Exception
      */
     public function createUsage(stdClass $usageData): Usage {
-        return $this->nodeHelper->createUsage($this->getTicket(), $usageData->containerId, (string)$usageData->resourceId, (string)$usageData->nodeId, (string)$usageData->nodeVersion);
+        return $this->nodeHelper->createUsage(!empty($usageData->ticket) ? $usageData->ticket : $this->getTicket(), (string)$usageData->containerId, (string)$usageData->resourceId, (string)$usageData->nodeId, (string)$usageData->nodeVersion);
     }
 
     /**
@@ -94,11 +98,11 @@ class EduSharingService
      * @throws Exception
      */
     public function deleteUsage(stdClass $usageData): void {
-        ! isset($usageData->usageId) && throw new Exception('No usage id provided, deletion cannot be performed');
+        !isset($usageData->usageId) && throw new Exception('No usage id provided, deletion cannot be performed');
         try {
             $this->nodeHelper->deleteUsage($usageData->nodeId, $usageData->usageId);
         } catch (UsageDeletedException $usageDeletedException) {
-            error_log( 'noted, deleting locally: ' . $usageDeletedException->getMessage());
+            error_log('noted, deleting locally: ' . $usageDeletedException->getMessage());
         }
     }
 
@@ -149,7 +153,7 @@ class EduSharingService
      */
     public function deleteInstance(string $id): void {
         global $DB;
-        $eduSharing             = $DB->get_record('edusharing', ['id'  => $id], '*', MUST_EXIST);
+        $eduSharing             = $DB->get_record('edusharing', ['id' => $id], '*', MUST_EXIST);
         $usageData              = new stdClass();
         $usageData->ticket      = $this->getTicket();
         $usageData->nodeId      = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
@@ -157,34 +161,34 @@ class EduSharingService
         $usageData->resourceId  = $eduSharing->resourceId;
         $usageData->usage_id    = empty($edusharing->usage_id) ? $this->getUsageId($usageData) : $edusharing->usage_id;
         $this->deleteUsage($usageData);
-        $DB->delete_records(EDUSHARING_TABLE, ['id' => $eduSharing->id]);
+        $DB->delete_records('edusharing', ['id' => $eduSharing->id]);
     }
 
     /**
      * Function addInstance
      *
      * @param stdClass $eduSharing
+     * @param int|null $updateTime
      * @return bool|int
      */
-    public function addInstance(stdClass $eduSharing): bool|int
-    {
+    public function addInstance(stdClass $eduSharing, ?int $updateTime = null): bool|int {
         global $DB;
 
-        $eduSharing->timecreated  = time();
-        $eduSharing->timemodified = time();
+        $eduSharing->timecreated  = $updateTime ?? time();
+        $eduSharing->timemodified = $updateTime ?? time();
 
         // You may have to add extra stuff in here.
-        $this->postProcessEdusharingObject($eduSharing);
+        $this->postProcessEdusharingObject($eduSharing, $updateTime);
         $updateVersion = false;
 
         //use simple version handling for atto plugin or legacy code
-        if (isset($eduSharing -> editor_atto)) {
+        if (isset($eduSharing->editor_atto)) {
             //avoid database error
             $eduSharing->introformat = 0;
         } else {
             if (isset($eduSharing->object_version)) {
                 if ((int)$eduSharing->object_version === 1) {
-                    $updateVersion= true;
+                    $updateVersion              = true;
                     $eduSharing->object_version = '';
                 } else {
                     $eduSharing->object_version = 0;
@@ -198,16 +202,16 @@ class EduSharingService
             }
         }
         try {
-            $id = $DB->insert_record(EDUSHARING_TABLE, $eduSharing);
+            $id = $DB->insert_record('edusharing', $eduSharing);
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             return false;
         }
-        $usageData               = new stdClass();
-        $usageData->containerId  = $eduSharing->course;
-        $usageData->resourceId   = $id;
-        $usageData->nodeId       = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
-        $usageData->nodeVersion  = $eduSharing->object_version;
+        $usageData              = new stdClass();
+        $usageData->containerId = $eduSharing->course;
+        $usageData->resourceId  = $id;
+        $usageData->nodeId      = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
+        $usageData->nodeVersion = $eduSharing->object_version;
         try {
             $usage                = $this->createUsage($usageData);
             $eduSharing->id       = $id;
@@ -215,12 +219,12 @@ class EduSharingService
             if ($updateVersion) {
                 $eduSharing->object_version = $usage->nodeVersion;
             }
-            $DB->update_record(EDUSHARING_TABLE, $eduSharing);
+            $DB->update_record('edusharing', $eduSharing);
             return $id;
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            !empty($exception->getMessage()) && error_log($exception->getMessage());
             try {
-                $DB->delete_records(EDUSHARING_TABLE, ['id'  => $id]);
+                $DB->delete_records('edusharing', ['id' => $id]);
             } catch (Exception $deleteException) {
                 error_log($deleteException->getMessage());
             }
@@ -228,35 +232,42 @@ class EduSharingService
         }
     }
 
-    public function updateInstance(stdClass $edusharing): bool {
+    /**
+     * Function updateInstance
+     *
+     * @param stdClass $edusharing
+     * @param int|null $updateTime
+     * @return bool
+     */
+    public function updateInstance(stdClass $edusharing, ?int $updateTime = null): bool {
         global $DB;
         // FIX: when editing a moodle-course-module the $edusharing->id will be named $edusharing->instance
         if (!empty($edusharing->instance)) {
             $edusharing->id = $edusharing->instance;
         }
-        $this->postProcessEdusharingObject($edusharing);
-        $usageData               = new stdClass ();
-        $usageData->containerId  = $edusharing->course;
-        $usageData->resourceId   = $edusharing->id;
-        $usageData->nodeId       = $this->utils->getObjectIdFromUrl($edusharing->object_url);
-        $usageData->nodeVersion  = $edusharing->object_version;
+        $this->postProcessEdusharingObject($edusharing, $updateTime);
+        $usageData              = new stdClass();
+        $usageData->containerId = $edusharing->course;
+        $usageData->resourceId  = $edusharing->id;
+        $usageData->nodeId      = $this->utils->getObjectIdFromUrl($edusharing->object_url);
+        $usageData->nodeVersion = $edusharing->object_version;
         try {
-            $memento           = $DB->get_record(EDUSHARING_TABLE,  ['id'  => $edusharing->id], '*', MUST_EXIST);
+            $memento           = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
             $usageData->ticket = $this->getTicket();
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            unset($exception);
             return false;
         }
         try {
             $usage                = $this->createUsage($usageData);
             $edusharing->usage_id = $usage->usageId;
-            $DB->update_record(EDUSHARING_TABLE, $edusharing);
+            $DB->update_record('edusharing', $edusharing);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            !empty($exception->getMessage()) && error_log($exception->getMessage());
             try {
-                $DB->update_record(EDUSHARING_TABLE, $memento);
+                $DB->update_record('edusharing', $memento);
             } catch (Exception $updateException) {
-                error_log($updateException->getMessage());
+                !empty($exception->getMessage()) && error_log($updateException->getMessage());
             }
             return false;
         }
@@ -267,20 +278,24 @@ class EduSharingService
      * Function postProcessEdusharingObject
      *
      * @param stdClass $edusharing
+     * @param int|null $updateTime
      * @return void
      */
-    private function postProcessEdusharingObject(stdClass $edusharing): void {
+    private function postProcessEdusharingObject(stdClass $edusharing, ?int $updateTime = null): void {
+        if ($updateTime === null) {
+            $updateTime = time();
+        }
         global $COURSE;
         if (empty($edusharing->timecreated)) {
-            $edusharing->timecreated = time();
+            $edusharing->timecreated = $updateTime;
         }
-        $edusharing->timeupdated = time();
+        $edusharing->timeupdated = $updateTime;
         if (!empty($edusharing->force_download)) {
             $edusharing->force_download = 1;
-            $edusharing->popup_window = 0;
+            $edusharing->popup_window   = 0;
         } else if (!empty($edusharing->popup_window)) {
             $edusharing->force_download = 0;
-            $edusharing->options = '';
+            $edusharing->options        = '';
         } else {
             if (empty($edusharing->blockdisplay)) {
                 $edusharing->options = '';
@@ -311,26 +326,42 @@ class EduSharingService
         return $this->authHelper->base->handleCurlRequest($url, $curlOptions);
     }
 
+    /**
+     * Function validateSession
+     *
+     * @param string $url
+     * @param string $auth
+     * @return CurlResult
+     */
     public function validateSession(string $url, string $auth): CurlResult {
-        $headers     = [
+        $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
-            'Authorization: Basic '. base64_encode($auth)
+            'Authorization: Basic ' . base64_encode($auth)
         ];
-        $url    = $url . 'rest/authentication/v1/validateSession';
+        $url     = $url . 'rest/authentication/v1/validateSession';
         return $this->authHelper->base->handleCurlRequest($url, [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
     }
 
+    /**
+     * Function registerPlugin
+     *
+     * @param string $url
+     * @param string $delimiter
+     * @param string $body
+     * @param string $auth
+     * @return CurlResult
+     */
     public function registerPlugin(string $url, string $delimiter, string $body, string $auth): CurlResult {
         $registrationUrl = $url . 'rest/admin/v1/applications/xml';
         $headers         = [
             'Content-Type: multipart/form-data; boundary=' . $delimiter,
             'Content-Length: ' . strlen($body),
             'Accept: application/json',
-            'Authorization: Basic '. base64_encode($auth)
+            'Authorization: Basic ' . base64_encode($auth)
         ];
         $this->authHelper->base->curlHandler->setMethod(EdusharingCurlHandler::METHOD_PUT);
         return $this->authHelper->base->handleCurlRequest($registrationUrl, [
@@ -338,5 +369,55 @@ class EduSharingService
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_POSTFIELDS     => $body
         ]);
+    }
+
+    /**
+     * Function sign
+     *
+     * @param string $input
+     * @return string
+     */
+    public function sign(string $input): string {
+        return $this->nodeHelper->base->sign($input);
+    }
+
+    /**
+     * Function getRenderHtml
+     *
+     * @param string $url
+     * @return string
+     */
+    public function getRenderHtml(string $url): string {
+        $curlOptions = [
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_HEADER         => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT']
+        ];
+        $result      = $this->authHelper->base->handleCurlRequest($url, $curlOptions);
+        if ($result->error !== 0) {
+            try {
+                return 'Unexpected Error';
+            } catch (Exception $exception) {
+                return $exception->getMessage();
+            }
+        }
+        return $result->content;
+    }
+
+    /**
+     * Function requireEduLogin
+     *
+     * @throws require_login_exception
+     * @throws coding_exception
+     * @throws moodle_exception
+     * @throws Exception
+     */
+    public function requireEduLogin(?int $courseId = null, bool $checkTicket = true, bool $checkSessionKey = true): void {
+        require_login($courseId);
+        $checkSessionKey && require_sesskey();
+        $checkTicket && $this->getTicket();
     }
 }

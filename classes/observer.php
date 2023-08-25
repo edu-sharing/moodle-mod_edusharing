@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\RestoreHelper;
@@ -12,8 +12,8 @@ defined('MOODLE_INTERNAL') || die();
  *
  * callback definitions for events.
  */
-class mod_edusharing_observer {
-
+class mod_edusharing_observer
+{
     /**
      * Function courseModuleDeleted
      *
@@ -26,13 +26,13 @@ class mod_edusharing_observer {
         $objectId = $data['objectid'];
         //delete es-activities in course-modules
         try {
-            $eduObjects = $DB -> get_records('edusharing', array('module_id' => $objectId));
+            $eduObjects = $DB->get_records('edusharing', ['module_id' => $objectId]);
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             return;
         }
         $service = new EduSharingService();
-        foreach($eduObjects as $object) {
+        foreach ($eduObjects as $object) {
             try {
                 $service->deleteInstance($object['id']);
             } catch (Exception $exception) {
@@ -41,12 +41,12 @@ class mod_edusharing_observer {
         }
         //delete es-activities in course-sections
         try {
-            $eduObjects = $DB -> get_records('edusharing', array('section_id' => $objectId));
+            $eduObjects = $DB->get_records('edusharing', ['section_id' => $objectId]);
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             return;
         }
-        foreach($eduObjects as $object) {
+        foreach ($eduObjects as $object) {
             try {
                 $service->deleteInstance($object['id']);
             } catch (Exception $exception) {
@@ -69,7 +69,7 @@ class mod_edusharing_observer {
         }
         $text   = $module->intro;
         $idType = 'module_id';
-        $utils = new UtilityFunctions();
+        $utils  = new UtilityFunctions();
         $utils->setModuleIdInDb($text, $data, $idType);
     }
 
@@ -90,7 +90,7 @@ class mod_edusharing_observer {
         }
         $text   = $module->intro;
         $idType = 'module_id';
-        $utils = new UtilityFunctions();
+        $utils  = new UtilityFunctions();
         $utils->setModuleIdInDb($text, $data, $idType);
     }
 
@@ -118,10 +118,10 @@ class mod_edusharing_observer {
     /**
      * Function courseSectionUpdatedOrCreated
      *
-     * @param \core\event\course_module_updated $event
+     * @param \core\event\course_section_updated $event
      * @return void
      */
-    public static function course_section_updated(\core\event\course_module_updated $event) {
+    public static function course_section_updated(\core\event\course_section_updated $event) {
         global $DB;
         $data = $event->get_data();
         try {
@@ -153,7 +153,7 @@ class mod_edusharing_observer {
             return;
         }
         $service = new EduSharingService();
-        foreach($eduObjects as $object) {
+        foreach ($eduObjects as $object) {
             try {
                 $service->deleteInstance($object['id']);
             } catch (Exception $exception) {

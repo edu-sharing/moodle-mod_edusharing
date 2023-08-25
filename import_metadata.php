@@ -51,12 +51,12 @@ if (!is_siteadmin()) {
 }
 
 
-if(isset($_POST['repoReg'])){
-    if (!empty($_POST['appId'])){
+if (isset($_POST['repoReg'])) {
+    if (!empty($_POST['appId'])) {
         set_config('application_appid', $_POST['appId'], 'edusharing');
-        error_log('appid set: '.$_POST['appId']);
+        error_log('appid set: ' . $_POST['appId']);
     }
-    if (!empty($_POST['host_aliases'])){
+    if (!empty($_POST['host_aliases'])) {
         set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
     }
     echo PluginRegistrationFrontend::registerPlugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
@@ -71,7 +71,7 @@ try {
     unset($exception);
 }
 
-if (! empty($metadataUrl)) {
+if (!empty($metadataUrl)) {
     $service = new MetadataLogic(new EduSharingService());
     try {
         $service->importMetadata($metadataUrl);

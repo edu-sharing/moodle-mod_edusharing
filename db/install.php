@@ -32,7 +32,7 @@ function xmldb_edusharing_install(): void {
     try {
         $logic->parseConfigData();
         $data = $logic->getConfigData();
-        if (!isset($data['repoUrl'])) {
+        if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }
         $baseHelper = new EduSharingHelperBase($data['repoUrl'], '', '');

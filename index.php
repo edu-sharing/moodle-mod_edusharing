@@ -15,75 +15,82 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Index for edu-sahring plugin
+ * Index for edu-sharing plugin
  *
  * @package    mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_edusharing\event\course_module_instance_list_viewed;
 
-require_once(dirname(__FILE__, 3) .'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
 
-$id = required_param('id', PARAM_INT);
+global $DB, $PAGE, $OUTPUT;
 
-if (! $course = $DB->get_record('course', array('id'  => $id))) {
-    trigger_error(get_string('error_load_course', 'edusharing'), E_USER_WARNING);
-}
+try {
+    $id = required_param('id', PARAM_INT);
+    if (!$course = $DB->get_record('course', ['id' => $id])) {
+        trigger_error(get_string('error_load_course', 'edusharing'), E_USER_WARNING);
+    }
+    require_course_login($course);
+    $event = course_module_instance_list_viewed::create([
+        'context' => context_course::instance($course->id)
+    ]);
+    $event->trigger();
+    $PAGE->set_url('mod/edusharing/view.php', ['id' => $id]);
+    $PAGE->set_title($course->fullname);
+    $PAGE->set_heading($course->shortname);
 
-require_course_login($course);
+    echo $OUTPUT->header();
 
-add_to_log($course->id, 'edusharing', 'view all', "index.php?id=$course->id", '');
+    if (!$edusharings = get_all_instances_in_course('edusharing', $course)) {
+        echo $OUTPUT->heading(get_string('noedusharings', 'edusharing'), 2);
+        echo $OUTPUT->continue_button("view.php?id=$course->id");
+        echo $OUTPUT->footer();
+        die();
+    }
 
-$PAGE->set_url('mod/edusharing/view.php', array('id'  => $id));
-$PAGE->set_title($course->fullname);
-$PAGE->set_heading($course->shortname);
 
-echo $OUTPUT->header();
+    $timenow  = time();
+    $strname  = get_string('name');
+    $strweek  = get_string('week');
+    $strtopic = get_string('topic');
+    $table    = new html_table();
+    if ($course->format == 'weeks') {
+        $table->head  = [$strweek, $strname];
+        $table->align = ['center', 'left'];
+    } else if ($course->format == 'topics') {
+        $table->head  = [$strtopic, $strname];
+        $table->align = ['center', 'left', 'left', 'left'];
+    } else {
+        $table->head  = [$strname];
+        $table->align = ['left', 'left', 'left'];
+    }
+    foreach ($edusharings as $edusharing) {
+        if (!$edusharing->visible) {
+            // Show dimmed if the mod is hidden.
+            $link = '<a class="dimmed" href="view.php?id=' . $edusharing->coursemodule . '">' . format_string($edusharing->name) . '</a>';
+        } else {
+            // Show normal if the mod is visible.
+            $link = '<a href="view.php?id=' . $edusharing->coursemodule . '">' . format_string($edusharing->name) . '</a>';
+        }
 
+        if ($course->format == 'weeks' || $course->format == 'topics') {
+            $table->data[] = [$edusharing->section, $link];
+        } else {
+            $table->data[] = [$link];
+        }
+    }
 
-if (! $edusharings = get_all_instances_in_course('edusharing', $course)) {
-    echo $OUTPUT->heading(get_string('noedusharings', 'edusharing'), 2);
-    echo $OUTPUT->continue_button("view.php?id=$course->id");
-    echo $OUTPUT->footer();
+    echo $OUTPUT->heading(get_string('modulenameplural', 'mod_edusharing'), 2);
+} catch (Exception $exception) {
+    error_log($exception->getLine() . ': ' . $exception->getMessage());
+    unset($exception);
+    echo('error');
     die();
 }
 
-
-$timenow  = time();
-$strname  = get_string('name');
-$strweek  = get_string('week');
-$strtopic = get_string('topic');
-
-if ($course->format == 'weeks') {
-    $table->head  = array ($strweek, $strname);
-    $table->align = array ('center', 'left');
-} else if ($course->format == 'topics') {
-    $table->head  = array ($strtopic, $strname);
-    $table->align = array ('center', 'left', 'left', 'left');
-} else {
-    $table->head  = array ($strname);
-    $table->align = array ('left', 'left', 'left');
-}
-
-foreach ($edusharings as $edusharing) {
-    if (!$edusharing->visible) {
-        // Show dimmed if the mod is hidden.
-        $link = '<a class="dimmed" href="view.php?id='.$edusharing->coursemodule.'">'.format_string($edusharing->name).'</a>';
-    } else {
-        // Show normal if the mod is visible.
-        $link = '<a href="view.php?id='.$edusharing->coursemodule.'">'.format_string($edusharing->name).'</a>';
-    }
-
-    if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array ($edusharing->section, $link);
-    } else {
-        $table->data[] = array ($link);
-    }
-}
-
-echo $OUTPUT->heading(get_string('modulenameplural', 'mod_edusharing'), 2);
-print_table($table);
-
+echo html_writer::table($table);
 echo $OUTPUT->footer();

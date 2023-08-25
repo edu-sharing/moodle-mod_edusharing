@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace mod_edusharing;
 
@@ -14,11 +14,18 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class RestoreHelper
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class RestoreHelper {
-
+class RestoreHelper
+{
     private EduSharingService $service;
 
+    /**
+     * RestoreHelper constructor
+     *
+     * @param EduSharingService $service
+     */
     public function __construct(EduSharingService $service) {
         $this->service = $service;
     }
@@ -39,17 +46,17 @@ class RestoreHelper {
             $matchesAtto = $this->getInlineObjects($section->summary);
             if (!empty($matchesAtto)) {
                 foreach ($matchesAtto as $match) {
-                    $section -> summary = str_replace($match, $this->convertObject($match, $courseId), $section -> summary);
+                    $section->summary = str_replace($match, $this->convertObject($match, $courseId), $section->summary);
                     $DB->update_record('course_sections', $section);
                 }
             }
         }
         $modules = get_course_mods($courseId);
         $course  = get_course($courseId);
-        foreach($modules as $module) {
+        foreach ($modules as $module) {
             $modInfo = get_fast_modinfo($course);
             $cm      = $modInfo->get_cm($module->id);
-            if(! empty($cm->content)) {
+            if (!empty($cm->content)) {
                 $matchesAtto = $this->getInlineObjects($cm->content);
                 if (!empty($matchesAtto)) {
                     foreach ($matchesAtto as $match) {
@@ -63,7 +70,7 @@ class RestoreHelper {
                 error_log($exception->getMessage());
                 continue;
             }
-            if(!empty($module->intro)) {
+            if (!empty($module->intro)) {
                 $matchesAtto = $this->getInlineObjects($module->intro);
                 if (!empty($matchesAtto)) {
                     foreach ($matchesAtto as $match) {
@@ -111,10 +118,8 @@ class RestoreHelper {
      */
     private function convertObject($object, $courseId): string {
         global $DB;
-
         $doc = new DOMDocument();
         $doc->loadHTML($object, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-
         $node = $doc->getElementsByTagName('a')->item(0);
         $type = 'a';
         if (empty($node)) {
@@ -127,41 +132,33 @@ class RestoreHelper {
         if (empty($node)) {
             throw new Exception(get_string('error_loading_node', 'filter_edusharing'));
         }
-
-        $params = array();
+        $params = [];
         parse_str(parse_url($qs, PHP_URL_QUERY), $params);
-
-        $edusharing = new stdClass();
-        $edusharing -> course = $courseId;
-        $edusharing -> name = $params['title'];
-        $edusharing -> introformat = 0;
-        $edusharing -> object_url = $params['object_url'];
-        $edusharing -> object_version = $params['window_version'];
-        $edusharing -> timecreated = time();
-        $edusharing -> timemodified = time();
-
-        $id = $DB -> insert_record('edusharing', $edusharing);
-
-        if($id) {
-            $usage = $this->AddUsage($edusharing, $id);
+        $edusharing                 = new stdClass();
+        $edusharing->course         = $courseId;
+        $edusharing->name           = $params['title'];
+        $edusharing->introformat    = 0;
+        $edusharing->object_url     = $params['object_url'];
+        $edusharing->object_version = $params['window_version'];
+        $edusharing->timecreated    = time();
+        $edusharing->timemodified   = time();
+        $id                         = $DB->insert_record('edusharing', $edusharing);
+        if ($id !== false) {
+            $usage = $this->addUsage($edusharing, $id);
             if ($usage !== null) {
                 if (isset($usage->usageId)) {
-                    $edusharing->id = $id;
+                    $edusharing->id      = $id;
                     $edusharing->usageId = $usage->usageId;
-                    $DB->update_record(EDUSHARING_TABLE, $edusharing);
+                    $DB->update_record(Constants::EDUSHARING_TABLE, $edusharing);
                 }
                 $params['resourceId'] = $id;
-                $url = strtok($qs, '?') . '?';
+                $url                  = strtok($qs, '?') . '?';
                 foreach ($params as $paramn => $paramv) {
                     $url .= $paramn . '=' . $paramv . '&';
                 }
-                if ($type === 'a')
-                    $node->setAttribute('href', $url);
-                else
-                    $node->setAttribute('src', $url);
-
+                $node->setAttribute($type === 'a' ? 'href' : 'src', $url);
             } else {
-                $DB->delete_records('edusharing', array('id' => $id));
+                $DB->delete_records('edusharing', ['id' => $id]);
                 return $object;
             }
         }
@@ -169,22 +166,21 @@ class RestoreHelper {
     }
 
     /**
-     * Function
+     * Function addUsage
      *
      * @param stdClass $data
      * @param int $newItemId
      * @return Usage|null
      */
-    private function addUsage(stdClass $data, int $newItemId): ?Usage {
-        $eduService              = new EduSharingService();
-        $usageData               = new stdClass();
-        $usageData->containerId  = $data->course;
-        $usageData->resourceId   = $newItemId;
-        $utils                   = new UtilityFunctions();
-        $usageData->nodeId       = $utils->getObjectIdFromUrl($data->object_url);
-        $usageData->nodeVersion  = $data->object_version;
+    public function addUsage(stdClass $data, int $newItemId): ?Usage {
+        $usageData              = new stdClass();
+        $usageData->containerId = $data->course;
+        $usageData->resourceId  = $newItemId;
+        $utils                  = new UtilityFunctions();
+        $usageData->nodeId      = $utils->getObjectIdFromUrl($data->object_url);
+        $usageData->nodeVersion = $data->object_version;
         try {
-            return $eduService->createUsage($usageData);
+            return $this->service->createUsage($usageData);
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             return null;

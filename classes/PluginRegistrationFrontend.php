@@ -4,8 +4,21 @@ namespace mod_edusharing;
 
 use Exception;
 
+/**
+ * Class PluginRegistrationFrontend
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
 class PluginRegistrationFrontend
 {
+    /**
+     * Function registerPlugin
+     *
+     * @param string $repoUrl
+     * @param string $login
+     * @param string $pwd
+     * @return string
+     */
     public static function registerPlugin(string $repoUrl, string $login, string $pwd): string {
         $return            = '';
         $errorMessage      = '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: '.$repoUrl.'</h3>';

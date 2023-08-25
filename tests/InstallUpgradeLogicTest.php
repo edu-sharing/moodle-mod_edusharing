@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
@@ -10,9 +10,20 @@ use mod_edusharing\InstallUpgradeLogic;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistration;
 
+/**
+ * Class InstallUpgradeLogicTest
+ *
+ * @author Marian Ziegler
+ */
 class InstallUpgradeLogicTest extends advanced_testcase
 {
 
+    /**
+     * Function testParseConfigDataThrowsExceptionIfFileNotFound
+     *
+     * @return void
+     * @throws JsonException
+     */
     public function testParseConfigDataThrowsExceptionIfFileNotFound(): void {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../nothing/tests/installConfigTest.json');
         $this->expectException(Exception::class);
@@ -20,19 +31,32 @@ class InstallUpgradeLogicTest extends advanced_testcase
         $logic->parseConfigData();
     }
 
+    /**
+     * Function testParseConfigDataThrowsJsonExceptionIfJsonInvalid
+     *
+     * @return void
+     * @throws JsonException
+     */
     public function testParseConfigDataThrowsJsonExceptionIfJsonInvalid(): void {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../tests/installConfigTestInvalid.json');
         $this->expectException(JsonException::class);
         $logic->parseConfigData();
     }
 
+    /**
+     * Function testPerformReturnsVoidIfAllGoesWell
+     *
+     * @return void
+     * @throws JsonException
+     * @throws dml_exception
+     */
     public function testPerformReturnsVoidIfAllGoesWell(): void {
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
-        $metadataLogicMock     = $this->getMockBuilder(MetadataLogic::class)
+        $baseHelper        = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authHelper        = new EduSharingAuthHelper($baseHelper);
+        $nodeConfig        = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodeHelper        = new EduSharingNodeHelper($baseHelper, $nodeConfig);
+        $service           = new EduSharingService($authHelper, $nodeHelper);
+        $metadataLogicMock = $this->getMockBuilder(MetadataLogic::class)
             ->setConstructorArgs([$service])
             ->getMock();
         $registrationLogicMock = $this->getMockBuilder(PluginRegistration::class)

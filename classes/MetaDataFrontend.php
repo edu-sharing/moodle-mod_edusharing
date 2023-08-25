@@ -4,8 +4,18 @@ namespace mod_edusharing;
 
 use Exception;
 
+/**
+ * Class MetaDataFrontend
+ *
+ * @author Marian Ziegler <ziegler@edu-sharnig.net>
+ */
 class MetaDataFrontend
 {
+    /**
+     * Function getRepoForm
+     *
+     * @return string|null
+     */
     public static function getRepoForm(): ?string {
         try {
             $repoUrl     = get_config('edusharing', 'application_cc_gui_url') !== false ? get_config('edusharing', 'application_cc_gui_url') : '';
