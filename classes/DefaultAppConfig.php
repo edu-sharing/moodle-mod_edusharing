@@ -39,6 +39,6 @@ class DefaultAppConfig implements AppConfig
      */
     public function get(string $name): mixed
     {
-        return get_config('edusharing');
+        return get_config('edusharing', $name);
     }
 }

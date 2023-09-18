@@ -28,6 +28,7 @@ use mod_edusharing\EduSharingUserException;
 use mod_edusharing\MetaDataFrontend;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistrationFrontend;
+use mod_edusharing\UtilityFunctions;
 
 global $CFG;
 
@@ -72,8 +73,13 @@ try {
 }
 
 if (!empty($metadataUrl)) {
-    $service = new MetadataLogic(new EduSharingService());
     try {
+        $utils = new UtilityFunctions();
+        $appId = $utils->getConfigEntry('application_appid');
+        if (empty($appId)) {
+            $utils->setConfigEntry('application_appid', uniqid('moodle_'));
+        }
+        $service = new MetadataLogic(new EduSharingService());
         $service->importMetadata($metadataUrl);
         echo '<h3 class="edu_success">Import successful.</h3>';
     } catch (EduSharingUserException $eduSharingUserException) {

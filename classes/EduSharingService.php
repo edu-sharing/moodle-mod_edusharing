@@ -339,7 +339,7 @@ class EduSharingService
             'Accept: application/json',
             'Authorization: Basic ' . base64_encode($auth)
         ];
-        $url     = $url . 'rest/authentication/v1/validateSession';
+        $url     = rtrim($url, '/') . '/rest/authentication/v1/validateSession';
         return $this->authHelper->base->handleCurlRequest($url, [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
@@ -356,7 +356,7 @@ class EduSharingService
      * @return CurlResult
      */
     public function registerPlugin(string $url, string $delimiter, string $body, string $auth): CurlResult {
-        $registrationUrl = $url . 'rest/admin/v1/applications/xml';
+        $registrationUrl = rtrim($url, '/') . '/rest/admin/v1/applications/xml';
         $headers         = [
             'Content-Type: multipart/form-data; boundary=' . $delimiter,
             'Content-Length: ' . strlen($body),

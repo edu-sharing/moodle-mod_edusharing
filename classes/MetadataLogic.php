@@ -72,16 +72,16 @@ class MetadataLogic
         if ($this->appId === null) {
             $this->appId = !empty($this->utils->getConfigEntry('application_appid')) ? $this->utils->getConfigEntry('application_appid') : uniqid('moodle_');
         }
-        $repoId         = $this->utils->getConfigEntry('repository_appid');
-        $clientProtocol = $this->utils->getConfigEntry('repository_clientprotocol');
-        $repoDomain     = $this->utils->getConfigEntry('repository_domain');
-        $clientPort     = $this->utils->getConfigEntry('repository_clientport');
-        $privateKey     = $this->utils->getConfigEntry('application_private_key');
-        $publicKey      = $this->utils->getConfigEntry('application_public_key');
+        $repoId     = $this->utils->getConfigEntry('repository_appid');
+        $privateKey = $this->utils->getConfigEntry('application_private_key');
+        $publicKey  = $this->utils->getConfigEntry('application_public_key');
         foreach ($entries as $entry) {
             $this->utils->setConfigEntry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
-        $host = empty($_SERVER['SERVER_ADDR']) ? gethostbyname($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_ADDR'];
+        $host           = empty($_SERVER['SERVER_ADDR']) ? gethostbyname($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_ADDR'];
+        $clientProtocol = $this->utils->getConfigEntry('repository_clientprotocol');
+        $repoDomain     = $this->utils->getConfigEntry('repository_domain');
+        $clientPort     = $this->utils->getConfigEntry('repository_clientport');
         $this->utils->setConfigEntry('application_host', $host);
         $this->utils->setConfigEntry('application_appid', $this->appId);
         $this->utils->setConfigEntry('application_type', 'LMS');
