@@ -60,8 +60,8 @@ class EduSharingService
     private function init(): void {
         $this->utils === null && $this->utils = new UtilityFunctions();
         if ($this->authHelper === null || $this->nodeHelper === null) {
-            $dockerUrl  = $this->utils->getConfigEntry('application_docker_network_url');
-            $baseHelper = new EduSharingHelperBase(empty($dockerUrl) ? $this->utils->getConfigEntry('application_cc_gui_url') : $dockerUrl, $this->utils->getConfigEntry('application_private_key'), $this->utils->getConfigEntry('application_appid'));
+            $internalUrl = $this->utils->getInternalUrl();
+            $baseHelper  = new EduSharingHelperBase($internalUrl, $this->utils->getConfigEntry('application_private_key'), $this->utils->getConfigEntry('application_appid'));
             $baseHelper->registerCurlHandler(new MoodleCurlHandler());
             $this->authHelper === null && $this->authHelper = new EduSharingAuthHelper($baseHelper);
             if ($this->nodeHelper === null) {

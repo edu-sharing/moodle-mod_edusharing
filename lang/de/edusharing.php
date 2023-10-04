@@ -111,6 +111,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = 'Das Objekt existiert nicht mehr.';
 $string['exc_ACCESS_DENIED'] = 'Zugriff verweigert.';
 $string['exc_NO_PERMISSION'] = 'Zugriffsrechte nicht ausreichend.';
 $string['exc_UNKNOWN_ERROR'] = 'Unbekannter Fehler.';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'Ein edu-sharing-Inhalt konnte aufgrund fehlender Rechte des aktuellen Nutzers nicht eingebunden werden und wird übersprungen';
 
 // metadata
 $string['conf_linktext'] = 'Moodle mit dem Heimat-Repositorium verbinden:';

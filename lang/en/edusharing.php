@@ -110,6 +110,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = 'Node does not exist anymore.';
 $string['exc_ACCESS_DENIED'] = 'Access denied.';
 $string['exc_NO_PERMISSION'] = 'Insufficient permissions.';
 $string['exc_UNKNOWN_ERROR'] = 'Unknown error.';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object could not be restored due to missing publish rights and will be skipped.';
 
 // metadata
 $string['currentVersion'] = 'Current plugin version';

@@ -315,4 +315,25 @@ class UtilityFunctions
     public function setConfigEntry(string $name, mixed $value): void {
         $this->appConfig->set($name, $value);
     }
+
+    /**
+     * Function getInternalUrl
+     *
+     * Retrieves the internal URL from config.
+     *
+     * @return string
+     */
+    public function getInternalUrl(): string {
+        try {
+            $internalUrl = $this->appConfig->get('application_docker_network_url');
+            if (empty($internalUrl)) {
+                $internalUrl = $this->appConfig->get('application_cc_gui_url');
+            }
+            return rtrim($internalUrl, '/');
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            unset($exception);
+        }
+        return '';
+    }
 }

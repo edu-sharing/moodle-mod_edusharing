@@ -104,6 +104,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = '节点不存在';
 $string['exc_ACCESS_DENIED'] = '访问被拒';
 $string['exc_NO_PERMISSION'] = '权限不够';
 $string['exc_UNKNOWN_ERROR'] = '未知错误';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object could not be restored due to missing publish rights and will be skipped.';
 
 // metadata
 $string['currentVersion'] = 'Current plugin version';

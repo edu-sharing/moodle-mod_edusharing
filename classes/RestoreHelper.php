@@ -171,6 +171,8 @@ class RestoreHelper
      * @param stdClass $data
      * @param int $newItemId
      * @return Usage|null
+     * @throws \JsonException
+     * @throws Exception
      */
     public function addUsage(stdClass $data, int $newItemId): ?Usage {
         $usageData              = new stdClass();
@@ -179,11 +181,6 @@ class RestoreHelper
         $utils                  = new UtilityFunctions();
         $usageData->nodeId      = $utils->getObjectIdFromUrl($data->object_url);
         $usageData->nodeVersion = $data->object_version;
-        try {
-            return $this->service->createUsage($usageData);
-        } catch (Exception $exception) {
-            error_log($exception->getMessage());
-            return null;
-        }
+        return $this->service->createUsage($usageData);
     }
 }

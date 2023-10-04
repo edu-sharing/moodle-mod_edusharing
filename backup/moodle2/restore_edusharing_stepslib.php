@@ -27,18 +27,26 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         global $DB;
 
         $data = (object)$data;
-        $oldid = $data->id;
-        $data->course = $this->get_courseid();
-
-        // insert the edusharing record
-        $newitemid = $DB->insert_record('edusharing', $data);
-        // immediately after inserting "activity" record, call this
-        $this->apply_activity_instance($newitemid);
-        $helper = new RestoreHelper(new EduSharingService());
-        $helper->addUsage($data, $newitemid);
+        try {
+            $data->course = $this->get_courseid();
+            // insert the edusharing record
+            $newId = $DB->insert_record('edusharing', $data);
+            // immediately after inserting "activity" record, call this
+            $helper = new RestoreHelper(new EduSharingService());
+            $helper->addUsage($data, $newId);
+            $this->apply_activity_instance($newId);
+        } catch (Exception $exception) {
+            try {
+                isset($newId) && $DB->delete_records('edusharing', ['id' => $newId]);
+                $message = str_contains($exception->getMessage(), 'NO_CCPUBLISH_PERMISSION') ? get_string('exc_NO_PUBLISH_RIGHTS', 'edusharing') : $exception->getMessage();
+                $this->log($message, backup::LOG_ERROR, null, null, true);
+            } catch (Exception $stupidException) {
+                // Well, there is only so much we can do...
+                unset($stupidException);
+            }
+        }
     }
 
     protected function after_execute() {
-
     }
 }

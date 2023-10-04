@@ -679,7 +679,7 @@ class EdusharingServiceTest extends advanced_testcase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with($url . 'rest/authentication/v1/validateSession', $expectedOptions)
+            ->with($url . '/rest/authentication/v1/validateSession', $expectedOptions)
             ->will($this->returnValue($curl));
         $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authHelper = new EduSharingAuthHelper($baseMock);
@@ -720,7 +720,7 @@ class EdusharingServiceTest extends advanced_testcase
             ->with(EdusharingCurlHandler::METHOD_PUT);
         $curlMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with($url . 'rest/admin/v1/applications/xml', $curlOptions)
+            ->with($url . '/rest/admin/v1/applications/xml', $curlOptions)
             ->will($this->returnValue($curl));
         $baseHelper->registerCurlHandler($curlMock);
         $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
