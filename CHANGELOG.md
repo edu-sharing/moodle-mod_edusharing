@@ -21,7 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Slashes are now automatically stripped from the end of user provided URLs
-- Restoration of course backup files no longer fails on edu-sharing objects for which the current user lacks publish rights
+- Version picking now works
+- Version radio buttons are now longer displayed in the embedding dialogue if the object is a published copy or a reference to a collection. Defaults to current version.
+- Restoration of course backup files no longer fails on edu-sharing objects for which the current user lacks publish rights. Instead of throwing an error the restore script omits the respective items.
+- Folders can now longer be added as edu-sharing resources. 
 
 ### Changed
 

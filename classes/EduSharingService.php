@@ -179,27 +179,16 @@ class EduSharingService
 
         // You may have to add extra stuff in here.
         $this->postProcessEdusharingObject($eduSharing, $updateTime);
-        $updateVersion = false;
 
+        if (isset($_POST['object_version']) && $_POST['object_version'] != '0') {
+            $eduSharing->object_version = $_POST['object_version'];
+        }
         //use simple version handling for atto plugin or legacy code
         if (isset($eduSharing->editor_atto)) {
             //avoid database error
             $eduSharing->introformat = 0;
-        } else {
-            if (isset($eduSharing->object_version)) {
-                if ((int)$eduSharing->object_version === 1) {
-                    $updateVersion              = true;
-                    $eduSharing->object_version = '';
-                } else {
-                    $eduSharing->object_version = 0;
-                }
-            } else {
-                if (isset($eduSharing->window_versionshow) && $eduSharing->window_versionshow == 'current') {
-                    $eduSharing->object_version = $eduSharing->window_version;
-                } else {
-                    $eduSharing->object_version = 0;
-                }
-            }
+        } else if (isset($eduSharing->window_versionshow) && $eduSharing->window_versionshow == 'current') {
+            $eduSharing->object_version = $eduSharing->window_version;
         }
         try {
             $id = $DB->insert_record('edusharing', $eduSharing);
@@ -216,9 +205,6 @@ class EduSharingService
             $usage                = $this->createUsage($usageData);
             $eduSharing->id       = $id;
             $eduSharing->usage_id = $usage->usageId;
-            if ($updateVersion) {
-                $eduSharing->object_version = $usage->nodeVersion;
-            }
             $DB->update_record('edusharing', $eduSharing);
             return $id;
         } catch (Exception $exception) {

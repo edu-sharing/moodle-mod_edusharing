@@ -427,10 +427,10 @@ class EdusharingServiceTest extends advanced_testcase
         $eduObject                          = new stdClass();
         $eduObject->object_url              = 'inputUrl';
         $eduObject->course                  = 'containerIdTest';
-        $eduObject->object_version          = '1';
+        $eduObject->object_version          = '1.0';
         $eduObject->id                      = 'resourceIdTest';
         $processedEduObject                 = clone($eduObject);
-        $processedEduObject->object_version = '';
+        $processedEduObject->object_version = '1.0';
         $processedEduObject->timecreated    = $currentTime;
         $processedEduObject->timemodified   = $currentTime;
         $processedEduObject->timeupdated    = $currentTime;
@@ -440,12 +440,12 @@ class EdusharingServiceTest extends advanced_testcase
         $insertedEduObject                  = clone($processedEduObject);
         $insertedEduObject->id              = 3;
         $insertedEduObject->usage_id        = 4;
-        $insertedEduObject->object_version  = 'nodeVersionTest';
+        $insertedEduObject->object_version  = '1.0';
         $usageData                          = new stdClass();
         $usageData->containerId             = 'containerIdTest';
         $usageData->resourceId              = 3;
         $usageData->nodeId                  = 'outputUrl';
-        $usageData->nodeVersion             = '';
+        $usageData->nodeVersion             = '1.0';
         $dbMock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
@@ -495,7 +495,7 @@ class EdusharingServiceTest extends advanced_testcase
         $eduObject->object_version          = '1';
         $eduObject->id                      = 'resourceIdTest';
         $processedEduObject                 = clone($eduObject);
-        $processedEduObject->object_version = '';
+        $processedEduObject->object_version = '1';
         $processedEduObject->timecreated    = $currentTime;
         $processedEduObject->timemodified   = $currentTime;
         $processedEduObject->timeupdated    = $currentTime;
@@ -510,7 +510,7 @@ class EdusharingServiceTest extends advanced_testcase
         $usageData->containerId             = 'containerIdTest';
         $usageData->resourceId              = 3;
         $usageData->nodeId                  = 'outputUrl';
-        $usageData->nodeVersion             = '';
+        $usageData->nodeVersion             = '1';
         $dbMock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
