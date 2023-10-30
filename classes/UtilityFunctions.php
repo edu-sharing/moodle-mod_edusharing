@@ -174,12 +174,15 @@ class UtilityFunctions
      */
     public function setModuleIdInDb(string $text, array $data, string $id_type): void {
         global $DB;
+        error_log(json_encode($data));
+        error_log($id_type);
         preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $text, $matchesImgAtto, PREG_PATTERN_ORDER);
         preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $text, $matchesAAtto, PREG_PATTERN_ORDER);
         $matchesAtto = array_merge($matchesImgAtto[0], $matchesAAtto[0]);
         foreach ($matchesAtto as $match) {
             $resourceId = '';
             $pos        = strpos($match, "resourceId=");
+            error_log((string)$pos);
             if ($pos !== false) {
                 $resourceId = substr($match, $pos + 11);
                 $resourceId = substr($resourceId, 0, strpos($resourceId, "&"));

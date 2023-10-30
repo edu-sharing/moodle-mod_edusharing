@@ -22,6 +22,7 @@ use mod_edusharing\InstallUpgradeLogic;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\MoodleCurlHandler;
 use mod_edusharing\PluginRegistration;
+use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,18 +32,23 @@ function xmldb_edusharing_install(): void {
     $logic = new InstallUpgradeLogic();
     try {
         $logic->parseConfigData();
-        $data = $logic->getConfigData();
+        $appId = $logic->discernAppId();
+        $data  = $logic->getConfigData();
+        $utils = new UtilityFunctions();
+        $utils->setConfigEntry('application_appid', $appId);
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }
-        $baseHelper = new EduSharingHelperBase($data['repoUrl'], '', '');
+        $baseHelper = new EduSharingHelperBase($data['repoUrl'], '', $appId);
         $baseHelper->registerCurlHandler(new MoodleCurlHandler());
         $authHelper = new EduSharingAuthHelper($baseHelper);
         $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
         $service    = new EduSharingService($authHelper, $nodeHelper);
         $logic->setRegistrationLogic(new PluginRegistration($service));
-        $logic->setMetadataLogic(new MetadataLogic($service));
+        $metadataLogic = new MetadataLogic($service);
+        $metadataLogic->setAppId($appId);
+        $logic->setMetadataLogic($metadataLogic);
         $logic->perform();
     } catch (Exception $exception) {
         error_log(($exception instanceof JsonException ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());

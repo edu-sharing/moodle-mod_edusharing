@@ -53,8 +53,8 @@ class InstallUpgradeLogic
             return;
         }
         $metadataUrl = $this->configData['repoUrl'] . '/metadata?format=lms&external=true';
-        if ($isInstall) {
-            $this->metadataLogic->setAppId($this->configData['autoAppIdFromUrl'] ? basename($CFG->wwwroot) : $this->configData['moodleAppId_optional']);
+        if ($isInstall && $this->configData['autoAppIdFromUrl']) {
+            $this->metadataLogic->setAppId(basename($CFG->wwwroot));
         }
         ! empty($this->configData['wloGuestUser_optional']) && $this->metadataLogic->setWloGuestUser($this->configData['wloGuestUser_optional']);
         ! empty($this->configData['hostAliases_optional']) && $this->metadataLogic->setHostAliases($this->configData['hostAliases_optional']);
@@ -75,9 +75,9 @@ class InstallUpgradeLogic
     /**
      * Function getConfigData
      *
-     * @return array|null
+     * @return array
      */
-    public function getConfigData(): ?array {
+    public function getConfigData(): array {
         return $this->configData ?? [];
     }
 
@@ -99,5 +99,36 @@ class InstallUpgradeLogic
      */
     public function setMetadataLogic(MetadataLogic $metadataLogic): void {
         $this->metadataLogic = $metadataLogic;
+    }
+
+    /**
+     * Function discernAppId
+     *
+     * During install and upgrade an appId has to be set.
+     * This function discerns and returns it.
+     * Priority (highest to lowest):
+     * - configured preexisting app id (from get_config)
+     * - app id provided in installConfig.json
+     * - auto generated new app id
+     *
+     * @return string
+     */
+    public function discernAppId(): string {
+        $utils = new UtilityFunctions();
+        try {
+            $appId = empty($utils->getConfigEntry('application_appid')) ? false : $utils->getConfigEntry('application_appid');
+        } catch (Exception $exception) {
+            unset($exception);
+            $appId = false;
+        }
+        if ($appId === false) {
+            $appId = $this->getConfigData()['moodleAppId_optional'];
+            if (empty($appId)) {
+                $appId = uniqid('moodle_');
+            }
+        } else {
+            $appId = (string)$appId;
+        }
+        return $appId;
     }
 }

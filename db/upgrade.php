@@ -34,6 +34,7 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\InstallUpgradeLogic;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistration;
+use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -195,10 +196,28 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
     }
-    $service           = new EduSharingService();
-    $metadataLogic     = new MetadataLogic($service);
+    if ($oldversion < 2023100100) {
+        unset_config('repository_restApi', 'edusharing');
+    }
+    $logic = new InstallUpgradeLogic();
+    try {
+        $logic->parseConfigData();
+    } catch (Exception $exception) {
+        error_log($exception->getMessage());
+        return $result;
+    }
+    $utils = new UtilityFunctions();
+    $appId = $logic->discernAppId();
+    $utils->setConfigEntry('application_appid', $appId);
+    if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
+        return $result;
+    }
+    $service       = new EduSharingService();
+    $metadataLogic = new MetadataLogic($service);
+    $metadataLogic->setAppId($appId);
     $registrationLogic = new PluginRegistration($service);
-    $logic             = new InstallUpgradeLogic($registrationLogic, $metadataLogic);
+    $logic->setRegistrationLogic($registrationLogic);
+    $logic->setMetadataLogic($metadataLogic);
     $logic->perform(false);
     return $result;
 }

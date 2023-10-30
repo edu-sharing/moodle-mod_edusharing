@@ -157,7 +157,7 @@ class EduSharingService
         $usageData              = new stdClass();
         $usageData->ticket      = $this->getTicket();
         $usageData->nodeId      = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
-        $usageData->containerId = $eduSharing->containerId;
+        $usageData->containerId = $eduSharing->course;
         $usageData->resourceId  = $eduSharing->resourceId;
         $usageData->usage_id    = empty($edusharing->usage_id) ? $this->getUsageId($usageData) : $edusharing->usage_id;
         $this->deleteUsage($usageData);
