@@ -285,17 +285,11 @@ class UtilityFunctions
      * Function getInlineObjectMatches
      *
      * @param string $inputText
-     * @param bool $isAtto
      * @return array
      */
-    public function getInlineObjectMatches(string $inputText, bool $isAtto = true): array {
-        if ($isAtto) {
-            preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $inputText, $matchesImg, PREG_PATTERN_ORDER);
-            preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $inputText, $matchesA, PREG_PATTERN_ORDER);
-        } else {
-            preg_match_all('#<img(.*)es:resource_id(.*)>#Umsi', $inputText, $matchesImg, PREG_PATTERN_ORDER);
-            preg_match_all('#<a(.*)es:resource_id(.*)>(.*)</a>#Umsi', $inputText, $matchesA, PREG_PATTERN_ORDER);
-        }
+    public function getInlineObjectMatches(string $inputText): array {
+        preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $inputText, $matchesImg, PREG_PATTERN_ORDER);
+        preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $inputText, $matchesA, PREG_PATTERN_ORDER);
         return array_merge($matchesImg[0], $matchesA[0]);
     }
 

@@ -158,8 +158,8 @@ class EduSharingService
         $usageData->ticket      = $this->getTicket();
         $usageData->nodeId      = $this->utils->getObjectIdFromUrl($eduSharing->object_url);
         $usageData->containerId = $eduSharing->course;
-        $usageData->resourceId  = $eduSharing->resourceId;
-        $usageData->usage_id    = empty($edusharing->usage_id) ? $this->getUsageId($usageData) : $edusharing->usage_id;
+        $usageData->resourceId  = $eduSharing->id;
+        $usageData->usageId    = empty($edusharing->usage_id) ? $this->getUsageId($usageData) : $edusharing->usage_id;
         $this->deleteUsage($usageData);
         $DB->delete_records('edusharing', ['id' => $eduSharing->id]);
     }

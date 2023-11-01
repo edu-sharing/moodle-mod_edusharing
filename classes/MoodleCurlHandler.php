@@ -43,6 +43,8 @@ class MoodleCurlHandler extends CurlHandler
                 $params = $value;
             } else if ($key === 'CURLOPT_POST' && $value === 1) {
                 $this->method = static::METHOD_POST;
+            } else if ($key === 'CURLOPT_CUSTOMREQUEST' && $value === 'DELETE') {
+              $this->method = static::METHOD_DELETE;
             } else {
                 $options[$key] = $value;
             }
@@ -51,12 +53,15 @@ class MoodleCurlHandler extends CurlHandler
             $result = $curl->post($url, $params, $options);
         } elseif ($this->method === static::METHOD_PUT) {
             $result = $curl->put($url, $params, $options);
+        } elseif ($this->method === static::METHOD_DELETE) {
+            $result = $curl->delete($url, $params, $options);
         } else {
             $result = $curl->get($url, $params, $options);
         }
         if ($curl->errno !== 0 && is_array($curl->info)) {
             $curl->info['message'] = $curl->error;
         }
+        $this->method = self::METHOD_GET;
         return new CurlResult($result, $curl->errno, is_array($curl->info) ? $curl->info : ['message' => $curl->error]);
     }
 }
