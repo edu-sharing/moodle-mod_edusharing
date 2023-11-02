@@ -579,13 +579,13 @@ class EdusharingServiceTest extends advanced_testcase
      */
     public function testIfDeleteInstanceCallsDatabaseWithProperParams(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $dbRecord              = new stdClass();
-        $dbRecord->id          = 'edusharingId123';
-        $dbRecord->object_url  = 'test.de';
-        $dbRecord->containerId = 'container123';
-        $dbRecord->resourceId  = 'resource123';
-        $id                    = 1;
-        $dbMock                = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbRecord             = new stdClass();
+        $dbRecord->id         = 'edusharingId123';
+        $dbRecord->object_url = 'test.de';
+        $dbRecord->course     = 'container123';
+        $dbRecord->resourceId = 'resource123';
+        $id                   = 1;
+        $dbMock               = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'delete_records'])
             ->getMock();
         $dbMock->expects($this->once())
