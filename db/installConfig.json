@@ -3,6 +3,7 @@
   "repoAdmin": "",
   "repoAdminPassword": "",
   "autoAppIdFromUrl": false,
+  "host": "",
   "moodleAppId_optional": "",
   "hostAliases_optional": "",
   "wloGuestUser_optional": ""

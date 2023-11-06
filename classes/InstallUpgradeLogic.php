@@ -59,7 +59,7 @@ class InstallUpgradeLogic
         ! empty($this->configData['wloGuestUser_optional']) && $this->metadataLogic->setWloGuestUser($this->configData['wloGuestUser_optional']);
         ! empty($this->configData['hostAliases_optional']) && $this->metadataLogic->setHostAliases($this->configData['hostAliases_optional']);
         try {
-            $this->metadataLogic->importMetadata($metadataUrl);
+            $this->metadataLogic->importMetadata($metadataUrl, $this->configData['host'] ?? null);
             $repoUrl            = get_config('edusharing', 'application_cc_gui_url');
             $data               = $this->metadataLogic->createXmlMetadata();
             $registrationResult = $this->registrationLogic->registerPlugin($repoUrl, $this->configData['repoAdmin'], $this->configData['repoAdminPassword'], $data);

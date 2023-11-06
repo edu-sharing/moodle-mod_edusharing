@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rest services to add and delete instances.
 - Rest service to get ticket
 - Compatibility with new tinyMCE-Plugin
+- Possibility to add moodle host in installConfig.json for automatic registration
 
 ### Removed
 

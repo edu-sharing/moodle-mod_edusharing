@@ -51,7 +51,7 @@ class MetadataLogic
      * @throws EduSharingUserException
      * @throws Exception
      */
-    public function importMetadata(string $metaDataUrl): void {
+    public function importMetadata(string $metaDataUrl, ?string $host = null): void {
         global $CFG;
         $xml = new DOMDocument();
         libxml_use_internal_errors(true);
@@ -78,7 +78,15 @@ class MetadataLogic
         foreach ($entries as $entry) {
             $this->utils->setConfigEntry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
-        $host           = empty($_SERVER['SERVER_ADDR']) ? gethostbyname($_SERVER['SERVER_NAME']) : $_SERVER['SERVER_ADDR'];
+        if (empty ($host)) {
+            if (! empty($_SERVER['SERVER_ADDR'])) {
+                $host = $_SERVER['SERVER_ADDR'];
+            } else if (! empty($_SERVER['SERVER_NAME'])) {
+                $host = gethostbyname($_SERVER['SERVER_NAME']);
+            } else {
+                throw new Exception('Host could not be discerned. Cancelling ES-registration process.');
+            }
+        }
         $clientProtocol = $this->utils->getConfigEntry('repository_clientprotocol');
         $repoDomain     = $this->utils->getConfigEntry('repository_domain');
         $clientPort     = $this->utils->getConfigEntry('repository_clientport');
