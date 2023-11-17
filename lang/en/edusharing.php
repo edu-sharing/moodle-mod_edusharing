@@ -140,6 +140,9 @@ $string['filter_not_authorized'] = 'You are not authorized to access the request
 // auth parameters
 $string['convey_global_groups_yes'] = 'Convey cohorts';
 $string['convey_global_groups_no'] = 'Do not convey cohorts';
+$string['send_additional_auth'] = 'Send additional auth information';
+$string['send_additional_auth_help'] = 'If checked, the app authentication request will include the first and last name as well as email address.';
+
 
 $string['soaprequired'] = 'The PHP extension soap must be activated.';
 

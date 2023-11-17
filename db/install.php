@@ -36,6 +36,7 @@ function xmldb_edusharing_install(): void {
         $data  = $logic->getConfigData();
         $utils = new UtilityFunctions();
         $utils->setConfigEntry('application_appid', $appId);
+        $utils->setConfigEntry('send_additional_auth', '1');
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }

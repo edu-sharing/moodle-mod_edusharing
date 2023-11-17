@@ -110,6 +110,9 @@ class mod_edusharing_observer
             return;
         }
         $text   = $module->summary;
+        if ($text === null) {
+            return;
+        }
         $idType = 'section_id';
         $utils  = new UtilityFunctions();
         $utils->setModuleIdInDb($text, $data, $idType);

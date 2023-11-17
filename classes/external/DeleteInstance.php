@@ -44,7 +44,7 @@ class DeleteInstance extends external_api
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'success' => new external_value(PARAM_BOOL, 'the name of the object')
+            'success' => new external_value(PARAM_BOOL, 'Success?')
         ]);
     }
 

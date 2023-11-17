@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.0.2] - 2023-11-15
+## [8.0.2] - 2023-11-17
 
 ### Added
 
+- Setting to submit users' names, surnames and email addresses for app auth (default yes)
 - Rest services to add and delete instances.
 - Rest service to get ticket
 - Compatibility with new tinyMCE-Plugin
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Type error which occurred when restoring courses containing sections with null values in the summary field of the course_section table
 - Logic bug in usage deletion logic which prevented usages from being deleted properly in the repository.
 
 ##  [8.0.1] - 2023-10-19

@@ -136,7 +136,15 @@ class EduSharingService
                 return $USER->edusharing_userticket;
             }
         }
-        return $this->authHelper->getTicketForUser($this->utils->getAuthKey());
+        $additionalFields = null;
+        if ($this->utils->getConfigEntry('send_additional_auth') === '1') {
+            $additionalFields = [
+                'firstName' => $USER->firstname,
+                'lastName'  => $USER->lastname,
+                'email'     => $USER->email
+            ];
+        }
+        return $this->authHelper->getTicketForUser($this->utils->getAuthKey(), $additionalFields);
     }
 
     /**

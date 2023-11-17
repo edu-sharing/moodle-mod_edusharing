@@ -88,6 +88,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_AFFILIATION_NAME',
         'AFFILIATION_NAME', '', $CFG->siteidentifier, PARAM_TEXT, 50));
     $settings->add(new admin_setting_configcheckbox('edusharing/EDU_AUTH_CONVEYGLOBALGROUPS', 'CONVEYGLOBALGROUPS', '', ''));
+    $settings->add(
+        new admin_setting_configcheckbox('edusharing/send_additional_auth',
+            new lang_string('send_additional_auth', 'edusharing'),
+            new lang_string('send_additional_auth_help', 'edusharing'),
+            '1'
+        )
+    );
     $settings->add(new admin_setting_heading('edusharing/guest', get_string('guestProperties', 'edusharing'), ''));
     $settings->add(new admin_setting_configcheckbox('edusharing/edu_guest_option', 'guest_option', '', ''));
     $settings->add(new admin_setting_configcheckbox('edusharing/wlo_guest_option', 'wlo_guest_option', '', ''));
