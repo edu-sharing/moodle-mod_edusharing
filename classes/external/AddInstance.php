@@ -1,4 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 namespace mod_edusharing\external;
 
@@ -18,8 +34,7 @@ use stdClass;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class AddInstance extends external_api
-{
+class AddInstance extends external_api {
     /**
      * Function execute_parameters
      *
@@ -36,15 +51,14 @@ class AddInstance extends external_api
      *
      * @return external_function_parameters
      */
-    public static function execute_parameters(): external_function_parameters
-    {
-        $eduStructure = new external_single_structure([
+    public static function execute_parameters(): external_function_parameters {
+        $edustructure = new external_single_structure([
             'name'          => new external_value(PARAM_TEXT, 'the name of the object'),
             'objectUrl'     => new external_value(PARAM_TEXT, 'the object url of the object'),
             'courseId'      => new external_value(PARAM_INT, 'course id'),
-            'objectVersion' => new external_value(PARAM_TEXT, 'The object version')
+            'objectVersion' => new external_value(PARAM_TEXT, 'The object version'),
         ]);
-        return new external_function_parameters(['eduStructure' => $eduStructure]);
+        return new external_function_parameters(['eduStructure' => $edustructure]);
     }
 
     /**
@@ -54,14 +68,13 @@ class AddInstance extends external_api
      *
      * @return external_single_structure
      */
-    public static function execute_returns(): external_single_structure
-    {
+    public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'name'          => new external_value(PARAM_TEXT, 'the name of the object'),
             'objectUrl'     => new external_value(PARAM_TEXT, 'the object url of the object'),
             'courseId'      => new external_value(PARAM_INT, 'course id'),
             'id'            => new external_value(PARAM_INT, 'id'),
-            'objectVersion' => new external_value(PARAM_TEXT, 'The object version')
+            'objectVersion' => new external_value(PARAM_TEXT, 'The object version'),
         ]);
     }
 
@@ -70,27 +83,25 @@ class AddInstance extends external_api
      *
      * handles the service call
      *
-     * @param array $eduStructure
+     * @param array $edustructure
      * @return array
      * @throws Exception
      */
-    public static function execute(array $eduStructure): array
-    {
-        error_log('called with:' . json_encode($eduStructure));
-        $context = context_course::instance($eduStructure['courseId']);
+    public static function execute(array $edustructure): array {
+        $context = context_course::instance($edustructure['courseId']);
         require_capability('atto/edusharing:visible', $context);
-        $eduSharing                 = new stdClass();
-        $eduSharing->name           = $eduStructure['name'];
-        $eduSharing->object_url     = $eduStructure['objectUrl'];
-        $eduSharing->course         = $eduStructure['courseId'];
-        $eduSharing->object_version = $eduStructure['objectVersion'];
-        $eduSharing->introformat    = 0;
+        $edusharing                 = new stdClass();
+        $edusharing->name           = $edustructure['name'];
+        $edusharing->object_url     = $edustructure['objectUrl'];
+        $edusharing->course         = $edustructure['courseId'];
+        $edusharing->object_version = $edustructure['objectVersion'];
+        $edusharing->introformat    = 0;
         $service                    = new EduSharingService();
-        $id                         = $service->addInstance($eduSharing);
+        $id                         = $service->addInstance($edusharing);
         if ($id === false) {
             throw new Exception('Error adding instance');
         }
-        $eduStructure['id'] = $id;
-        return $eduStructure;
+        $edustructure['id'] = $id;
+        return $edustructure;
     }
 }
