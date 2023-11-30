@@ -27,5 +27,14 @@ $functions = [
         'services'    => [
             MOODLE_OFFICIAL_MOBILE_SERVICE
         ]
+    ],
+    'mod_edusharing_update_instance'      => [
+        'classname'   => 'mod_edusharing\external\UpdateInstance',
+        'description' => 'Updates one edu-sharing instance',
+        'type'        => 'write',
+        'ajax'        => true,
+        'services'    => [
+            MOODLE_OFFICIAL_MOBILE_SERVICE
+        ]
     ]
 ];
