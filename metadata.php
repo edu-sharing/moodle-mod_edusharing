@@ -45,7 +45,7 @@ if (empty($publicKey)) {
     }
 }
 $logic    = new MetadataLogic(new EduSharingService());
-$metadata = $logic->createXmlMetadata();
+$metadata = $logic->create_xml_metadata();
 
 header('Content-type: text/xml');
 print($metadata);

@@ -201,23 +201,23 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
     }
     $logic = new InstallUpgradeLogic();
     try {
-        $logic->parseConfigData();
+        $logic->parse_config_data();
     } catch (Exception $exception) {
         error_log($exception->getMessage());
         return $result;
     }
     $utils = new UtilityFunctions();
-    $appId = $logic->discernAppId();
-    $utils->setConfigEntry('application_appid', $appId);
+    $appId = $logic->discern_app_id();
+    $utils->set_config_entry('application_appid', $appId);
     if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
         return $result;
     }
     $service       = new EduSharingService();
     $metadataLogic = new MetadataLogic($service);
-    $metadataLogic->setAppId($appId);
+    $metadataLogic->set_app_id($appId);
     $registrationLogic = new PluginRegistration($service);
-    $logic->setRegistrationLogic($registrationLogic);
-    $logic->setMetadataLogic($metadataLogic);
+    $logic->set_registration_logic($registrationLogic);
+    $logic->set_metadata_logic($metadataLogic);
     $logic->perform(false);
     return $result;
 }

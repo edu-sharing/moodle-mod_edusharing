@@ -59,7 +59,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $service                                 = new EduSharingService(utils: $utils);
         $USER->edusharing_userticket             = 'testTicket';
         $USER->edusharing_userticketvalidationts = time();
-        $this->assertEquals('testTicket', $service->getTicket());
+        $this->assertEquals('testTicket', $service->get_ticket());
     }
 
     /**
@@ -86,7 +86,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service     = new EduSharingService($authmock, $nodehandler);
-        $this->assertEquals('testTicket', $service->getTicket());
+        $this->assertEquals('testTicket', $service->get_ticket());
         $this->assertTrue(time() - $USER->edusharing_userticketvalidationts < 10);
     }
 
@@ -109,15 +109,15 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('getTicketForUser')
             ->will($this->returnValue('ticketForUser'));
         $utilsmock = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getAuthKey'])
+            ->onlyMethods(['get_auth_key'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getAuthKey')
+            ->method('get_auth_key')
             ->will($this->returnValue('neverMind'));
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service     = new EduSharingService($authmock, $nodehandler, $utilsmock);
-        $this->assertEquals('ticketForUser', $service->getTicket());
+        $this->assertEquals('ticketForUser', $service->get_ticket());
         $USER->edusharing_userticket = 'testTicket';
     }
 
@@ -144,15 +144,15 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('getTicketAuthenticationInfo')
             ->will($this->returnValue(['statusCode' => 'NOT_OK']));
         $utilsmock = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getAuthKey'])
+            ->onlyMethods(['get_auth_key'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getAuthKey')
+            ->method('get_auth_key')
             ->will($this->returnValue('neverMind'));
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service     = new EduSharingService($authmock, $nodehandler, $utilsmock);
-        $this->assertEquals('ticketForUser', $service->getTicket());
+        $this->assertEquals('ticketForUser', $service->get_ticket());
         $USER->edusharing_userticket = 'testTicket';
     }
 
@@ -176,13 +176,13 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('createUsage')
             ->with('ticketTest', 'containerIdTest', 'resourceIdTest', 'nodeIdTest', 'nodeVersion');
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['getTicket'])
+            ->onlyMethods(['get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelpermock])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('getTicket')
+            ->method('get_ticket')
             ->will($this->returnValue('ticketTest'));
-        $servicemock->createUsage($usageobject);
+        $servicemock->create_usage($usageobject);
     }
 
     /**
@@ -209,7 +209,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->with('ticketTest', 'nodeIdTest', 'containerIdTest', 'resourceIdTest')
             ->will($this->returnValue('expectedId'));
         $service = new EduSharingService($authhelper, $nodehelpermock);
-        $id      = $service->getUsageId($usageobject);
+        $id      = $service->get_usage_id($usageobject);
         $this->assertEquals('expectedId', $id);
     }
 
@@ -239,7 +239,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $service = new EduSharingService($authhelper, $nodehelpermock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No usage found');
-        $service->getUsageId($usageobject);
+        $service->get_usage_id($usageobject);
     }
 
     /**
@@ -263,7 +263,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('deleteUsage')
             ->with('nodeIdTest', 'usageIdTest');
         $service = new EduSharingService($authhelper, $nodehelpermock);
-        $service->deleteUsage($usageobject);
+        $service->delete_usage($usageobject);
     }
 
     /**
@@ -300,7 +300,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('getNodeByUsage')
             ->with($usage);
         $service = new EduSharingService($authhelper, $nodehelpermock);
-        $service->getNode($usageobject);
+        $service->get_node($usageobject);
     }
 
     /**
@@ -338,21 +338,21 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper                    = new EduSharingAuthHelper($basehelper);
         $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getObjectIdFromUrl'])
+            ->onlyMethods(['get_object_id_from_url'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getObjectIdFromUrl')
+            ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['createUsage', 'getTicket'])
+            ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('getTicket')
+            ->method('get_ticket')
             ->will($this->returnValue('ticketTest'));
         $servicemock->expects($this->once())
-            ->method('createUsage')
+            ->method('create_usage')
             ->with($usagedata)
             ->will($this->returnValue(new Usage('whatever', 'whatever', 'whatever', 'whatever', '2')));
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
@@ -366,7 +366,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('update_record')
             ->with('edusharing', $eduobjectupdate);
         $GLOBALS['DB'] = $dbmock;
-        $this->assertEquals(true, $servicemock->updateInstance($eduobject, $currenttime));
+        $this->assertEquals(true, $servicemock->update_instance($eduobject, $currenttime));
     }
 
     /**
@@ -404,21 +404,21 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper                    = new EduSharingAuthHelper($basehelper);
         $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getObjectIdFromUrl'])
+            ->onlyMethods(['get_object_id_from_url'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getObjectIdFromUrl')
+            ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['createUsage', 'getTicket'])
+            ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('getTicket')
+            ->method('get_ticket')
             ->will($this->returnValue('ticketTest'));
         $servicemock->expects($this->once())
-            ->method('createUsage')
+            ->method('create_usage')
             ->with($usagedata)
             ->willThrowException(new Exception(''));
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
@@ -432,7 +432,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('update_record')
             ->with('edusharing', $memento);
         $GLOBALS['DB'] = $dbmock;
-        $this->assertEquals(false, $servicemock->updateInstance($eduobject, $currenttime));
+        $this->assertEquals(false, $servicemock->update_instance($eduobject, $currenttime));
     }
 
     /**
@@ -479,10 +479,10 @@ class EdusharingServiceTest extends advanced_testcase {
             ->with('edusharing', $insertededuobject);
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getObjectIdFromUrl'])
+            ->onlyMethods(['get_object_id_from_url'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getObjectIdFromUrl')
+            ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
         $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
@@ -490,14 +490,14 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper  = new EduSharingAuthHelper($basehelper);
         $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['createUsage', 'getTicket'])
+            ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('createUsage')
+            ->method('create_usage')
             ->with($usagedata)
             ->will($this->returnValue(new Usage('whatever', 'nodeVersionTest', 'whatever', 'whatever', '4')));
-        $this->assertEquals(3, $servicemock->addInstance($eduobject));
+        $this->assertEquals(3, $servicemock->add_instance($eduobject));
     }
 
     /**
@@ -546,10 +546,10 @@ class EdusharingServiceTest extends advanced_testcase {
             ->with('edusharing', ['id' => 3]);
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getObjectIdFromUrl'])
+            ->onlyMethods(['get_object_id_from_url'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getObjectIdFromUrl')
+            ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
         $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
@@ -557,14 +557,14 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper  = new EduSharingAuthHelper($basehelper);
         $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['createUsage', 'getTicket'])
+            ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('createUsage')
+            ->method('create_usage')
             ->with($usagedata)
             ->willThrowException(new Exception(''));
-        $this->assertEquals(false, $servicemock->addInstance($eduobject));
+        $this->assertEquals(false, $servicemock->add_instance($eduobject));
     }
 
     /**
@@ -588,7 +588,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $service = new EduSharingService($authhelper, $nodehelpermock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No usage id provided, deletion cannot be performed');
-        $service->deleteUsage($usageobject);
+        $service->delete_usage($usageobject);
     }
 
     /**
@@ -622,23 +622,23 @@ class EdusharingServiceTest extends advanced_testcase {
         $nodeconfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper    = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['getObjectIdFromUrl'])
+            ->onlyMethods(['get_object_id_from_url'])
             ->getMock();
         $utilsmock->expects($this->once())
-            ->method('getObjectIdFromUrl')
+            ->method('get_object_id_from_url')
             ->with('test.de')
             ->will($this->returnValue('myNodeId123'));
         $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
-            ->onlyMethods(['getTicket', 'getUsageId', 'deleteUsage'])
+            ->onlyMethods(['get_ticket', 'get_usage_id', 'delete_usage'])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('getTicket')
+            ->method('get_ticket')
             ->will($this->returnValue('ticket123'));
         $servicemock->expects($this->once())
-            ->method('getUsageId')
+            ->method('get_usage_id')
             ->will($this->returnValue('usage123'));
-        $servicemock->deleteInstance((string)$id);
+        $servicemock->delete_instance((string)$id);
     }
 
     /**
@@ -673,7 +673,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper = new EduSharingAuthHelper($basemock);
         $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
-        $this->assertEquals($curl, $service->importMetadata($url));
+        $this->assertEquals($curl, $service->import_metadata($url));
     }
 
     /**
@@ -706,7 +706,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper = new EduSharingAuthHelper($basemock);
         $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
-        $this->assertEquals($curl, $service->validateSession($url, 'testAuth'));
+        $this->assertEquals($curl, $service->validate_session($url, 'testAuth'));
     }
 
     /**
@@ -748,7 +748,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper = new EduSharingAuthHelper($basehelper);
         $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
-        $this->assertEquals($curl, $service->registerPlugin($url, $delimiter, $body, $auth));
+        $this->assertEquals($curl, $service->register_plugin($url, $delimiter, $body, $auth));
     }
 
     /**
@@ -808,7 +808,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper = new EduSharingAuthHelper($basehelper);
         $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
-        $this->assertEquals('expectedContent', $service->getRenderHtml('www.testUrl.de'));
+        $this->assertEquals('expectedContent', $service->get_render_html('www.testUrl.de'));
     }
 
     /**
@@ -843,6 +843,6 @@ class EdusharingServiceTest extends advanced_testcase {
         $authhelper = new EduSharingAuthHelper($basehelper);
         $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
-        $this->assertEquals('Unexpected Error', $service->getRenderHtml('www.testUrl.de'));
+        $this->assertEquals('Unexpected Error', $service->get_render_html('www.testUrl.de'));
     }
 }

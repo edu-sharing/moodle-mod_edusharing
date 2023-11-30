@@ -49,19 +49,19 @@ class PluginRegistrationTest extends advanced_testcase {
         $password    = 'testPass';
         $data        = 'data';
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['validateSession', 'registerPlugin'])
+            ->onlyMethods(['validate_session', 'register_plugin'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('validateSession')
+            ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 0, [])));
         $servicemock->expects($this->once())
-            ->method('registerPlugin')
+            ->method('register_plugin')
             ->with($repourl, $this->anything(), $this->anything(), $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"content": "expectedContent"}', 0, [])));
         $registrationlogic = new PluginRegistration($servicemock);
-        $result = $registrationlogic->registerPlugin($repourl, $user, $password, $data);
+        $result = $registrationlogic->register_plugin($repourl, $user, $password, $data);
         $this->assertArrayHasKey('content', $result);
         $this->assertEquals('expectedContent', $result['content']);
     }
@@ -83,17 +83,17 @@ class PluginRegistrationTest extends advanced_testcase {
         $password    = 'testPass';
         $data        = 'data';
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['validateSession', 'registerPlugin'])
+            ->onlyMethods(['validate_session', 'register_plugin'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('validateSession')
+            ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 3, [])));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('API connection error');
-        $registrationlogic->registerPlugin($repourl, $user, $password, $data);
+        $registrationlogic->register_plugin($repourl, $user, $password, $data);
     }
 
 
@@ -114,17 +114,17 @@ class PluginRegistrationTest extends advanced_testcase {
         $password    = 'testPass';
         $data        = 'data';
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['validateSession', 'registerPlugin'])
+            ->onlyMethods(['validate_session', 'register_plugin'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('validateSession')
+            ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"isAdmin": false}', 0, [])));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('Given user / password was not accepted as admin');
-        $registrationlogic->registerPlugin($repourl, $user, $password, $data);
+        $registrationlogic->register_plugin($repourl, $user, $password, $data);
     }
 
     /**
@@ -144,21 +144,21 @@ class PluginRegistrationTest extends advanced_testcase {
         $password    = 'testPass';
         $data        = 'data';
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['validateSession', 'registerPlugin'])
+            ->onlyMethods(['validate_session', 'register_plugin'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('validateSession')
+            ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 0, [])));
         $servicemock->expects($this->once())
-            ->method('registerPlugin')
+            ->method('register_plugin')
             ->with($repourl, $this->anything(), $this->anything(), $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"content": "expectedContent"}', 1, [])));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('API connection error');
-        $registrationlogic->registerPlugin($repourl, $user, $password, $data);
+        $registrationlogic->register_plugin($repourl, $user, $password, $data);
     }
 
     /**
@@ -178,15 +178,15 @@ class PluginRegistrationTest extends advanced_testcase {
         $password    = 'testPass';
         $data        = 'data';
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['validateSession', 'registerPlugin'])
+            ->onlyMethods(['validate_session', 'register_plugin'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('validateSession')
+            ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
             ->will($this->returnValue(new CurlResult('{"isAdmin: false}', 0, [])));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(JsonException::class);
-        $registrationlogic->registerPlugin($repourl, $user, $password, $data);
+        $registrationlogic->register_plugin($repourl, $user, $password, $data);
     }
 }

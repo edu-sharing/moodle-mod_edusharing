@@ -97,7 +97,7 @@ class AddInstance extends external_api {
         $edusharing->object_version = $edustructure['objectVersion'];
         $edusharing->introformat    = 0;
         $service                    = new EduSharingService();
-        $id                         = $service->addInstance($edusharing);
+        $id                         = $service->add_instance($edusharing);
         if ($id === false) {
             throw new Exception('Error adding instance');
         }

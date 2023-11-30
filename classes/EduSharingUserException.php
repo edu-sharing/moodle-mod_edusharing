@@ -1,4 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 namespace mod_edusharing;
 
@@ -10,9 +26,8 @@ use Throwable;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class EduSharingUserException extends Exception
-{
-    private ?string $htmlMessage;
+class EduSharingUserException extends Exception {
+    private ?string $htmlmessage;
 
     /**
      * Function __construct
@@ -20,10 +35,10 @@ class EduSharingUserException extends Exception
      * @param string $message
      * @param int $code
      * @param Throwable|null $previous
-     * @param string|null $htmlMessage
+     * @param string|null $htmlmessage
      */
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, ?string $htmlMessage = null) {
-        $this->htmlMessage = $htmlMessage;
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null, ?string $htmlmessage = null) {
+        $this->htmlmessage = $htmlmessage;
         parent::__construct($message, $code, $previous);
     }
 
@@ -32,7 +47,7 @@ class EduSharingUserException extends Exception
      *
      * @return string|null
      */
-    public function getHtmlMessage(): ?string {
-        return $this->htmlMessage;
+    public function get_html_message(): ?string {
+        return $this->htmlmessage;
     }
 }

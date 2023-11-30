@@ -46,7 +46,7 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
             $newid = $DB->insert_record('edusharing', $data);
             // Immediately after inserting "activity" record, call this.
             $helper = new RestoreHelper(new EduSharingService());
-            $helper->addUsage($data, $newid);
+            $helper->add_usage($data, $newid);
             $this->apply_activity_instance($newid);
         } catch (Exception $exception) {
             try {

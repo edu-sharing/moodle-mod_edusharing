@@ -1,4 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 namespace mod_edusharing;
 
@@ -11,28 +27,30 @@ use EduSharingApiClient\CurlResult;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class MoodleCurlHandler extends CurlHandler
-{
+class MoodleCurlHandler extends CurlHandler {
     /**
      * Function handleCurlRequest
      *
+     * Method name does not comply with moodle code style
+     * in order to ensure compatibility with edu-sharing api library
+     *
      * @param string $url
-     * @param array $curlOptions
+     * @param array $curloptions
      * @return CurlResult
      */
-    public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
+    public function handleCurlRequest(string $url, array $curloptions): CurlResult {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $curl         = new curl();
         $params       = [];
         $options      = [];
-        $allConstants = null;
-        foreach ($curlOptions as $key => $value) {
+        $allconstants = null;
+        foreach ($curloptions as $key => $value) {
             if (is_int($key)) {
-                if ($allConstants === null) {
-                    $allConstants = get_defined_constants(true)['curl'];
+                if ($allconstants === null) {
+                    $allconstants = get_defined_constants(true)['curl'];
                 }
-                $key = array_search($key, $allConstants, true);
+                $key = array_search($key, $allconstants, true);
                 if ($key === false) {
                     continue;
                 }
@@ -44,16 +62,16 @@ class MoodleCurlHandler extends CurlHandler
             } else if ($key === 'CURLOPT_POST' && $value === 1) {
                 $this->method = static::METHOD_POST;
             } else if ($key === 'CURLOPT_CUSTOMREQUEST' && $value === 'DELETE') {
-              $this->method = static::METHOD_DELETE;
+                $this->method = static::METHOD_DELETE;
             } else {
                 $options[$key] = $value;
             }
         }
         if ($this->method === static::METHOD_POST) {
             $result = $curl->post($url, $params, $options);
-        } elseif ($this->method === static::METHOD_PUT) {
+        } else if ($this->method === static::METHOD_PUT) {
             $result = $curl->put($url, $params, $options);
-        } elseif ($this->method === static::METHOD_DELETE) {
+        } else if ($this->method === static::METHOD_DELETE) {
             $result = $curl->delete($url, $params, $options);
         } else {
             $result = $curl->get($url, $params, $options);

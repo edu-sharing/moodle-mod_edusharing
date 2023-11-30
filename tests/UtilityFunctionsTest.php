@@ -33,7 +33,7 @@ class UtilityFunctionsTest extends advanced_testcase {
      */
     public function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok(): void {
         $utils = new UtilityFunctions();
-        $this->assertEquals('hallo', $utils->getObjectIdFromUrl('http://test.com/hallo/'));
+        $this->assertEquals('hallo', $utils->get_object_id_from_url('http://test.com/hallo/'));
     }
 
     /**
@@ -44,7 +44,7 @@ class UtilityFunctionsTest extends advanced_testcase {
     public function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed(): void {
         $utils = new UtilityFunctions();
         $this->expectWarning();
-        $utils->getObjectIdFromUrl('http://test.com:-80/hallo/');
+        $utils->get_object_id_from_url('http://test.com:-80/hallo/');
     }
 
     /**
@@ -55,7 +55,7 @@ class UtilityFunctionsTest extends advanced_testcase {
      */
     public function test_if_get_repository_id_from_url_returns_host_if_url_is_ok(): void {
         $utils = new UtilityFunctions();
-        $this->assertEquals('test.com', $utils->getRepositoryIdFromUrl('http://test.com/hallo/'));
+        $this->assertEquals('test.com', $utils->get_repository_id_from_url('http://test.com/hallo/'));
     }
 
     /**
@@ -67,7 +67,7 @@ class UtilityFunctionsTest extends advanced_testcase {
     public function test_if_get_repository_throws_exception_if_url_is_malformed(): void {
         $utils = new UtilityFunctions();
         $this->expectException(Exception::class);
-        $utils->getRepositoryIdFromUrl('http://test.com:-80/hallo/');
+        $utils->get_repository_id_from_url('http://test.com:-80/hallo/');
     }
 
     /**
@@ -87,7 +87,7 @@ class UtilityFunctionsTest extends advanced_testcase {
         ]);
         $utils                   = new UtilityFunctions($fakeconfig);
         $SESSION->edusharing_sso = ['test' => 'expectedId'];
-        $this->assertEquals('expectedId', $utils->getAuthKey());
+        $this->assertEquals('expectedId', $utils->get_auth_key());
     }
 
     /**
@@ -108,7 +108,7 @@ class UtilityFunctionsTest extends advanced_testcase {
             'edu_guest_guest_id' => 'expectedId',
         ]);
         $utils = new UtilityFunctions($fakeconfig);
-        $this->assertEquals('expectedId', $utils->getAuthKey());
+        $this->assertEquals('expectedId', $utils->get_auth_key());
     }
 
     /**
@@ -129,7 +129,7 @@ class UtilityFunctionsTest extends advanced_testcase {
         ]);
         $utils       = new UtilityFunctions($fakeconfig);
         $USER->email = 'expected@expected.org';
-        $this->assertEquals('expected@expected.org', $utils->getAuthKey());
+        $this->assertEquals('expected@expected.org', $utils->get_auth_key());
     }
 
     /**
@@ -150,7 +150,7 @@ class UtilityFunctionsTest extends advanced_testcase {
         ]);
         $utils                     = new UtilityFunctions($fakeconfig);
         $USER->profile['nonsense'] = 'expectedId';
-        $this->assertEquals('expectedId', $utils->getAuthKey());
+        $this->assertEquals('expectedId', $utils->get_auth_key());
     }
 
     /**
@@ -171,7 +171,7 @@ class UtilityFunctionsTest extends advanced_testcase {
         ]);
         $utils          = new UtilityFunctions($fakeconfig);
         $USER->username = 'expectedName';
-        $this->assertEquals('expectedName', $utils->getAuthKey());
+        $this->assertEquals('expectedName', $utils->get_auth_key());
     }
 
     /**
@@ -196,7 +196,7 @@ class UtilityFunctionsTest extends advanced_testcase {
                 ['edusharing', $idtype, 'value1', ['id' => 'resourceID2']], );
         $GLOBALS['DB'] = $dbmock;
         $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda"><a resourceId=resourceID2& class="dsfg_edusharing_atto_afdd">text</a>';
-        $utils->setModuleIdInDb($text, $data, $idtype);
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
     /**
@@ -214,7 +214,7 @@ class UtilityFunctionsTest extends advanced_testcase {
             ->getMock();
         $dbmock->expects($this->never())->method('set_field');
         $GLOBALS['DB'] = $dbmock;
-        $utils->setModuleIdInDb('NothingHere', [], 'idType');
+        $utils->set_module_id_in_db('NothingHere', [], 'idType');
     }
 
     /**
@@ -247,7 +247,7 @@ class UtilityFunctionsTest extends advanced_testcase {
                 ['edusharing', ['id' => 'instanceId'], '*', MUST_EXIST])
             ->willReturnOnConsecutiveCalls($returnone, $returntwo);
         $GLOBALS['DB'] = $dbmock;
-        $result        = $utils->getCourseModuleInfo($module);
+        $result        = $utils->get_course_module_info($module);
         $this->assertTrue($result instanceof cached_cm_info);
         $this->assertEquals('this.target=\'_blank\';', $result->onclick);
     }
@@ -274,7 +274,7 @@ class UtilityFunctionsTest extends advanced_testcase {
             ->with('edusharing', ['id' => 'instanceId'], 'id, name, intro, introformat', MUST_EXIST)
             ->willThrowException(new Exception());
         $GLOBALS['DB'] = $dbmock;
-        $this->assertEquals(false, $utils->getCourseModuleInfo($module));
+        $this->assertEquals(false, $utils->get_course_module_info($module));
     }
 
     /**
@@ -285,7 +285,7 @@ class UtilityFunctionsTest extends advanced_testcase {
     public function test_get_inline_object_matches_returns_only_atto_matches_from_input(): void {
         $text   = file_get_contents(__DIR__ . '/attoTestString.txt');
         $utils  = new UtilityFunctions();
-        $result = $utils->getInlineObjectMatches($text);
+        $result = $utils->get_inline_object_matches($text);
         $this->assertTrue(count($result) === 4);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '</a>'))) === 2);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '<img'))) === 2);

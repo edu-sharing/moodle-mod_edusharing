@@ -1,19 +1,31 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\RestoreHelper;
 use mod_edusharing\UtilityFunctions;
-
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class mod_edusharing_observer
  *
  * callback definitions for events.
  */
-class mod_edusharing_observer
-{
+class mod_edusharing_observer {
     /**
      * Function courseModuleDeleted
      *
@@ -23,34 +35,34 @@ class mod_edusharing_observer
     public static function course_module_deleted(\core\event\course_module_deleted $event) {
         global $DB;
         $data     = $event->get_data();
-        $objectId = $data['objectid'];
-        //delete es-activities in course-modules
+        $objectid = $data['objectid'];
+        // Delete es-activities in course-modules.
         try {
-            $eduObjects = $DB->get_records('edusharing', ['module_id' => $objectId]);
+            $eduobjects = $DB->get_records('edusharing', ['module_id' => $objectid]);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
         $service = new EduSharingService();
-        foreach ($eduObjects as $object) {
+        foreach ($eduobjects as $object) {
             try {
-                $service->deleteInstance($object['id']);
+                $service->delete_instance($object['id']);
             } catch (Exception $exception) {
-                error_log($exception->getMessage());
+                debugging($exception->getMessage());
             }
         }
-        //delete es-activities in course-sections
+        // Delete es-activities in course-sections.
         try {
-            $eduObjects = $DB->get_records('edusharing', ['section_id' => $objectId]);
+            $eduobjects = $DB->get_records('edusharing', ['section_id' => $objectid]);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
-        foreach ($eduObjects as $object) {
+        foreach ($eduobjects as $object) {
             try {
-                $service->deleteInstance($object['id']);
+                $service->delete_instance($object['id']);
             } catch (Exception $exception) {
-                error_log($exception->getMessage());
+                debugging($exception->getMessage());
             }
         }
     }
@@ -64,13 +76,13 @@ class mod_edusharing_observer
         try {
             $module = $DB->get_record($data['other']['modulename'], ['id' => $data['other']['instanceid']], '*', MUST_EXIST);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
         $text   = $module->intro;
-        $idType = 'module_id';
+        $idtype = 'module_id';
         $utils  = new UtilityFunctions();
-        $utils->setModuleIdInDb($text, $data, $idType);
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
     /**
@@ -85,13 +97,13 @@ class mod_edusharing_observer
         try {
             $module = $DB->get_record($data['other']['modulename'], ['id' => $data['other']['instanceid']], '*', MUST_EXIST);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
         $text   = $module->intro;
-        $idType = 'module_id';
+        $idtype = 'module_id';
         $utils  = new UtilityFunctions();
-        $utils->setModuleIdInDb($text, $data, $idType);
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
     /**
@@ -106,16 +118,16 @@ class mod_edusharing_observer
         try {
             $module = $DB->get_record('course_sections', ['id' => $data['objectid']], '*', MUST_EXIST);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
-        $text   = $module->summary;
+        $text = $module->summary;
         if ($text === null) {
             return;
         }
-        $idType = 'section_id';
+        $idtype = 'section_id';
         $utils  = new UtilityFunctions();
-        $utils->setModuleIdInDb($text, $data, $idType);
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
     /**
@@ -130,13 +142,13 @@ class mod_edusharing_observer
         try {
             $module = $DB->get_record('course_sections', ['id' => $data['objectid']], '*', MUST_EXIST);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
         $text   = $module->summary;
-        $idType = 'section_id';
+        $idtype = 'section_id';
         $utils  = new UtilityFunctions();
-        $utils->setModuleIdInDb($text, $data, $idType);;
+        $utils->set_module_id_in_db($text, $data, $idtype);;
     }
 
 
@@ -148,19 +160,19 @@ class mod_edusharing_observer
     public static function course_deleted(\core\event\course_deleted $event) {
         global $DB;
         $data     = $event->get_data();
-        $objectId = $data['objectid'];
+        $objectid = $data['objectid'];
         try {
-            $eduObjects = $DB->get_records('edusharing', ['course' => $objectId], '*', MUST_EXIST);
+            $eduobjects = $DB->get_records('edusharing', ['course' => $objectid], '*', MUST_EXIST);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
         $service = new EduSharingService();
-        foreach ($eduObjects as $object) {
+        foreach ($eduobjects as $object) {
             try {
-                $service->deleteInstance($object['id']);
+                $service->delete_instance($object['id']);
             } catch (Exception $exception) {
-                error_log($exception->getMessage());
+                debugging($exception->getMessage());
             }
         }
     }
@@ -170,14 +182,14 @@ class mod_edusharing_observer
      *
      * @param \core\event\course_restored $event
      */
-    public static function courseRestored(\core\event\course_restored $event) {
-        $eventData = $event->get_data();
-        $courseId  = $eventData['courseid'];
+    public static function course_restored(\core\event\course_restored $event) {
+        $eventdata = $event->get_data();
+        $courseid  = $eventdata['courseid'];
         try {
             $helper = new RestoreHelper(new EduSharingService());
-            $helper->convertInlineOptions($courseId);
+            $helper->convert_inline_options($courseid);
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
         }
     }
 }

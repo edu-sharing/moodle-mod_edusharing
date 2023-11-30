@@ -49,7 +49,7 @@ class mod_edusharing_mod_form extends moodleform_mod
     public function definition(): void {
         try {
             $eduSharingService = new EduSharingService();
-            $ticket            = $eduSharingService->getTicket();
+            $ticket            = $eduSharingService->get_ticket();
             // Adding the "general" fieldset, where all the common settings are showed
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             // Adding the standard "name" field

@@ -31,12 +31,12 @@ function xmldb_edusharing_install(): void {
     require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     $logic = new InstallUpgradeLogic();
     try {
-        $logic->parseConfigData();
-        $appId = $logic->discernAppId();
-        $data  = $logic->getConfigData();
+        $logic->parse_config_data();
+        $appId = $logic->discern_app_id();
+        $data  = $logic->get_config_data();
         $utils = new UtilityFunctions();
-        $utils->setConfigEntry('application_appid', $appId);
-        $utils->setConfigEntry('send_additional_auth', '1');
+        $utils->set_config_entry('application_appid', $appId);
+        $utils->set_config_entry('send_additional_auth', '1');
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }
@@ -46,10 +46,10 @@ function xmldb_edusharing_install(): void {
         $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
         $service    = new EduSharingService($authHelper, $nodeHelper);
-        $logic->setRegistrationLogic(new PluginRegistration($service));
+        $logic->set_registration_logic(new PluginRegistration($service));
         $metadataLogic = new MetadataLogic($service);
-        $metadataLogic->setAppId($appId);
-        $logic->setMetadataLogic($metadataLogic);
+        $metadataLogic->set_app_id($appId);
+        $logic->set_metadata_logic($metadataLogic);
         $logic->perform();
     } catch (Exception $exception) {
         error_log(($exception instanceof JsonException ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());

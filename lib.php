@@ -62,7 +62,7 @@ function edusharing_supports(string $feature): int|bool {
 function edusharing_add_instance(stdClass $eduSharing): int|bool {
     $service = new EduSharingService();
     try {
-        $id = $service->addInstance($eduSharing);
+        $id = $service->add_instance($eduSharing);
     } catch (Exception $exception) {
         error_log('Instance creation failed: ' . $exception->getMessage());
         return false;
@@ -83,7 +83,7 @@ function edusharing_add_instance(stdClass $eduSharing): int|bool {
 function edusharing_update_instance(stdClass $edusharing): bool {
     $service = new EduSharingService();
     try {
-        $service->updateInstance($edusharing);
+        $service->update_instance($edusharing);
     } catch (Exception $exception) {
         error_log('Instance update failed: ' . $exception->getMessage());
         return false;
@@ -102,7 +102,7 @@ function edusharing_update_instance(stdClass $edusharing): bool {
 function edusharing_delete_instance($id): bool {
     $service = new EduSharingService();
     try {
-        $service->deleteInstance((string)$id);
+        $service->delete_instance((string)$id);
     } catch (Exception $exception) {
         error_log('Instance deletion failed: ' . $exception->getMessage());
         return false;
@@ -247,7 +247,7 @@ function edusharing_uninstall() {
  */
 function edusharing_get_coursemodule_info(stdClass $courseModule): cached_cm_info|bool {
     $utils = new UtilityFunctions();
-    return $utils->getCourseModuleInfo($courseModule);
+    return $utils->get_course_module_info($courseModule);
 }
 
 /**
@@ -271,7 +271,7 @@ function edusharing_pre_block_delete($cm) {
 
 function edusharing_update_settings_images($settingName) {
     $utils = new UtilityFunctions();
-    $utils->updateSettingsImages($settingName);
+    $utils->update_settings_images($settingName);
 }
 
 function edusharing_update_settings_name() {

@@ -60,7 +60,7 @@ if (isset($_POST['repoReg'])) {
     if (!empty($_POST['host_aliases'])) {
         set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
     }
-    echo PluginRegistrationFrontend::registerPlugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
+    echo PluginRegistrationFrontend::register_plugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
     exit();
 }
 
@@ -75,30 +75,30 @@ try {
 if (!empty($metadataUrl)) {
     try {
         $utils = new UtilityFunctions();
-        $appId = $utils->getConfigEntry('application_appid');
+        $appId = $utils->get_config_entry('application_appid');
         if (empty($appId)) {
-            $utils->setConfigEntry('application_appid', uniqid('moodle_'));
+            $utils->set_config_entry('application_appid', uniqid('moodle_'));
         }
         $service = new MetadataLogic(new EduSharingService());
-        $service->importMetadata($metadataUrl);
+        $service->import_metadata($metadataUrl);
         echo '<h3 class="edu_success">Import successful.</h3>';
     } catch (EduSharingUserException $eduSharingUserException) {
-        echo $eduSharingUserException->getHtmlMessage();
+        echo $eduSharingUserException->get_html_message();
     } catch (Exception $exception) {
         echo '<p style="background: #FF8170">Unexpected error - please try again later<br></p>';
     }
-    if ($service->reloadForm) {
-        echo MetaDataFrontend::getMetaDataForm();
+    if ($service->reloadform) {
+        echo MetaDataFrontend::get_meta_data_form();
     }
-    $repoForm = MetaDataFrontend::getRepoForm();
+    $repoForm = MetaDataFrontend::get_repo_form();
     if ($repoForm !== null) {
         echo $repoForm;
     }
     exit();
 }
 
-echo MetaDataFrontend::getMetaDataForm();
-$repoForm = MetaDataFrontend::getRepoForm();
+echo MetaDataFrontend::get_meta_data_form();
+$repoForm = MetaDataFrontend::get_repo_form();
 if ($repoForm !== null) {
     echo $repoForm;
 }

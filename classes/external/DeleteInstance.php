@@ -83,7 +83,7 @@ class DeleteInstance extends external_api {
             ];
             $DB->get_record(Constants::EDUSHARING_TABLE, $where, MUST_EXIST);
             $service = new EduSharingService();
-            $service->deleteInstance((string)$edudeletestructure['id']);
+            $service->delete_instance((string)$edudeletestructure['id']);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
             return ['success' => false];

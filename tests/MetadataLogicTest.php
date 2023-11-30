@@ -59,15 +59,15 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils       = new UtilityFunctions($fakeconfig);
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->importMetadata($metadataurl);
+        $logic->import_metadata($metadataurl);
         $this->assertEquals('http', $fakeconfig->get('repository_clientprotocol'));
         $this->assertEquals('http://test.de/edu-sharing/services/authbyapp',
             $fakeconfig->get('repository_authenticationwebservice'));
@@ -109,15 +109,15 @@ class MetadataLogicTest extends advanced_testcase {
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utils                  = new UtilityFunctions($fakeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->importMetadata($metadataurl);
+        $logic->import_metadata($metadataurl);
         $this->assertTrue(is_string($fakeconfig->get('application_appid')), 'application_appid was not set');
         $this->assertTrue(str_contains($fakeconfig->get('application_appid'), 'moodle_'),
             'application_appid does not contain moodle prefix');
@@ -147,16 +147,16 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->importMetadata($metadataurl);
+        $logic->import_metadata($metadataurl);
         $this->assertEquals('testId', $fakeconfig->get('application_appid'));
     }
 
@@ -180,18 +180,18 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
         $utils      = new UtilityFunctions($fakeconfig);
         $logic      = new MetadataLogic($servicemock, $utils);
-        $logic->setAppId('testId');
-        $logic->importMetadata($metadataurl);
+        $logic->set_app_id('testId');
+        $logic->import_metadata($metadataurl);
         $this->assertEquals('testId', $fakeconfig->get('application_appid'));
     }
 
@@ -215,11 +215,11 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
@@ -228,7 +228,7 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->importMetadata($metadataurl);
+        $logic->import_metadata($metadataurl);
         $this->assertFalse($fakeconfig->get('application_host_aliases'));
     }
 
@@ -252,11 +252,11 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
@@ -265,8 +265,8 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->setHostAliases('hostAliasesTest');
-        $logic->importMetadata($metadataurl);
+        $logic->set_host_aliases('hostAliasesTest');
+        $logic->import_metadata($metadataurl);
         $this->assertEquals('hostAliasesTest', $fakeconfig->get('application_host_aliases'));
     }
 
@@ -290,11 +290,11 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
@@ -303,7 +303,7 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->importMetadata($metadataurl);
+        $logic->import_metadata($metadataurl);
         $this->assertFalse($fakeconfig->get('edu_guest_guest_id'));
         $this->assertFalse($fakeconfig->get('wlo_guest_option'));
     }
@@ -328,11 +328,11 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
@@ -341,8 +341,8 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->setWloGuestUser('wloGuestTest');
-        $logic->importMetadata($metadataurl);
+        $logic->set_wlo_guest_user('wloGuestTest');
+        $logic->import_metadata($metadataurl);
         $this->assertEquals('wloGuestTest', $fakeconfig->get('edu_guest_guest_id'));
         $this->assertEquals('1', $fakeconfig->get('wlo_guest_option'));
     }
@@ -367,11 +367,11 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $servicemock            = $this->getMockBuilder(EduSharingService::class)
-            ->onlyMethods(['importMetadata'])
+            ->onlyMethods(['import_metadata'])
             ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
         $servicemock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with($metadataurl)
             ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
         $fakeconfig = new FakeConfig();
@@ -380,8 +380,8 @@ class MetadataLogicTest extends advanced_testcase {
         ]);
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
-        $logic->setWloGuestUser('wloGuestTest');
-        $logic->importMetadata($metadataurl);
+        $logic->set_wlo_guest_user('wloGuestTest');
+        $logic->import_metadata($metadataurl);
         $this->assertNotEmpty($fakeconfig->get('application_private_key'));
         $this->assertNotEmpty($fakeconfig->get('application_public_key'));
     }
@@ -415,7 +415,7 @@ class MetadataLogicTest extends advanced_testcase {
         $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $logic      = new MetadataLogic(new EduSharingService($authhelper, $nodehelper), new UtilityFunctions($fakeconfig));
-        $xmlstring  = $logic->createXmlMetadata();
+        $xmlstring  = $logic->create_xml_metadata();
         $xml        = new SimpleXMLElement($xmlstring);
         $this->assertEquals(11, $xml->count());
         $this->assertEquals('testAppId', $xml->xpath('entry[@key="appid"]')[0]);

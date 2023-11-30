@@ -43,7 +43,7 @@ class InstallUpgradeLogicTest extends advanced_testcase {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../nothing/tests/installConfigTest.json');
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Missing installConfig');
-        $logic->parseConfigData();
+        $logic->parse_config_data();
     }
 
     /**
@@ -55,7 +55,7 @@ class InstallUpgradeLogicTest extends advanced_testcase {
     public function test_parse_config_data_throws_json_exception_if_json_invalid(): void {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../tests/installConfigTestInvalid.json');
         $this->expectException(JsonException::class);
-        $logic->parseConfigData();
+        $logic->parse_config_data();
     }
 
     /**
@@ -78,18 +78,18 @@ class InstallUpgradeLogicTest extends advanced_testcase {
             ->setConstructorArgs([$service])
             ->getMock();
         $metadatalogicmock->expects($this->once())
-            ->method('importMetadata')
+            ->method('import_metadata')
             ->with('http://localhost:8080/edu-sharing/metadata?format=lms&external=true');
         $metadatalogicmock->expects($this->once())
-            ->method('createXmlMetadata')
+            ->method('create_xml_metadata')
             ->will($this->returnValue('superTestData'));
         $registrationlogicmock->expects($this->once())
-            ->method('registerPlugin')
+            ->method('register_plugin')
             ->will($this->returnValue(['appid' => 'testId']));
         $logic = new InstallUpgradeLogic(__DIR__ . '/../tests/installConfigTest.json');
-        $logic->setRegistrationLogic($registrationlogicmock);
-        $logic->setMetadataLogic($metadatalogicmock);
-        $logic->parseConfigData();
+        $logic->set_registration_logic($registrationlogicmock);
+        $logic->set_metadata_logic($metadatalogicmock);
+        $logic->parse_config_data();
         $logic->perform();
     }
 }

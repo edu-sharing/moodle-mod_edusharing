@@ -1,4 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types = 1);
 
 namespace mod_edusharing;
 
@@ -10,99 +26,109 @@ use JsonException;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class InstallUpgradeLogic
-{
-    private ?PluginRegistration $registrationLogic = null;
-    private ?MetadataLogic $metadataLogic = null;
+class InstallUpgradeLogic {
+    private ?PluginRegistration $registrationlogic = null;
+    private ?MetadataLogic      $metadatalogic     = null;
 
-    private string $configPath;
-    private ?array $configData = null;
+    private string $configpath;
+    private ?array $configdata = null;
 
     /**
      * InstallUpgradeLogic constructor
      *
-     * @param string $configPath
+     * @param string $configpath
      */
-    public function __construct(string $configPath = __DIR__ . '/../db/installConfig.json') {
-        $this->configPath = $configPath;
+    public function __construct(string $configpath = __DIR__ . '/../db/installConfig.json') {
+        $this->configpath = $configpath;
     }
 
     /**
-     * Function parseConfigData
+     * Function parse_config_data
      *
      * @throws JsonException
      * @throws Exception
      */
-    public function parseConfigData(): void {
-        if (! file_exists($this->configPath)) {
+    public function parse_config_data(): void {
+        if (! file_exists($this->configpath)) {
             throw new Exception('Metadata import and plugin registration failed: Missing installConfig.json');
         }
-        $jsonString       = file_get_contents($this->configPath);
-        $this->configData = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
+        $jsonstring       = file_get_contents($this->configpath);
+        $this->configdata = json_decode($jsonstring, true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
      * Function perform
      *
-     * @param bool $isInstall
+     * @param bool $isinstall
      * @return void
      */
-    public function perform(bool $isInstall = true): void {
+    public function perform(bool $isinstall = true): void {
         global $CFG;
-        if (in_array(null, [$this->metadataLogic, $this->registrationLogic, $this->configData], true) || empty($this->configData['repoAdmin']) || empty($this->configData['repoAdminPassword'])) {
+        if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
+            || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
+        ) {
             return;
         }
-        $metadataUrl = $this->configData['repoUrl'] . '/metadata?format=lms&external=true';
-        if ($isInstall && $this->configData['autoAppIdFromUrl']) {
-            $this->metadataLogic->setAppId(basename($CFG->wwwroot));
+        $metadataurl = $this->configdata['repoUrl'] . '/metadata?format=lms&external=true';
+        if ($isinstall && $this->configdata['autoAppIdFromUrl']) {
+            $this->metadatalogic->set_app_id(basename($CFG->wwwroot));
         }
-        ! empty($this->configData['wloGuestUser_optional']) && $this->metadataLogic->setWloGuestUser($this->configData['wloGuestUser_optional']);
-        ! empty($this->configData['hostAliases_optional']) && $this->metadataLogic->setHostAliases($this->configData['hostAliases_optional']);
+        if (! empty($this->configdata['wloGuestUser_optional'])) {
+            $this->metadatalogic->set_wlo_guest_user($this->configdata['wloGuestUser_optional']);
+        }
+        if (! empty($this->configdata['hostAliases_optional'])) {
+            $this->metadatalogic->set_host_aliases($this->configdata['hostAliases_optional']);
+        }
         try {
-            $this->metadataLogic->importMetadata($metadataUrl, $this->configData['host'] ?? null);
-            $repoUrl            = get_config('edusharing', 'application_cc_gui_url');
-            $data               = $this->metadataLogic->createXmlMetadata();
-            $registrationResult = $this->registrationLogic->registerPlugin($repoUrl, $this->configData['repoAdmin'], $this->configData['repoAdminPassword'], $data);
+            $this->metadatalogic->import_metadata($metadataurl, $this->configdata['host'] ?? null);
+            $repourl            = get_config('edusharing', 'application_cc_gui_url');
+            $data               = $this->metadatalogic->create_xml_metadata();
+            $registrationresult = $this->registrationlogic->register_plugin(
+                $repourl,
+                $this->configdata['repoAdmin'],
+                $this->configdata['repoAdminPassword'],
+                $data
+            );
         } catch (Exception $exception) {
-            error_log($exception->getMessage());
+            debugging($exception->getMessage());
             return;
         }
-        if (! isset($registrationResult['appid'])) {
-            error_log('Automatic plugin registration could not be performed.');
+        if (! isset($registrationresult['appid'])) {
+            debugging('Automatic plugin registration could not be performed.');
         }
     }
 
     /**
-     * Function getConfigData
+     * Function get_config_data
      *
      * @return array
      */
-    public function getConfigData(): array {
-        return $this->configData ?? [];
+    public function get_config_data(): array {
+        return $this->configdata ?? [];
     }
 
     /**
-     * Function setRegistrationLogic
+     * Function set_registration_logic
      *
-     * @param PluginRegistration $pluginRegistration
+     * @param PluginRegistration $pluginregistration
      * @return void
      */
-    public function setRegistrationLogic(PluginRegistration $pluginRegistration): void {
-        $this->registrationLogic = $pluginRegistration;
+    public function set_registration_logic(PluginRegistration $pluginregistration): void {
+        $this->registrationlogic = $pluginregistration;
     }
 
     /**
-     * Function setMetadataLogic
+     * Function set_metadata_logic
      *
-     * @param MetadataLogic $metadataLogic
+     * @param MetadataLogic $metadatalogic
      * @return void
      */
-    public function setMetadataLogic(MetadataLogic $metadataLogic): void {
-        $this->metadataLogic = $metadataLogic;
+    public function set_metadata_logic(MetadataLogic $metadatalogic): void {
+        $this->metadatalogic = $metadatalogic;
     }
 
     /**
-     * Function discernAppId
+     * Function discern_app_id
      *
      * During install and upgrade an appId has to be set.
      * This function discerns and returns it.
@@ -113,22 +139,22 @@ class InstallUpgradeLogic
      *
      * @return string
      */
-    public function discernAppId(): string {
+    public function discern_app_id(): string {
         $utils = new UtilityFunctions();
         try {
-            $appId = empty($utils->getConfigEntry('application_appid')) ? false : $utils->getConfigEntry('application_appid');
+            $appid = empty($utils->get_config_entry('application_appid')) ? false : $utils->get_config_entry('application_appid');
         } catch (Exception $exception) {
             unset($exception);
-            $appId = false;
+            $appid = false;
         }
-        if ($appId === false) {
-            $appId = $this->getConfigData()['moodleAppId_optional'];
-            if (empty($appId)) {
-                $appId = uniqid('moodle_');
+        if ($appid === false) {
+            $appid = $this->get_config_data()['moodleAppId_optional'];
+            if (empty($appid)) {
+                $appid = uniqid('moodle_');
             }
         } else {
-            $appId = (string)$appId;
+            $appid = (string)$appid;
         }
-        return $appId;
+        return $appid;
     }
 }

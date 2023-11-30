@@ -80,7 +80,7 @@ class GetTicket extends external_api {
             require_capability('moodle/course:update', $context);
         }
         $service = new EduSharingService();
-        $ticket  = $service->getTicket();
+        $ticket  = $service->get_ticket();
         return ['ticket' => $ticket];
     }
 }
