@@ -1,4 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
@@ -17,10 +33,9 @@ use testUtils\FakeConfig;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class MetadataLogicTest extends advanced_testcase
-{
+class MetadataLogicTest extends advanced_testcase {
     /**
-     * Function testIfImportMetadataSetsAllConfigEntriesOnSuccess
+     * Function test_if_import_metadata_sets_all_config_entries_on_success
      *
      * @return void
      * @throws EduSharingUserException
@@ -28,50 +43,52 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      */
-    public function testIfImportMetadataSetsAllConfigEntriesOnSuccess(): void {
+    public function test_if_import_metadata_sets_all_config_entries_on_success(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $fakeConfig             = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'app123'
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $fakeconfig             = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'app123',
         ]);
-        $utils       = new UtilityFunctions($fakeConfig);
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $utils       = new UtilityFunctions($fakeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $logic = new MetadataLogic($serviceMock, $utils);
-        $logic->importMetadata($metadataUrl);
-        $this->assertEquals('http', $fakeConfig->get('repository_clientprotocol'));
-        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp', $fakeConfig->get('repository_authenticationwebservice'));
-        $this->assertEquals('http://test.de/edu-sharing/services/usage2', $fakeConfig->get('repository_usagewebservice'));
-        $this->assertEquals('publicKeyTest', $fakeConfig->get('repository_public_key'));
-        $this->assertEquals('http://test.de/esrender/application/esmain/index.php', $fakeConfig->get('repository_contenturl'));
-        $this->assertEquals('local', $fakeConfig->get('repository_appcaption'));
-        $this->assertEquals('8100', $fakeConfig->get('repository_clientport'));
-        $this->assertEquals('8080', $fakeConfig->get('repository_port'));
-        $this->assertEquals('test.de', $fakeConfig->get('repository_domain'));
-        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp?wsdl', $fakeConfig->get('repository_authenticationwebservice_wsdl'));
-        $this->assertEquals('REPOSITORY', $fakeConfig->get('repository_type'));
-        $this->assertEquals('enterprise-docker-maven-fixes-8-0', $fakeConfig->get('repository_appid'));
-        $this->assertEquals('http:/test.de/edu-sharing/services/usage2?wsdl', $fakeConfig->get('repository_usagewebservice_wsdl'));
-        $this->assertEquals('http', $fakeConfig->get('repository_protocol'));
-        $this->assertEquals('repository-service', $fakeConfig->get('repository_host'));
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->importMetadata($metadataurl);
+        $this->assertEquals('http', $fakeconfig->get('repository_clientprotocol'));
+        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp',
+            $fakeconfig->get('repository_authenticationwebservice'));
+        $this->assertEquals('http://test.de/edu-sharing/services/usage2', $fakeconfig->get('repository_usagewebservice'));
+        $this->assertEquals('publicKeyTest', $fakeconfig->get('repository_public_key'));
+        $this->assertEquals('http://test.de/esrender/application/esmain/index.php', $fakeconfig->get('repository_contenturl'));
+        $this->assertEquals('local', $fakeconfig->get('repository_appcaption'));
+        $this->assertEquals('8100', $fakeconfig->get('repository_clientport'));
+        $this->assertEquals('8080', $fakeconfig->get('repository_port'));
+        $this->assertEquals('test.de', $fakeconfig->get('repository_domain'));
+        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp?wsdl',
+            $fakeconfig->get('repository_authenticationwebservice_wsdl'));
+        $this->assertEquals('REPOSITORY', $fakeconfig->get('repository_type'));
+        $this->assertEquals('enterprise-docker-maven-fixes-8-0', $fakeconfig->get('repository_appid'));
+        $this->assertEquals('http:/test.de/edu-sharing/services/usage2?wsdl', $fakeconfig->get('repository_usagewebservice_wsdl'));
+        $this->assertEquals('http', $fakeconfig->get('repository_protocol'));
+        $this->assertEquals('repository-service', $fakeconfig->get('repository_host'));
     }
 
     /**
-     * Function testIfImportMetadataGeneratesNewAppIdIfNonePresent
+     * Function test_if_import_metadata_generates_new_app_id_if_none_present
      *
      * @return void
      * @throws EduSharingUserException
@@ -79,34 +96,35 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      */
-    public function testIfImportMetadataGeneratesNewAppIdIfNonePresent(): void {
+    public function test_if_import_metadata_generates_new_app_id_if_none_present(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $fakeConfig             = new FakeConfig();
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $utils                  = new UtilityFunctions($fakeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $fakeconfig             = new FakeConfig();
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $utils                  = new UtilityFunctions($fakeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $logic = new MetadataLogic($serviceMock, $utils);
-        $logic->importMetadata($metadataUrl);
-        $this->assertTrue(is_string($fakeConfig->get('application_appid')), 'application_appid was not set');
-        $this->assertTrue(str_contains($fakeConfig->get('application_appid'), 'moodle_'), 'application_appid does not contain moodle prefix');
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->importMetadata($metadataurl);
+        $this->assertTrue(is_string($fakeconfig->get('application_appid')), 'application_appid was not set');
+        $this->assertTrue(str_contains($fakeconfig->get('application_appid'), 'moodle_'),
+            'application_appid does not contain moodle prefix');
     }
 
     /**
-     * Function testIfImportMetadataUsesConfiguredAppIdIfFound
+     * Function test_if_import_metadata_uses_configured_app_id_if_found
      *
      * @return void
      * @throws EduSharingUserException
@@ -114,36 +132,36 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      */
-    public function testIfImportMetadataUsesConfiguredAppIdIfFound(): void {
+    public function test_if_import_metadata_uses_configured_app_id_if_found(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $fakeConfig             = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+        $fakeconfig             = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $metadataUrl = 'test.de';
-        $metadataXml = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper  = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl = 'test.de';
+        $metadataxml = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper  = new EduSharingAuthHelper($basehelper);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
-        $logic->importMetadata($metadataUrl);
-        $this->assertEquals('testId', $fakeConfig->get('application_appid'));
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->importMetadata($metadataurl);
+        $this->assertEquals('testId', $fakeconfig->get('application_appid'));
     }
 
     /**
-     * Function testIfImportMetadataUsesAppIdClassVariableIfSet
+     * Function test_if_import_metadata_uses_app_id_class_variable_if_set
      *
      * @return void
      * @throws EduSharingUserException
@@ -151,34 +169,34 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      */
-    public function testIfImportMetadataUsesAppIdClassVariableIfSet(): void {
+    public function test_if_import_metadata_uses_app_id_class_variable_if_set(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $utils      = new UtilityFunctions($fakeConfig);
-        $logic      = new MetadataLogic($serviceMock, $utils);
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $utils      = new UtilityFunctions($fakeconfig);
+        $logic      = new MetadataLogic($servicemock, $utils);
         $logic->setAppId('testId');
-        $logic->importMetadata($metadataUrl);
-        $this->assertEquals('testId', $fakeConfig->get('application_appid'));
+        $logic->importMetadata($metadataurl);
+        $this->assertEquals('testId', $fakeconfig->get('application_appid'));
     }
 
     /**
-     * Function testIfImportMetadataDoesNotSetHostAliasesIfNoneAreSet
+     * Function test_if_import_metadata_does_not_set_host_aliases_if_none_are_set
      *
      * @return void
      * @throws EduSharingUserException
@@ -186,36 +204,36 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      **/
-    public function testIfImportMetadataDoesNotSetHostAliasesIfNoneAreSet(): void {
+    public function test_if_import_metadata_does_not_set_host_aliases_if_none_are_set(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
-        $logic->importMetadata($metadataUrl);
-        $this->assertFalse($fakeConfig->get('application_host_aliases'));
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->importMetadata($metadataurl);
+        $this->assertFalse($fakeconfig->get('application_host_aliases'));
     }
 
     /**
-     * Function testIfImportMetadataSetsHostAliasesIfSetAsClassVariables
+     * Function test_if_import_metadata_sets_host_aliases_if_set_as_class_variables
      *
      * @return void
      * @throws EduSharingUserException
@@ -223,37 +241,37 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      **/
-    public function testIfImportMetadataSetsHostAliasesIfSetAsClassVariables(): void {
+    public function test_if_import_metadata_sets_host_aliases_if_set_as_class_variables(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
         $logic->setHostAliases('hostAliasesTest');
-        $logic->importMetadata($metadataUrl);
-        $this->assertEquals('hostAliasesTest', $fakeConfig->get('application_host_aliases'));
+        $logic->importMetadata($metadataurl);
+        $this->assertEquals('hostAliasesTest', $fakeconfig->get('application_host_aliases'));
     }
 
     /**
-     * Function testIfImportMetadataDoesNotSetWloGuestUserIfNoneProvided
+     * Function test_if_import_metadata_does_not_set_wlo_guest_user_if_none_provided
      *
      * @return void
      * @throws EduSharingUserException
@@ -261,37 +279,37 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      **/
-    public function testIfImportMetadataDoesNotSetWloGuestUserIfNoneProvided(): void {
+    public function test_if_import_metadata_does_not_set_wlo_guest_user_if_none_provided(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
-        $logic->importMetadata($metadataUrl);
-        $this->assertFalse($fakeConfig->get('edu_guest_guest_id'));
-        $this->assertFalse($fakeConfig->get('wlo_guest_option'));
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->importMetadata($metadataurl);
+        $this->assertFalse($fakeconfig->get('edu_guest_guest_id'));
+        $this->assertFalse($fakeconfig->get('wlo_guest_option'));
     }
 
     /**
-     * Function testIfImportMetadataDoesSetWloGuestUserIfClassVariableIsSet
+     * Function test_if_import_metadata_does_set_wlo_guest_user_if_class_variable_is_set
      *
      * @return void
      * @throws EduSharingUserException
@@ -299,38 +317,38 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      **/
-    public function testIfImportMetadataDoesSetWloGuestUserIfClassVariableIsSet(): void {
+    public function test_if_import_metadata_does_set_wlo_guest_user_if_class_variable_is_set(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTest.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
         $logic->setWloGuestUser('wloGuestTest');
-        $logic->importMetadata($metadataUrl);
-        $this->assertEquals('wloGuestTest', $fakeConfig->get('edu_guest_guest_id'));
-        $this->assertEquals('1', $fakeConfig->get('wlo_guest_option'));
+        $logic->importMetadata($metadataurl);
+        $this->assertEquals('wloGuestTest', $fakeconfig->get('edu_guest_guest_id'));
+        $this->assertEquals('1', $fakeconfig->get('wlo_guest_option'));
     }
 
     /**
-     * Function testIfImportMetadataGeneratesNewKeyPairIfNoneFound
+     * Function test_if_import_metadata_generates_new_key_pair_if_none_found
      *
      * @return void
      * @throws EduSharingUserException
@@ -338,38 +356,38 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @backupGlobals enabled
      **/
-    public function testIfImportMetadataGeneratesNewKeyPairIfNoneFound(): void {
+    public function test_if_import_metadata_generates_new_key_pair_if_none_found(): void {
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
-        $metadataUrl            = 'test.de';
-        $metadataXml            = file_get_contents(__DIR__ . '/metadataTestWithoutKey.xml');
-        $baseHelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper             = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper             = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock            = $this->getMockBuilder(EduSharingService::class)
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTestWithoutKey.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock            = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['importMetadata'])
-            ->setConstructorArgs([$authHelper, $nodeHelper])
+            ->setConstructorArgs([$authhelper, $nodehelper])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('importMetadata')
-            ->with($metadataUrl)
-            ->will($this->returnValue(new CurlResult($metadataXml, 0, [])));
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'application_appid' => 'testId'
+            ->with($metadataurl)
+            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'testId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
-        $logic = new MetadataLogic($serviceMock, $utils);
+        $utils = new UtilityFunctions($fakeconfig);
+        $logic = new MetadataLogic($servicemock, $utils);
         $logic->setWloGuestUser('wloGuestTest');
-        $logic->importMetadata($metadataUrl);
-        $this->assertNotEmpty($fakeConfig->get('application_private_key'));
-        $this->assertNotEmpty($fakeConfig->get('application_public_key'));
+        $logic->importMetadata($metadataurl);
+        $this->assertNotEmpty($fakeconfig->get('application_private_key'));
+        $this->assertNotEmpty($fakeconfig->get('application_public_key'));
     }
 
     /**
-     * Function testIfCreateXmlMetadataCreatesXmlWithAllNeededEntries
+     * Function test_if_create_xml_metadata_creates_xml_with_all_needed_entries
      *
      * @return void
      *
@@ -377,12 +395,12 @@ class MetadataLogicTest extends advanced_testcase
      *
      * @throws dml_exception
      */
-    public function testIfCreateXmlMetadataCreatesXmlWithAllNeededEntries(): void {
+    public function test_if_create_xml_metadata_creates_xml_with_all_needed_entries(): void {
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $CFG->wwwroot = 'https://www.example.com/moodle';
-        $fakeConfig   = new FakeConfig();
-        $fakeConfig->setEntries([
+        $fakeconfig   = new FakeConfig();
+        $fakeconfig->set_entries([
             'application_appid'         => 'testAppId',
             'application_type'          => 'testType',
             'application_host'          => 'testHost',
@@ -390,15 +408,15 @@ class MetadataLogicTest extends advanced_testcase
             'application_public_key'    => 'testPublicKey',
             'EDU_AUTH_AFFILIATION_NAME' => 'testAffiliationName',
             'edu_guest_guest_id'        => 'testGuestId',
-            'wlo_guest_option'          => '1'
+            'wlo_guest_option'          => '1',
         ]);
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'testPublicKey', 'testAppId');
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $logic      = new MetadataLogic(new EduSharingService($authHelper, $nodeHelper), new UtilityFunctions($fakeConfig));
-        $xmlString  = $logic->createXmlMetadata();
-        $xml        = new SimpleXMLElement($xmlString);
+        $basehelper = new EduSharingHelperBase('www.url.de', 'testPublicKey', 'testAppId');
+        $authhelper = new EduSharingAuthHelper($basehelper);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $logic      = new MetadataLogic(new EduSharingService($authhelper, $nodehelper), new UtilityFunctions($fakeconfig));
+        $xmlstring  = $logic->createXmlMetadata();
+        $xml        = new SimpleXMLElement($xmlstring);
         $this->assertEquals(11, $xml->count());
         $this->assertEquals('testAppId', $xml->xpath('entry[@key="appid"]')[0]);
         $this->assertEquals('testType', $xml->xpath('entry[@key="type"]')[0]);

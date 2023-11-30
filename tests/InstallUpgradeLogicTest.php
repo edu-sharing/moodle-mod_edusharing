@@ -1,4 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types = 1);
 
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
@@ -15,16 +31,15 @@ use mod_edusharing\PluginRegistration;
  *
  * @author Marian Ziegler
  */
-class InstallUpgradeLogicTest extends advanced_testcase
-{
+class InstallUpgradeLogicTest extends advanced_testcase {
 
     /**
-     * Function testParseConfigDataThrowsExceptionIfFileNotFound
+     * Function test_parse_config_data_throws_exception_if_file_not_found
      *
      * @return void
      * @throws JsonException
      */
-    public function testParseConfigDataThrowsExceptionIfFileNotFound(): void {
+    public function test_parse_config_data_throws_exception_if_file_not_found(): void {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../nothing/tests/installConfigTest.json');
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Missing installConfig');
@@ -32,48 +47,48 @@ class InstallUpgradeLogicTest extends advanced_testcase
     }
 
     /**
-     * Function testParseConfigDataThrowsJsonExceptionIfJsonInvalid
+     * Function test_parse_config_data_throws_json_exception_if_json_invalid
      *
      * @return void
      * @throws JsonException
      */
-    public function testParseConfigDataThrowsJsonExceptionIfJsonInvalid(): void {
+    public function test_parse_config_data_throws_json_exception_if_json_invalid(): void {
         $logic = new InstallUpgradeLogic(__DIR__ . '/../tests/installConfigTestInvalid.json');
         $this->expectException(JsonException::class);
         $logic->parseConfigData();
     }
 
     /**
-     * Function testPerformReturnsVoidIfAllGoesWell
+     * Function test_perform_returns_void_if_all_goes_well
      *
      * @return void
      * @throws JsonException
      * @throws dml_exception
      */
-    public function testPerformReturnsVoidIfAllGoesWell(): void {
-        $baseHelper        = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper        = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig        = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper        = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service           = new EduSharingService($authHelper, $nodeHelper);
-        $metadataLogicMock = $this->getMockBuilder(MetadataLogic::class)
+    public function test_perform_returns_void_if_all_goes_well(): void {
+        $basehelper        = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper        = new EduSharingAuthHelper($basehelper);
+        $nodeconfig        = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper        = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service           = new EduSharingService($authhelper, $nodehelper);
+        $metadatalogicmock = $this->getMockBuilder(MetadataLogic::class)
             ->setConstructorArgs([$service])
             ->getMock();
-        $registrationLogicMock = $this->getMockBuilder(PluginRegistration::class)
+        $registrationlogicmock = $this->getMockBuilder(PluginRegistration::class)
             ->setConstructorArgs([$service])
             ->getMock();
-        $metadataLogicMock->expects($this->once())
+        $metadatalogicmock->expects($this->once())
             ->method('importMetadata')
             ->with('http://localhost:8080/edu-sharing/metadata?format=lms&external=true');
-        $metadataLogicMock->expects($this->once())
+        $metadatalogicmock->expects($this->once())
             ->method('createXmlMetadata')
             ->will($this->returnValue('superTestData'));
-        $registrationLogicMock->expects($this->once())
+        $registrationlogicmock->expects($this->once())
             ->method('registerPlugin')
             ->will($this->returnValue(['appid' => 'testId']));
         $logic = new InstallUpgradeLogic(__DIR__ . '/../tests/installConfigTest.json');
-        $logic->setRegistrationLogic($registrationLogicMock);
-        $logic->setMetadataLogic($metadataLogicMock);
+        $logic->setRegistrationLogic($registrationlogicmock);
+        $logic->setMetadataLogic($metadatalogicmock);
         $logic->parseConfigData();
         $logic->perform();
     }

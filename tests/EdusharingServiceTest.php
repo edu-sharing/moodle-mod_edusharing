@@ -1,4 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
 
 use core\moodle_database_for_testing;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
@@ -21,26 +37,25 @@ use testUtils\FakeConfig;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class EdusharingServiceTest extends advanced_testcase
-{
+class EdusharingServiceTest extends advanced_testcase {
     /**
-     * Function testIfGetTicketReturnsExistingTicketIfCachedTicketIsNew
+     * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws Exception
      */
-    public function testIfGetTicketReturnsExistingTicketIfCachedTicketIsNew(): void {
+    public function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new(): void {
         global $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
             'application_cc_gui_url'  => 'www.url.de',
             'application_private_key' => 'pkey123',
-            'application_appid'       => 'appid123'
+            'application_appid'       => 'appid123',
         ]);
-        $utils                                   = new UtilityFunctions($fakeConfig);
+        $utils                                   = new UtilityFunctions($fakeconfig);
         $service                                 = new EduSharingService(utils: $utils);
         $USER->edusharing_userticket             = 'testTicket';
         $USER->edusharing_userticketvalidationts = time();
@@ -48,7 +63,7 @@ class EdusharingServiceTest extends advanced_testcase
     }
 
     /**
-     * Function testIfGetTicketReturnsExistingTicketIfAuthInfoIsOk
+     * Function test_if_get_ticket_returns_existing_ticket_if_auth_info_is_ok
      *
      * @return void
      *
@@ -56,203 +71,203 @@ class EdusharingServiceTest extends advanced_testcase
      * @throws dml_exception
      * @throws Exception
      */
-    public function testIfGetTicketReturnsExistingTicketIfAuthInfoIsOk(): void {
+    public function test_if_get_ticket_returns_existing_ticket_if_auth_info_is_ok(): void {
         global $USER;
         unset($USER->edusharing_userticketvalidationts);
         $USER->edusharing_userticket = 'testTicket';
-        $baseHelper                  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authMock                    = $this->getMockBuilder(EduSharingAuthHelper::class)
-            ->setConstructorArgs([$baseHelper])
+        $basehelper                  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authmock                    = $this->getMockBuilder(EduSharingAuthHelper::class)
+            ->setConstructorArgs([$basehelper])
             ->onlyMethods(['getTicketAuthenticationInfo'])
             ->getMock();
-        $authMock->expects($this->once())
+        $authmock->expects($this->once())
             ->method('getTicketAuthenticationInfo')
             ->will($this->returnValue(['statusCode' => 'OK']));
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHandler = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service     = new EduSharingService($authMock, $nodeHandler);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service     = new EduSharingService($authmock, $nodehandler);
         $this->assertEquals('testTicket', $service->getTicket());
         $this->assertTrue(time() - $USER->edusharing_userticketvalidationts < 10);
     }
 
     /**
-     * Function testIfGetTicketReturnsTicketFromAuthHelperIfNoCachedTicketExists
+     * Function test_if_getT_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists
      *
      * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
-    public function testIfGetTicketReturnsTicketFromAuthHelperIfNoCachedTicketExists(): void {
+    public function test_if_get_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists(): void {
         global $USER;
         unset($USER->edusharing_userticket);
-        $baseHelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authMock   = $this->getMockBuilder(EduSharingAuthHelper::class)
-            ->setConstructorArgs([$baseHelper])
+        $basehelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authmock   = $this->getMockBuilder(EduSharingAuthHelper::class)
+            ->setConstructorArgs([$basehelper])
             ->onlyMethods(['getTicketForUser', 'getTicketAuthenticationInfo'])
             ->getMock();
-        $authMock->expects($this->once())
+        $authmock->expects($this->once())
             ->method('getTicketForUser')
             ->will($this->returnValue('ticketForUser'));
-        $utilsMock = $this->getMockBuilder(UtilityFunctions::class)
+        $utilsmock = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getAuthKey'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getAuthKey')
             ->will($this->returnValue('neverMind'));
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHandler = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service     = new EduSharingService($authMock, $nodeHandler, $utilsMock);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service     = new EduSharingService($authmock, $nodehandler, $utilsmock);
         $this->assertEquals('ticketForUser', $service->getTicket());
         $USER->edusharing_userticket = 'testTicket';
     }
 
     /**
-     * Function testIfGetTicketReturnsTicketFromAuthHelperIfTicketIsTooOldAndAuthInfoCallFails
+     * Function test_if_get_ticket_returns_ticket_from_auth_helper_if_ticket_is_too_old_and_auth_info_call_fails
      *
      * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
-    public function testIfGetTicketReturnsTicketFromAuthHelperIfTicketIsTooOldAndAuthInfoCallFails(): void {
+    public function test_if_get_ticket_returns_ticket_from_auth_helper_if_ticket_is_too_old_and_auth_info_call_fails(): void {
         global $USER;
         $USER->edusharing_userticket             = 'testTicket';
         $USER->edusharing_userticketvalidationts = 1689769393;
-        $baseHelper                              = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authMock                                = $this->getMockBuilder(EduSharingAuthHelper::class)
-            ->setConstructorArgs([$baseHelper])
+        $basehelper                              = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authmock                                = $this->getMockBuilder(EduSharingAuthHelper::class)
+            ->setConstructorArgs([$basehelper])
             ->onlyMethods(['getTicketForUser', 'getTicketAuthenticationInfo'])
             ->getMock();
-        $authMock->expects($this->once())
+        $authmock->expects($this->once())
             ->method('getTicketForUser')
             ->will($this->returnValue('ticketForUser'));
-        $authMock->expects($this->once())
+        $authmock->expects($this->once())
             ->method('getTicketAuthenticationInfo')
             ->will($this->returnValue(['statusCode' => 'NOT_OK']));
-        $utilsMock = $this->getMockBuilder(UtilityFunctions::class)
+        $utilsmock = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getAuthKey'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getAuthKey')
             ->will($this->returnValue('neverMind'));
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHandler = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service     = new EduSharingService($authMock, $nodeHandler, $utilsMock);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehandler = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service     = new EduSharingService($authmock, $nodehandler, $utilsmock);
         $this->assertEquals('ticketForUser', $service->getTicket());
         $USER->edusharing_userticket = 'testTicket';
     }
 
     /**
-     * Function testIfCreateUsageCallsNodeHelperMethodWithCorrectParams
+     * Function test_if_create_usage_calls_node_helper_method_with_correct_params
      */
-    public function testIfCreateUsageCallsNodeHelperMethodWithCorrectParams(): void {
-        $usageObject              = new stdClass();
-        $usageObject->containerId = 'containerIdTest';
-        $usageObject->resourceId  = 'resourceIdTest';
-        $usageObject->nodeId      = 'nodeIdTest';
-        $usageObject->nodeVersion = 'nodeVersion';
-        $baseHelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper               = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_create_usage_calls_node_helper_method_with_correct_params(): void {
+        $usageobject              = new stdClass();
+        $usageobject->containerId = 'containerIdTest';
+        $usageobject->resourceId  = 'resourceIdTest';
+        $usageobject->nodeId      = 'nodeIdTest';
+        $usageobject->nodeVersion = 'nodeVersion';
+        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper               = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['createUsage'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->once())
+        $nodehelpermock->expects($this->once())
             ->method('createUsage')
             ->with('ticketTest', 'containerIdTest', 'resourceIdTest', 'nodeIdTest', 'nodeVersion');
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['getTicket'])
-            ->setConstructorArgs([$authHelper, $nodeHelperMock])
+            ->setConstructorArgs([$authhelper, $nodehelpermock])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('getTicket')
             ->will($this->returnValue('ticketTest'));
-        $serviceMock->createUsage($usageObject);
+        $servicemock->createUsage($usageobject);
     }
 
     /**
-     * Function testIfGetUsageIdCallsNodeHelperMethodWithCorrectParamsAndReturnsResult
+     * Function test_if_get_usage_id_calls_node_helper_method_with_correct_params_and_returns_result
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfGetUsageIdCallsNodeHelperMethodWithCorrectParamsAndReturnsResult(): void {
-        $usageObject              = new stdClass();
-        $usageObject->containerId = 'containerIdTest';
-        $usageObject->resourceId  = 'resourceIdTest';
-        $usageObject->nodeId      = 'nodeIdTest';
-        $usageObject->ticket      = 'ticketTest';
-        $baseHelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper               = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_get_usage_id_calls_node_helper_method_with_correct_params_and_returns_result(): void {
+        $usageobject              = new stdClass();
+        $usageobject->containerId = 'containerIdTest';
+        $usageobject->resourceId  = 'resourceIdTest';
+        $usageobject->nodeId      = 'nodeIdTest';
+        $usageobject->ticket      = 'ticketTest';
+        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper               = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['getUsageIdByParameters'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->once())
+        $nodehelpermock->expects($this->once())
             ->method('getUsageIdByParameters')
             ->with('ticketTest', 'nodeIdTest', 'containerIdTest', 'resourceIdTest')
             ->will($this->returnValue('expectedId'));
-        $service = new EduSharingService($authHelper, $nodeHelperMock);
-        $id      = $service->getUsageId($usageObject);
+        $service = new EduSharingService($authhelper, $nodehelpermock);
+        $id      = $service->getUsageId($usageobject);
         $this->assertEquals('expectedId', $id);
     }
 
     /**
-     * Function testIfGetUsageIdThrowsExceptionIfNodeHelperMethodReturnsNull
+     * Function test_if_get_usage_id_throws_exception_if_node_helper_method_returns_null
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfGetUsageIdThrowsExceptionIfNodeHelperMethodReturnsNull(): void {
-        $usageObject              = new stdClass();
-        $usageObject->containerId = 'containerIdTest';
-        $usageObject->resourceId  = 'resourceIdTest';
-        $usageObject->nodeId      = 'nodeIdTest';
-        $usageObject->ticket      = 'ticketTest';
-        $baseHelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper               = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_get_usage_id_throws_exception_if_node_helper_method_returns_null(): void {
+        $usageobject              = new stdClass();
+        $usageobject->containerId = 'containerIdTest';
+        $usageobject->resourceId  = 'resourceIdTest';
+        $usageobject->nodeId      = 'nodeIdTest';
+        $usageobject->ticket      = 'ticketTest';
+        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper               = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['getUsageIdByParameters'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->once())
+        $nodehelpermock->expects($this->once())
             ->method('getUsageIdByParameters')
             ->with('ticketTest', 'nodeIdTest', 'containerIdTest', 'resourceIdTest')
             ->will($this->returnValue(null));
-        $service = new EduSharingService($authHelper, $nodeHelperMock);
+        $service = new EduSharingService($authhelper, $nodehelpermock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No usage found');
-        $service->getUsageId($usageObject);
+        $service->getUsageId($usageobject);
     }
 
     /**
-     * Function testIfDeleteUsageCallsNodeHelperMethodWithProperParams
+     * Function test_if_delete_usage_calls_node_helper_method_with_proper_params
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfDeleteUsageCallsNodeHelperMethodWithProperParams(): void {
-        $usageObject          = new stdClass();
-        $usageObject->nodeId  = 'nodeIdTest';
-        $usageObject->usageId = 'usageIdTest';
-        $baseHelper           = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig           = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper           = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock       = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_delete_usage_calls_node_helper_method_with_proper_params(): void {
+        $usageobject          = new stdClass();
+        $usageobject->nodeId  = 'nodeIdTest';
+        $usageobject->usageId = 'usageIdTest';
+        $basehelper           = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig           = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper           = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock       = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['deleteUsage'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->once())
+        $nodehelpermock->expects($this->once())
             ->method('deleteUsage')
             ->with('nodeIdTest', 'usageIdTest');
-        $service = new EduSharingService($authHelper, $nodeHelperMock);
-        $service->deleteUsage($usageObject);
+        $service = new EduSharingService($authhelper, $nodehelpermock);
+        $service->deleteUsage($usageobject);
     }
 
     /**
-     * Function testIfGetNodeCallsNodeHelperMethodWithProperParams
+     * Function test_if_get_node_calls_node_helper_method_with_proper_params
      *
      * @return void
      * @throws JsonException
@@ -260,441 +275,447 @@ class EdusharingServiceTest extends advanced_testcase
      * @throws UsageDeletedException
      * @throws dml_exception
      */
-    public function testIfGetNodeCallsNodeHelperMethodWithProperParams(): void {
-        $usageObject              = new stdClass();
-        $usageObject->nodeId      = 'nodeIdTest';
-        $usageObject->usageId     = 'usageIdTest';
-        $usageObject->nodeVersion = 'nodeVersionTest';
-        $usageObject->containerId = 'containerIdTest';
-        $usageObject->resourceId  = 'resourceIdTest';
-        $usage                    = new Usage($usageObject->nodeId, $usageObject->nodeVersion, $usageObject->containerId, $usageObject->resourceId, $usageObject->usageId);
-        $baseHelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper               = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_get_node_calls_node_helper_method_with_proper_params(): void {
+        $usageobject              = new stdClass();
+        $usageobject->nodeId      = 'nodeIdTest';
+        $usageobject->usageId     = 'usageIdTest';
+        $usageobject->nodeVersion = 'nodeVersionTest';
+        $usageobject->containerId = 'containerIdTest';
+        $usageobject->resourceId  = 'resourceIdTest';
+        $usage                    = new Usage(
+            $usageobject->nodeId,
+            $usageobject->nodeVersion,
+            $usageobject->containerId,
+            $usageobject->resourceId,
+            $usageobject->usageId
+        );
+        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper               = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['getNodeByUsage'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->once())
+        $nodehelpermock->expects($this->once())
             ->method('getNodeByUsage')
             ->with($usage);
-        $service = new EduSharingService($authHelper, $nodeHelperMock);
-        $service->getNode($usageObject);
+        $service = new EduSharingService($authhelper, $nodehelpermock);
+        $service->getNode($usageobject);
     }
 
     /**
-     * testIfUpdateInstanceCallsDbMethodsAndCallsCreationMethodWithProperParams
+     * test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfUpdateInstanceCallsDbMethodsAndCallsCreationMethodWithProperParams(): void {
+    public function test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $currentTime                   = time();
-        $eduObject                     = new stdClass();
-        $eduObject->object_url         = 'inputUrl';
-        $eduObject->course             = 'containerIdTest';
-        $eduObject->object_version     = 'nodeVersionTest';
-        $eduObject->id                 = 'resourceIdTest';
-        $eduObjectUpdate               = clone($eduObject);
-        $eduObjectUpdate->usage_id     = '2';
-        $eduObjectUpdate->timecreated  = $currentTime;
-        $eduObjectUpdate->timeupdated  = $currentTime;
-        $eduObjectUpdate->options      = '';
-        $eduObjectUpdate->popup_window = '';
-        $eduObjectUpdate->tracking     = 0;
-        $usageData                     = new stdClass();
-        $usageData->containerId        = 'containerIdTest';
-        $usageData->resourceId         = 'resourceIdTest';
-        $usageData->nodeId             = 'outputUrl';
-        $usageData->nodeVersion        = 'nodeVersionTest';
-        $usageData->ticket             = 'ticketTest';
+        $currenttime                   = time();
+        $eduobject                     = new stdClass();
+        $eduobject->object_url         = 'inputUrl';
+        $eduobject->course             = 'containerIdTest';
+        $eduobject->object_version     = 'nodeVersionTest';
+        $eduobject->id                 = 'resourceIdTest';
+        $eduobjectupdate               = clone($eduobject);
+        $eduobjectupdate->usage_id     = '2';
+        $eduobjectupdate->timecreated  = $currenttime;
+        $eduobjectupdate->timeupdated  = $currenttime;
+        $eduobjectupdate->options      = '';
+        $eduobjectupdate->popup_window = '';
+        $eduobjectupdate->tracking     = 0;
+        $usagedata                     = new stdClass();
+        $usagedata->containerId        = 'containerIdTest';
+        $usagedata->resourceId         = 'resourceIdTest';
+        $usagedata->nodeId             = 'outputUrl';
+        $usagedata->nodeVersion        = 'nodeVersionTest';
+        $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
-        $baseHelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper                    = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper                    = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $utilsMock                     = $this->getMockBuilder(UtilityFunctions::class)
+        $basehelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper                    = new EduSharingAuthHelper($basehelper);
+        $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getObjectIdFromUrl'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getObjectIdFromUrl')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['createUsage', 'getTicket'])
-            ->setConstructorArgs([$authHelper, $nodeHelper, $utilsMock])
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('getTicket')
             ->will($this->returnValue('ticketTest'));
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('createUsage')
-            ->with($usageData)
+            ->with($usagedata)
             ->will($this->returnValue(new Usage('whatever', 'whatever', 'whatever', 'whatever', '2')));
-        $dbMock = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('get_record')
             ->with('edusharing', ['id' => 'resourceIdTest'], '*', MUST_EXIST)
             ->will($this->returnValue($memento));
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('update_record')
-            ->with('edusharing', $eduObjectUpdate);
-        $GLOBALS['DB'] = $dbMock;
-        $this->assertEquals(true, $serviceMock->updateInstance($eduObject, $currentTime));
+            ->with('edusharing', $eduobjectupdate);
+        $GLOBALS['DB'] = $dbmock;
+        $this->assertEquals(true, $servicemock->updateInstance($eduobject, $currenttime));
     }
 
     /**
-     * Function testIfUpdateInstanceResetsDataAndReturnsFalseOnUpdateError
+     * Function test_if_update_instance_resets_data_and_returns_false_on_update_error
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfUpdateInstanceResetsDataAndReturnsFalseOnUpdateError(): void {
+    public function test_if_update_instance_resets_data_and_returns_false_on_update_error(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $currentTime                   = time();
-        $eduObject                     = new stdClass();
-        $eduObject->object_url         = 'inputUrl';
-        $eduObject->course             = 'containerIdTest';
-        $eduObject->object_version     = 'nodeVersionTest';
-        $eduObject->id                 = 'resourceIdTest';
-        $eduObjectUpdate               = clone($eduObject);
-        $eduObjectUpdate->usage_id     = '2';
-        $eduObjectUpdate->timecreated  = $currentTime;
-        $eduObjectUpdate->timeupdated  = $currentTime;
-        $eduObjectUpdate->options      = '';
-        $eduObjectUpdate->popup_window = '';
-        $eduObjectUpdate->tracking     = 0;
-        $usageData                     = new stdClass();
-        $usageData->containerId        = 'containerIdTest';
-        $usageData->resourceId         = 'resourceIdTest';
-        $usageData->nodeId             = 'outputUrl';
-        $usageData->nodeVersion        = 'nodeVersionTest';
-        $usageData->ticket             = 'ticketTest';
+        $currenttime                   = time();
+        $eduobject                     = new stdClass();
+        $eduobject->object_url         = 'inputUrl';
+        $eduobject->course             = 'containerIdTest';
+        $eduobject->object_version     = 'nodeVersionTest';
+        $eduobject->id                 = 'resourceIdTest';
+        $eduobjectupdate               = clone($eduobject);
+        $eduobjectupdate->usage_id     = '2';
+        $eduobjectupdate->timecreated  = $currenttime;
+        $eduobjectupdate->timeupdated  = $currenttime;
+        $eduobjectupdate->options      = '';
+        $eduobjectupdate->popup_window = '';
+        $eduobjectupdate->tracking     = 0;
+        $usagedata                     = new stdClass();
+        $usagedata->containerId        = 'containerIdTest';
+        $usagedata->resourceId         = 'resourceIdTest';
+        $usagedata->nodeId             = 'outputUrl';
+        $usagedata->nodeVersion        = 'nodeVersionTest';
+        $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
-        $baseHelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper                    = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper                    = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $utilsMock                     = $this->getMockBuilder(UtilityFunctions::class)
+        $basehelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper                    = new EduSharingAuthHelper($basehelper);
+        $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getObjectIdFromUrl'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getObjectIdFromUrl')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['createUsage', 'getTicket'])
-            ->setConstructorArgs([$authHelper, $nodeHelper, $utilsMock])
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('getTicket')
             ->will($this->returnValue('ticketTest'));
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('createUsage')
-            ->with($usageData)
+            ->with($usagedata)
             ->willThrowException(new Exception(''));
-        $dbMock = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('get_record')
             ->with('edusharing', ['id' => 'resourceIdTest'], '*', MUST_EXIST)
             ->will($this->returnValue($memento));
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('update_record')
             ->with('edusharing', $memento);
-        $GLOBALS['DB'] = $dbMock;
-        $this->assertEquals(false, $serviceMock->updateInstance($eduObject, $currentTime));
+        $GLOBALS['DB'] = $dbmock;
+        $this->assertEquals(false, $servicemock->updateInstance($eduobject, $currenttime));
     }
 
     /**
-     * Function testIfAddInstanceCallsDbFunctionsAndServiceMethodWithCorrectParameters
+     * Function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfAddInstanceCallsDbFunctionsAndServiceMethodWithCorrectParameters(): void {
+    public function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $currentTime                        = time();
-        $eduObject                          = new stdClass();
-        $eduObject->object_url              = 'inputUrl';
-        $eduObject->course                  = 'containerIdTest';
-        $eduObject->object_version          = '1.0';
-        $eduObject->id                      = 'resourceIdTest';
-        $processedEduObject                 = clone($eduObject);
-        $processedEduObject->object_version = '1.0';
-        $processedEduObject->timecreated    = $currentTime;
-        $processedEduObject->timemodified   = $currentTime;
-        $processedEduObject->timeupdated    = $currentTime;
-        $processedEduObject->options        = '';
-        $processedEduObject->popup_window   = '';
-        $processedEduObject->tracking       = 0;
-        $insertedEduObject                  = clone($processedEduObject);
-        $insertedEduObject->id              = 3;
-        $insertedEduObject->usage_id        = 4;
-        $insertedEduObject->object_version  = '1.0';
-        $usageData                          = new stdClass();
-        $usageData->containerId             = 'containerIdTest';
-        $usageData->resourceId              = 3;
-        $usageData->nodeId                  = 'outputUrl';
-        $usageData->nodeVersion             = '1.0';
-        $dbMock                             = $this->getMockBuilder(moodle_database_for_testing::class)
+        $currenttime                        = time();
+        $eduobject                          = new stdClass();
+        $eduobject->object_url              = 'inputUrl';
+        $eduobject->course                  = 'containerIdTest';
+        $eduobject->object_version          = '1.0';
+        $eduobject->id                      = 'resourceIdTest';
+        $processededuobject                 = clone($eduobject);
+        $processededuobject->object_version = '1.0';
+        $processededuobject->timecreated    = $currenttime;
+        $processededuobject->timemodified   = $currenttime;
+        $processededuobject->timeupdated    = $currenttime;
+        $processededuobject->options        = '';
+        $processededuobject->popup_window   = '';
+        $processededuobject->tracking       = 0;
+        $insertededuobject                  = clone($processededuobject);
+        $insertededuobject->id              = 3;
+        $insertededuobject->usage_id        = 4;
+        $insertededuobject->object_version  = '1.0';
+        $usagedata                          = new stdClass();
+        $usagedata->containerId             = 'containerIdTest';
+        $usagedata->resourceId              = 3;
+        $usagedata->nodeId                  = 'outputUrl';
+        $usagedata->nodeVersion             = '1.0';
+        $dbmock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('insert_record')
-            ->with('edusharing', $processedEduObject)
+            ->with('edusharing', $processededuobject)
             ->will($this->returnValue(3));
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('update_record')
-            ->with('edusharing', $insertedEduObject);
-        $GLOBALS['DB'] = $dbMock;
-        $utilsMock     = $this->getMockBuilder(UtilityFunctions::class)
+            ->with('edusharing', $insertededuobject);
+        $GLOBALS['DB'] = $dbmock;
+        $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getObjectIdFromUrl'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getObjectIdFromUrl')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
-        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper  = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper  = new EduSharingAuthHelper($basehelper);
+        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['createUsage', 'getTicket'])
-            ->setConstructorArgs([$authHelper, $nodeHelper, $utilsMock])
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('createUsage')
-            ->with($usageData)
+            ->with($usagedata)
             ->will($this->returnValue(new Usage('whatever', 'nodeVersionTest', 'whatever', 'whatever', '4')));
-        $this->assertEquals(3, $serviceMock->addInstance($eduObject));
+        $this->assertEquals(3, $servicemock->addInstance($eduobject));
     }
 
     /**
-     * Function testIfAddInstanceReturnsFalseAndResetsDataOnCreationFailure
+     * Function test_if_add_instance_returns_false_and_resets_data_on_creation_failure
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfAddInstanceReturnsFalseAndResetsDataOnCreationFailure(): void {
+    public function test_if_add_instance_returns_false_and_resets_data_on_creation_failure(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $currentTime                        = time();
-        $eduObject                          = new stdClass();
-        $eduObject->object_url              = 'inputUrl';
-        $eduObject->course                  = 'containerIdTest';
-        $eduObject->object_version          = '1';
-        $eduObject->id                      = 'resourceIdTest';
-        $processedEduObject                 = clone($eduObject);
-        $processedEduObject->object_version = '1';
-        $processedEduObject->timecreated    = $currentTime;
-        $processedEduObject->timemodified   = $currentTime;
-        $processedEduObject->timeupdated    = $currentTime;
-        $processedEduObject->options        = '';
-        $processedEduObject->popup_window   = '';
-        $processedEduObject->tracking       = 0;
-        $insertedEduObject                  = clone($processedEduObject);
-        $insertedEduObject->id              = 3;
-        $insertedEduObject->usage_id        = 4;
-        $insertedEduObject->object_version  = 'nodeVersionTest';
-        $usageData                          = new stdClass();
-        $usageData->containerId             = 'containerIdTest';
-        $usageData->resourceId              = 3;
-        $usageData->nodeId                  = 'outputUrl';
-        $usageData->nodeVersion             = '1';
-        $dbMock                             = $this->getMockBuilder(moodle_database_for_testing::class)
+        $currenttime                        = time();
+        $eduobject                          = new stdClass();
+        $eduobject->object_url              = 'inputUrl';
+        $eduobject->course                  = 'containerIdTest';
+        $eduobject->object_version          = '1';
+        $eduobject->id                      = 'resourceIdTest';
+        $processededuobject                 = clone($eduobject);
+        $processededuobject->object_version = '1';
+        $processededuobject->timecreated    = $currenttime;
+        $processededuobject->timemodified   = $currenttime;
+        $processededuobject->timeupdated    = $currenttime;
+        $processededuobject->options        = '';
+        $processededuobject->popup_window   = '';
+        $processededuobject->tracking       = 0;
+        $insertededuobject                  = clone($processededuobject);
+        $insertededuobject->id              = 3;
+        $insertededuobject->usage_id        = 4;
+        $insertededuobject->object_version  = 'nodeVersionTest';
+        $usagedata                          = new stdClass();
+        $usagedata->containerId             = 'containerIdTest';
+        $usagedata->resourceId              = 3;
+        $usagedata->nodeId                  = 'outputUrl';
+        $usagedata->nodeVersion             = '1';
+        $dbmock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('insert_record')
-            ->with('edusharing', $processedEduObject)
+            ->with('edusharing', $processededuobject)
             ->will($this->returnValue(3));
-        $dbMock->expects($this->never())
+        $dbmock->expects($this->never())
             ->method('update_record');
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('delete_records')
             ->with('edusharing', ['id' => 3]);
-        $GLOBALS['DB'] = $dbMock;
-        $utilsMock     = $this->getMockBuilder(UtilityFunctions::class)
+        $GLOBALS['DB'] = $dbmock;
+        $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getObjectIdFromUrl'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getObjectIdFromUrl')
             ->with('inputUrl')
             ->will($this->returnValue('outputUrl'));
-        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper  = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper  = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper  = new EduSharingAuthHelper($basehelper);
+        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['createUsage', 'getTicket'])
-            ->setConstructorArgs([$authHelper, $nodeHelper, $utilsMock])
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('createUsage')
-            ->with($usageData)
+            ->with($usagedata)
             ->willThrowException(new Exception(''));
-        $this->assertEquals(false, $serviceMock->addInstance($eduObject));
+        $this->assertEquals(false, $servicemock->addInstance($eduobject));
     }
 
     /**
-     * Function testIfDeleteUsageThrowsExceptionIfProvidedObjectHasNoUsageId
+     * Function test_if_delete_usage_throwsexception_if_provided_object_has_no_usage_id
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfDeleteUsageThrowsExceptionIfProvidedObjectHasNoUsageId(): void {
-        $usageObject         = new stdClass();
-        $usageObject->nodeId = 'nodeIdTest';
-        $baseHelper          = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeConfig          = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper          = new EduSharingAuthHelper($baseHelper);
-        $nodeHelperMock      = $this->getMockBuilder(EduSharingNodeHelper::class)
+    public function test_if_delete_usage_throwsexception_if_provided_object_has_no_usage_id(): void {
+        $usageobject         = new stdClass();
+        $usageobject->nodeId = 'nodeIdTest';
+        $basehelper          = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig          = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper          = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock      = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['deleteUsage'])
-            ->setConstructorArgs([$baseHelper, $nodeConfig])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
-        $nodeHelperMock->expects($this->never())
+        $nodehelpermock->expects($this->never())
             ->method('deleteUsage');
-        $service = new EduSharingService($authHelper, $nodeHelperMock);
+        $service = new EduSharingService($authhelper, $nodehelpermock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No usage id provided, deletion cannot be performed');
-        $service->deleteUsage($usageObject);
+        $service->deleteUsage($usageobject);
     }
 
     /**
-     * Function testIfDeleteInstanceCallsDatabaseWithProperParams
+     * Function test_if_delete_instance_calls_database_with_proper_params
      *
      * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
-    public function testIfDeleteInstanceCallsDatabaseWithProperParams(): void {
+    public function test_if_delete_instance_calls_database_with_proper_params(): void {
         require_once('lib/dml/tests/dml_test.php');
-        $dbRecord             = new stdClass();
-        $dbRecord->id         = 'edusharingId123';
-        $dbRecord->object_url = 'test.de';
-        $dbRecord->course     = 'container123';
-        $dbRecord->resourceId = 'resource123';
+        $dbrecord             = new stdClass();
+        $dbrecord->id         = 'edusharingId123';
+        $dbrecord->object_url = 'test.de';
+        $dbrecord->course     = 'container123';
+        $dbrecord->resourceId = 'resource123';
         $id                   = 1;
-        $dbMock               = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock               = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'delete_records'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('get_record')
             ->with('edusharing', ['id' => $id], '*', MUST_EXIST)
-            ->will($this->returnValue($dbRecord));
-        $dbMock->expects($this->once())
+            ->will($this->returnValue($dbrecord));
+        $dbmock->expects($this->once())
             ->method('delete_records')
             ->with('edusharing', ['id' => 'edusharingId123']);
-        $GLOBALS['DB'] = $dbMock;
-        $baseHelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authHelper    = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper    = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $utilsMock     = $this->getMockBuilder(UtilityFunctions::class)
+        $GLOBALS['DB'] = $dbmock;
+        $basehelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper    = new EduSharingAuthHelper($basehelper);
+        $nodeconfig    = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper    = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['getObjectIdFromUrl'])
             ->getMock();
-        $utilsMock->expects($this->once())
+        $utilsmock->expects($this->once())
             ->method('getObjectIdFromUrl')
             ->with('test.de')
             ->will($this->returnValue('myNodeId123'));
-        $serviceMock = $this->getMockBuilder(EduSharingService::class)
-            ->setConstructorArgs([$authHelper, $nodeHelper, $utilsMock])
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
             ->onlyMethods(['getTicket', 'getUsageId', 'deleteUsage'])
             ->getMock();
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('getTicket')
             ->will($this->returnValue('ticket123'));
-        $serviceMock->expects($this->once())
+        $servicemock->expects($this->once())
             ->method('getUsageId')
             ->will($this->returnValue('usage123'));
-        $serviceMock->deleteInstance((string)$id);
+        $servicemock->deleteInstance((string)$id);
     }
 
     /**
-     * Function testIfImportMetadataCallsCurlWithTheCorrectParams
+     * Function test_if_import_metadata_calls_curl_with_the_correct_params
      *
      * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
-    public function testIfImportMetadataCallsCurlWithTheCorrectParams(): void {
+    public function test_if_import_metadata_calls_curl_with_the_correct_params(): void {
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $url                        = 'http://test.de';
-        $expectedOptions            = [
+        $expectedoptions            = [
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT      => 'testAgent'
+            CURLOPT_USERAGENT      => 'testAgent',
         ];
         $curl                       = new CurlResult('testContent', 0, []);
-        $baseMock                   = $this->getMockBuilder(EduSharingHelperBase::class)
+        $basemock                   = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['www.url.de', 'pkey123', 'appid123'])
             ->onlyMethods(['handleCurlRequest'])
             ->getMock();
-        $baseMock->expects($this->once())
+        $basemock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with($url, $expectedOptions)
+            ->with($url, $expectedoptions)
             ->will($this->returnValue($curl));
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseMock);
-        $nodeHelper = new EduSharingNodeHelper($baseMock, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basemock);
+        $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals($curl, $service->importMetadata($url));
     }
 
     /**
-     * Function testIfValidateSessionCallsCurlWithTheCorrectParams
+     * Function test_if_validate_session_calls_curl_with_the_correct_params
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfValidateSessionCallsCurlWithTheCorrectParams(): void {
+    public function test_if_validate_session_calls_curl_with_the_correct_params(): void {
         $url             = 'http://test.de';
         $headers         = [
             'Content-Type: application/json',
             'Accept: application/json',
-            'Authorization: Basic ' . base64_encode('testAuth')
+            'Authorization: Basic ' . base64_encode('testAuth'),
         ];
-        $expectedOptions = [
+        $expectedoptions = [
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER     => $headers
+            CURLOPT_HTTPHEADER     => $headers,
         ];
         $curl            = new CurlResult('testContent', 0, []);
-        $baseMock        = $this->getMockBuilder(EduSharingHelperBase::class)
+        $basemock        = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['www.url.de', 'pkey123', 'appid123'])
             ->onlyMethods(['handleCurlRequest'])
             ->getMock();
-        $baseMock->expects($this->once())
+        $basemock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with($url . '/rest/authentication/v1/validateSession', $expectedOptions)
+            ->with($url . '/rest/authentication/v1/validateSession', $expectedoptions)
             ->will($this->returnValue($curl));
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseMock);
-        $nodeHelper = new EduSharingNodeHelper($baseMock, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basemock);
+        $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals($curl, $service->validateSession($url, 'testAuth'));
     }
 
     /**
-     * Function testIfRegisterPluginCallsCurlWithTheCorrectOptions
+     * Function test_if_register_plugin_calls_curl_with_the_correct_options
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfRegisterPluginCallsCurlWithTheCorrectOptions(): void {
+    public function test_if_register_plugin_calls_curl_with_the_correct_options(): void {
         $url         = 'http://test.de';
         $delimiter   = 'delimiterTest';
         $body        = 'bodyTest';
@@ -703,122 +724,125 @@ class EdusharingServiceTest extends advanced_testcase
             'Content-Type: multipart/form-data; boundary=' . $delimiter,
             'Content-Length: ' . strlen($body),
             'Accept: application/json',
-            'Authorization: Basic ' . base64_encode($auth)
+            'Authorization: Basic ' . base64_encode($auth),
         ];
-        $curlOptions = [
+        $curloptions = [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_POSTFIELDS     => $body
+            CURLOPT_POSTFIELDS     => $body,
         ];
         $curl        = new CurlResult('testContent', 0, []);
-        $baseHelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $curlMock    = $this->getMockBuilder(MoodleCurlHandler::class)
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $curlmock    = $this->getMockBuilder(MoodleCurlHandler::class)
             ->onlyMethods(['handleCurlRequest', 'setMethod'])
             ->getMock();
-        $curlMock->expects($this->once())
+        $curlmock->expects($this->once())
             ->method('setMethod')
             ->with(EdusharingCurlHandler::METHOD_PUT);
-        $curlMock->expects($this->once())
+        $curlmock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with($url . '/rest/admin/v1/applications/xml', $curlOptions)
+            ->with($url . '/rest/admin/v1/applications/xml', $curloptions)
             ->will($this->returnValue($curl));
-        $baseHelper->registerCurlHandler($curlMock);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $basehelper->registerCurlHandler($curlmock);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basehelper);
+        $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals($curl, $service->registerPlugin($url, $delimiter, $body, $auth));
     }
 
     /**
-     * Function testIfSignCallsBaseHelperMethodWithCorrectParams
+     * Function test_if_sign_calls_base_helper_method_with_correct_params_and_returns_its_returned_value
      *
      * @return void
      * @throws dml_exception
      */
-    public function testIfSignCallsBaseHelperMethodWithCorrectParamsAndReturnsItsReturnedValue(): void {
-        $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
+    public function test_if_sign_calls_base_helper_method_with_correct_params_and_returns_its_returned_value(): void {
+        $basemock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['www.url.de', 'pkey123', 'appid123'])
             ->onlyMethods(['sign'])
             ->getMock();
-        $baseMock->expects($this->once())
+        $basemock->expects($this->once())
             ->method('sign')
             ->with('testInput')
             ->will($this->returnValue('testOutput'));
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseMock);
-        $nodeHelper = new EduSharingNodeHelper($baseMock, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basemock);
+        $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals('testOutput', $service->sign('testInput'));
     }
 
     /**
-     * Function testGetRenderHtmlCallsCurlHandlerWithCorrectParamsAndReturnsContentOnSuccess
+     * Function test_get_render_html_calls_curl_handler_with_correct_params_and_returns_content_on_success
      *
      * @return void
      * @throws dml_exception
      *
      * @backupGlobals enabled
      */
-    function testGetRenderHtmlCallsCurlHandlerWithCorrectParamsAndReturnsContentOnSuccess(): void {
+    public function test_get_render_html_calls_curl_handler_with_correct_params_and_returns_content_on_success(): void {
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
-        $baseHelper                 = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $curlOptions                = [
+        $basehelper                 = new EduSharingHelperBase(
+            'www.url.de',
+            'pkey123',
+            'appid123');
+        $curloptions                = [
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT']
+            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'],
         ];
-        $curlMock                   = $this->getMockBuilder(MoodleCurlHandler::class)
+        $curlmock                   = $this->getMockBuilder(MoodleCurlHandler::class)
             ->onlyMethods(['handleCurlRequest'])
             ->getMock();
-        $curlMock->expects($this->once())
+        $curlmock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with('www.testUrl.de', $curlOptions)
+            ->with('www.testUrl.de', $curloptions)
             ->will($this->returnValue(new CurlResult('expectedContent', 0, [])));
-        $baseHelper->registerCurlHandler($curlMock);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $basehelper->registerCurlHandler($curlmock);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basehelper);
+        $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals('expectedContent', $service->getRenderHtml('www.testUrl.de'));
     }
 
     /**
-     * Function testGetRenderHtmlReturnsErrorMessageIfCurlResultHasError
+     * Function test_get_render_html_returns_error_message_if_curl_result_has_error
      *
      * @return void
      * @throws dml_exception
      *
      * @backupGlobals enabled
      */
-    function testGetRenderHtmlReturnsErrorMessageIfCurlResultHasError(): void {
+    public function test_get_render_html_returns_error_message_if_curl_result_has_error(): void {
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
-        $baseHelper                 = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $curlOptions                = [
+        $basehelper                 = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $curloptions                = [
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT']
+            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'],
         ];
-        $curlMock                   = $this->getMockBuilder(MoodleCurlHandler::class)
+        $curlmock                   = $this->getMockBuilder(MoodleCurlHandler::class)
             ->onlyMethods(['handleCurlRequest'])
             ->getMock();
-        $curlMock->expects($this->once())
+        $curlmock->expects($this->once())
             ->method('handleCurlRequest')
-            ->with('www.testUrl.de', $curlOptions)
+            ->with('www.testUrl.de', $curloptions)
             ->will($this->returnValue(new CurlResult('expectedContent', 1, ['message' => 'error'])));
-        $baseHelper->registerCurlHandler($curlMock);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $basehelper->registerCurlHandler($curlmock);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basehelper);
+        $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals('Unexpected Error', $service->getRenderHtml('www.testUrl.de'));
     }
 }

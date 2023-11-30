@@ -1,4 +1,20 @@
-<?php declare(strict_types = 1);
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types = 1);
 
 use core\moodle_database_for_testing;
 use mod_edusharing\UtilityFunctions;
@@ -9,205 +25,206 @@ use testUtils\FakeConfig;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class UtilityFunctionsTest extends advanced_testcase
-{
+class UtilityFunctionsTest extends advanced_testcase {
     /**
-     * Function testIfGetObjectIdFromUrlReturnsProperPathIfUrlIsOk
+     * Function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok
      *
      * @return void
      */
-    public function testIfGetObjectIdFromUrlReturnsProperPathIfUrlIsOk(): void {
+    public function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok(): void {
         $utils = new UtilityFunctions();
         $this->assertEquals('hallo', $utils->getObjectIdFromUrl('http://test.com/hallo/'));
     }
 
     /**
-     * Function testIfGetObjectIdFromUrlTriggersWarningIfUrlIsMalformed
+     * Function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed
      *
      * @return void
      */
-    public function testIfGetObjectIdFromUrlTriggersWarningIfUrlIsMalformed(): void {
+    public function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed(): void {
         $utils = new UtilityFunctions();
         $this->expectWarning();
         $utils->getObjectIdFromUrl('http://test.com:-80/hallo/');
     }
 
     /**
-     * Function testIfGetRepositoryIdFromUrlReturnsHostIfUrlIsOk
+     * Function test_if_get_repository_id_from_url_returns_host_if_url_is_ok
      *
      * @return void
      * @throws Exception
      */
-    public function testIfGetRepositoryIdFromUrlReturnsHostIfUrlIsOk(): void {
+    public function test_if_get_repository_id_from_url_returns_host_if_url_is_ok(): void {
         $utils = new UtilityFunctions();
         $this->assertEquals('test.com', $utils->getRepositoryIdFromUrl('http://test.com/hallo/'));
     }
 
     /**
-     * Function testIfGetRepositoryThrowsExceptionIfUrlIsMalformed
+     * Function test_if_get_repository_throws_exception_if_url_is_malformed
      *
      * @return void
      * @throws Exception
      */
-    public function testIfGetRepositoryThrowsExceptionIfUrlIsMalformed(): void {
+    public function test_if_get_repository_throws_exception_if_url_is_malformed(): void {
         $utils = new UtilityFunctions();
         $this->expectException(Exception::class);
         $utils->getRepositoryIdFromUrl('http://test.com:-80/hallo/');
     }
 
     /**
-     * Function testIfGetAuthKeyReturnsUserIdIfSsoIsActive
+     * Function test_if_get_auth_key_returns_user_id_if_sso_is_active
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws dml_exception
      */
-    public function testIfGetAuthKeyReturnsUserIdIfSsoIsActive(): void {
+    public function test_if_get_auth_key_returns_user_id_if_sso_is_active(): void {
         global $SESSION, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'EDU_AUTH_PARAM_NAME_USERID' => 'test'
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_PARAM_NAME_USERID' => 'test',
         ]);
-        $utils                   = new UtilityFunctions($fakeConfig);
+        $utils                   = new UtilityFunctions($fakeconfig);
         $SESSION->edusharing_sso = ['test' => 'expectedId'];
         $this->assertEquals('expectedId', $utils->getAuthKey());
     }
 
     /**
-     * Function testGetAuthKeyReturnsGuestIdIfGuestOptionIsActive
+     * Function test_get_auth_key_returns_guest_id_if_guest_option_is_active
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws dml_exception
      */
-    public function testGetAuthKeyReturnsGuestIdIfGuestOptionIsActive(): void {
+    public function test_get_auth_key_returns_guest_id_if_guest_option_is_active(): void {
         global $SESSION, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
             'edu_guest_option'   => '1',
-            'edu_guest_guest_id' => 'expectedId'
+            'edu_guest_guest_id' => 'expectedId',
         ]);
-        $utils = new UtilityFunctions($fakeConfig);
+        $utils = new UtilityFunctions($fakeconfig);
         $this->assertEquals('expectedId', $utils->getAuthKey());
     }
 
     /**
-     * Function testGetAuthKeyReturnsConfiguredAuthKeyIfSet
+     * Function test_get_auth_key_returns_configured_auth_key_if_set
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws dml_exception
      */
-    public function testGetAuthKeyReturnsConfiguredAuthKeyIfSet(): void {
+    public function test_get_auth_key_returns_configured_auth_key_if_set(): void {
         global $SESSION, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'EDU_AUTH_KEY' => 'email'
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_KEY' => 'email',
         ]);
-        $utils       = new UtilityFunctions($fakeConfig);
+        $utils       = new UtilityFunctions($fakeconfig);
         $USER->email = 'expected@expected.org';
         $this->assertEquals('expected@expected.org', $utils->getAuthKey());
     }
 
     /**
-     * Function testGetAuthKeyReturnsAuthKeyInProfileIsIfAllPreviousAreNotMet
+     * Function test_get_auth_key_returns_auth_key_in_profile_if_all_previous_are_not_met
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws dml_exception
      */
-    public function testGetAuthKeyReturnsAuthKeyInProfileIsIfAllPreviousAreNotMet(): void {
+    public function test_get_auth_key_returns_auth_key_in_profile_if_all_previous_are_not_met(): void {
         global $SESSION, $USER, $CFG;
         unset($SESSION->edusharing_sso);
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'EDU_AUTH_KEY' => 'nonsense'
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_KEY' => 'nonsense',
         ]);
-        $utils                     = new UtilityFunctions($fakeConfig);
+        $utils                     = new UtilityFunctions($fakeconfig);
         $USER->profile['nonsense'] = 'expectedId';
         $this->assertEquals('expectedId', $utils->getAuthKey());
     }
 
     /**
-     * Function testGetAuthKeyReturnsUserNameAsLastResort
+     * Function test_get_auth_key_returns_user_name_as_last_resort
      *
      * @return void
      *
      * @backupGlobals enabled
      * @throws dml_exception
      */
-    public function testGetAuthKeyReturnsUserNameAsLastResort(): void {
+    public function test_get_auth_key_returns_user_name_as_last_resort(): void {
         global $SESSION, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
-        $fakeConfig = new FakeConfig();
-        $fakeConfig->setEntries([
-            'EDU_AUTH_KEY' => 'nonsense'
+        $fakeconfig = new FakeConfig();
+        $fakeconfig->set_entries([
+            'EDU_AUTH_KEY' => 'nonsense',
         ]);
-        $utils          = new UtilityFunctions($fakeConfig);
+        $utils          = new UtilityFunctions($fakeconfig);
         $USER->username = 'expectedName';
         $this->assertEquals('expectedName', $utils->getAuthKey());
     }
 
     /**
-     * Function testIfSetModuleInDbFindsMatchesAndSetsResourceIdsToDbIfMatchesFound
+     * Function test_if_set_module_in_db_finds_matches_and_sets_resource_ids_to_db_if_matches_found
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfSetModuleInDbFindsMatchesAndSetsResourceIdsToDbIfMatchesFound(): void {
+    public function test_if_set_module_in_db_finds_matches_and_sets_resource_ids_to_db_if_matches_found(): void {
         require_once('lib/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
-        $idType = 'testType';
+        $idtype = 'testType';
         $data   = ['objectid' => 'value1'];
-        $dbMock = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['set_field'])
             ->getMock();
-        $dbMock->expects($this->exactly(2))
+        $dbmock->expects($this->exactly(2))
             ->method('set_field')
-            ->withConsecutive(['edusharing', $idType, 'value1', ['id' => 'resourceID1']], ['edusharing', $idType, 'value1', ['id' => 'resourceID2']]);
-        $GLOBALS['DB'] = $dbMock;
+            ->withConsecutive(
+                ['edusharing', $idtype, 'value1', ['id' => 'resourceID1']],
+                ['edusharing', $idtype, 'value1', ['id' => 'resourceID2']], );
+        $GLOBALS['DB'] = $dbmock;
         $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda"><a resourceId=resourceID2& class="dsfg_edusharing_atto_afdd">text</a>';
-        $utils->setModuleIdInDb($text, $data, $idType);
+        $utils->setModuleIdInDb($text, $data, $idtype);
     }
 
     /**
-     * Function testIfSetModuleInDbDoesNotSetAnythingToDbIfNoMatchesFound
+     * Function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfSetModuleInDbDoesNotSetAnythingToDbIfNoMatchesFound(): void {
+    public function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found(): void {
         require_once('lib/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
-        $dbMock = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['set_field'])
             ->getMock();
-        $dbMock->expects($this->never())->method('set_field');
-        $GLOBALS['DB'] = $dbMock;
+        $dbmock->expects($this->never())->method('set_field');
+        $GLOBALS['DB'] = $dbmock;
         $utils->setModuleIdInDb('NothingHere', [], 'idType');
     }
 
     /**
-     * Function testIfGetCourseModuleInfoReturnsProperInfoIfDataFoundInDb
+     * Function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfGetCourseModuleInfoReturnsProperInfoIfDataFoundInDb(): void {
+    public function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db(): void {
         require_once('lib/dml/tests/dml_test.php');
         $this->resetAfterTest();
         $utils                   = new UtilityFunctions();
@@ -215,57 +232,57 @@ class UtilityFunctionsTest extends advanced_testcase
         $module->instance        = 'instanceId';
         $module->showdescription = false;
         $module->id              = 2;
-        $returnOne               = new stdClass();
-        $returnOne->intro        = "myIntro";
-        $returnOne->introFormat  = '2';
-        $returnTwo               = new stdClass();
-        $returnTwo->popup_window = '1';
-        $dbMock                  = $this->getMockBuilder(moodle_database_for_testing::class)
+        $returnone               = new stdClass();
+        $returnone->intro        = "myIntro";
+        $returnone->introFormat  = '2';
+        $returntwo               = new stdClass();
+        $returntwo->popup_window = '1';
+        $dbmock                  = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record'])
             ->getMock();
-        $dbMock->expects($this->exactly(2))
+        $dbmock->expects($this->exactly(2))
             ->method('get_record')
             ->withConsecutive(
                 [],
                 ['edusharing', ['id' => 'instanceId'], '*', MUST_EXIST])
-            ->willReturnOnConsecutiveCalls($returnOne, $returnTwo);
-        $GLOBALS['DB'] = $dbMock;
+            ->willReturnOnConsecutiveCalls($returnone, $returntwo);
+        $GLOBALS['DB'] = $dbmock;
         $result        = $utils->getCourseModuleInfo($module);
         $this->assertTrue($result instanceof cached_cm_info);
         $this->assertEquals('this.target=\'_blank\';', $result->onclick);
     }
 
     /**
-     * Function testIfGetCourseModuleInfoReturnsFalseIfNoRecordFound
+     * Function test_if_get_course_module_info_returns_false_if_no_record_found
      *
      * @return void
      *
      * @backupGlobals enabled
      */
-    public function testIfGetCourseModuleInfoReturnsFalseIfNoRecordFound(): void {
+    public function test_if_get_course_module_info_returns_false_if_no_record_found(): void {
         require_once('lib/dml/tests/dml_test.php');
         $utils = new UtilityFunctions();
         $this->resetAfterTest();
         $module           = new stdClass();
         $module->instance = 'instanceId';
         $module->id       = 2;
-        $dbMock           = $this->getMockBuilder(moodle_database_for_testing::class)
+        $dbmock           = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record'])
             ->getMock();
-        $dbMock->expects($this->once())
+        $dbmock->expects($this->once())
             ->method('get_record')
             ->with('edusharing', ['id' => 'instanceId'], 'id, name, intro, introformat', MUST_EXIST)
             ->willThrowException(new Exception());
-        $GLOBALS['DB'] = $dbMock;
+        $GLOBALS['DB'] = $dbmock;
         $this->assertEquals(false, $utils->getCourseModuleInfo($module));
     }
 
     /**
-     * Function testGetInlineObjectMatchesReturnsOnlyAttoMatchesFromInputIfAttoIsSetToTrue
+     * Function test_get_inline_object_matches_returns_only_atto_matches_from_input
      *
      * @return void
      */
-    public function testGetInlineObjectMatchesReturnsOnlyAttoMatchesFromInputIfAttoIsSetToTrue(): void {
+    public function test_get_inline_object_matches_returns_only_atto_matches_from_input(): void {
         $text   = file_get_contents(__DIR__ . '/attoTestString.txt');
         $utils  = new UtilityFunctions();
         $result = $utils->getInlineObjectMatches($text);
