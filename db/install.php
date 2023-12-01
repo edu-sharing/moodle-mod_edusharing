@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * install.php
@@ -24,35 +38,34 @@ use mod_edusharing\MoodleCurlHandler;
 use mod_edusharing\PluginRegistration;
 use mod_edusharing\UtilityFunctions;
 
-defined('MOODLE_INTERNAL') || die();
-
 function xmldb_edusharing_install(): void {
     global $CFG;
     require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     $logic = new InstallUpgradeLogic();
     try {
         $logic->parse_config_data();
-        $appId = $logic->discern_app_id();
+        $appid = $logic->discern_app_id();
         $data  = $logic->get_config_data();
         $utils = new UtilityFunctions();
-        $utils->set_config_entry('application_appid', $appId);
+        $utils->set_config_entry('application_appid', $appid);
         $utils->set_config_entry('send_additional_auth', '1');
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }
-        $baseHelper = new EduSharingHelperBase($data['repoUrl'], '', $appId);
-        $baseHelper->registerCurlHandler(new MoodleCurlHandler());
-        $authHelper = new EduSharingAuthHelper($baseHelper);
-        $nodeConfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $nodeHelper = new EduSharingNodeHelper($baseHelper, $nodeConfig);
-        $service    = new EduSharingService($authHelper, $nodeHelper);
+        $basehelper = new EduSharingHelperBase($data['repoUrl'], '', $appid);
+        $basehelper->registerCurlHandler(new MoodleCurlHandler());
+        $authhelper = new EduSharingAuthHelper($basehelper);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
         $logic->set_registration_logic(new PluginRegistration($service));
-        $metadataLogic = new MetadataLogic($service);
-        $metadataLogic->set_app_id($appId);
-        $logic->set_metadata_logic($metadataLogic);
+        $metadatalogic = new MetadataLogic($service);
+        $metadatalogic->set_app_id($appid);
+        $logic->set_metadata_logic($metadatalogic);
         $logic->perform();
     } catch (Exception $exception) {
-        error_log(($exception instanceof JsonException ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());
+        debugging(($exception instanceof JsonException
+                ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());
         return;
     }
 }

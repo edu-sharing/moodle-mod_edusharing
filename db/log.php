@@ -33,7 +33,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $DB; // TODO: this is a hack, we should really do something with the SQL in SQL tables
+global $DB;
 
 $logs = [
     ['module' => 'edusharing', 'action' => 'add', 'mtable' => 'edusharing', 'field' => 'name'],

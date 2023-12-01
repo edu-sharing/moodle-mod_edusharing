@@ -36,8 +36,6 @@ use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistration;
 use mod_edusharing\UtilityFunctions;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * xmldb_edusharing_upgrade
  *
@@ -46,41 +44,40 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_edusharing_upgrade($oldversion=0): bool {
     global $CFG, $DB;
-    $dbManager = $DB->get_manager(); // loads ddl manager and xmldb classes
+    $dbmanager = $DB->get_manager();
     $result    = true;
     if ($oldversion < 2016011401) {
-        // usage2
+        // Usage2.
         try {
-            $xmlDbTable = new xmldb_table('edusharing');
+            $xmldbtable = new xmldb_table('edusharing');
             $sql        = 'UPDATE {edusharing} SET object_version = 0 WHERE window_versionshow = 1';
             $DB->execute($sql);
             $sql = 'UPDATE {edusharing} SET object_version = window_version WHERE window_versionshow = 0';
             $DB->execute($sql);
-            $xmlDbField = new xmldb_field('window_versionshow');
-            $dbManager->drop_field($xmlDbTable, $xmlDbField);
-            $xmlDbField = new xmldb_field('window_version');
-            $dbManager->drop_field($xmlDbTable, $xmlDbField);
+            $xmldbfield = new xmldb_field('window_versionshow');
+            $dbmanager->drop_field($xmldbtable, $xmldbfield);
+            $xmldbfield = new xmldb_field('window_version');
+            $dbmanager->drop_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-        $homeConf = dirname(__FILE__).'/../conf/esmain/homeApplication.properties.xml';
-        if (file_exists($homeConf)) {
+        $homeconf = dirname(__FILE__).'/../conf/esmain/homeApplication.properties.xml';
+        if (file_exists($homeconf)) {
             $app = new DOMDocument();
-            $app->load($homeConf);
+            $app->load($homeconf);
             $app->preserveWhiteSpace = false;
             $entries = $app->getElementsByTagName('entry');
             foreach ($entries as $entry) {
-                $homeAppProperties[$entry->getAttribute('key')] = $entry->nodeValue;
+                $homeappproperties[$entry->getAttribute('key')] = $entry->nodeValue;
             }
+            $homeappproperties['blowfishkey'] = 'thetestkey';
+            $homeappproperties['blowfishiv'] = 'initvect';
 
-            $homeAppProperties['blowfishkey'] = 'thetestkey';
-            $homeAppProperties['blowfishiv'] = 'initvect';
-
-            set_config('appProperties', json_encode($homeAppProperties), 'edusharing');
+            set_config('appProperties', json_encode($homeappproperties), 'edusharing');
         }
 
         $repoconf = dirname(__FILE__).'/../conf/esmain/'.
-                    'app-'. $homeAppProperties['homerepid'] .'.properties.xml';
+                    'app-'. $homeappproperties['homerepid'] .'.properties.xml';
         if (file_exists($repoconf)) {
             $app = new DOMDocument();
             $app->load($repoconf);
@@ -90,12 +87,22 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 $repoproperties[$entry->getAttribute('key')] = $entry->nodeValue;
             }
 
-            $repoproperties['authenticationwebservice'] = str_replace('authentication', 'authbyapp', $repoproperties['authenticationwebservice']);
-            $repoproperties['authenticationwebservice_wsdl'] = str_replace('authentication', 'authbyapp', $repoproperties['authenticationwebservice_wsdl']);
+            $repoproperties['authenticationwebservice'] = str_replace(
+                'authentication',
+                'authbyapp',
+                $repoproperties['authenticationwebservice']
+            );
+            $repoproperties['authenticationwebservice_wsdl'] = str_replace('authentication',
+                'authbyapp',
+                $repoproperties['authenticationwebservice_wsdl']
+            );
             if (mb_substr($repoproperties['usagewebservice'], -1) != '2') {
                 $repoproperties['usagewebservice'] = $repoproperties['usagewebservice'] . '2';
             }
-            $repoproperties['usagewebservice_wsdl'] = str_replace('usage?wsdl', 'usage2?wsdl', $repoproperties['usagewebservice_wsdl']);
+            $repoproperties['usagewebservice_wsdl'] = str_replace('usage?wsdl',
+                'usage2?wsdl',
+                $repoproperties['usagewebservice_wsdl']
+            );
             $repoproperties['contenturl'] = $repoproperties['clientprotocol'] . '://' . $repoproperties['domain'] . ':' .
                                             $repoproperties['clientport'] . '/edu-sharing/renderingproxy';
 
@@ -140,8 +147,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
     if ($result && $oldversion < 2019062110) {
 
         try {
-            $xmlDbTable = new xmldb_table('edusharing');
-            $xmlDbField = new xmldb_field(
+            $xmldbtable = new xmldb_table('edusharing');
+            $xmldbfield = new xmldb_field(
                 'module_id',
                 XMLDB_TYPE_INTEGER,
                 '10',
@@ -151,7 +158,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 null,
                 'name'
             );
-            $dbManager->add_field($xmlDbTable, $xmlDbField);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -161,8 +168,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
     if ($result && $oldversion < 2019062401) {
 
         try {
-            $xmlDbTable = new xmldb_table('edusharing');
-            $xmlDbField = new xmldb_field(
+            $xmldbtable = new xmldb_table('edusharing');
+            $xmldbfield = new xmldb_field(
                 'section_id',
                 XMLDB_TYPE_INTEGER,
                 '10',
@@ -172,7 +179,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 null,
                 'module_id'
             );
-            $dbManager->add_field($xmlDbTable, $xmlDbField);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -180,8 +187,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
     }
     if ($result && $oldversion < 2022042501) {
         try {
-            $xmlDbTable = new xmldb_table('edusharing');
-            $xmlDbField = new xmldb_field(
+            $xmldbtable = new xmldb_table('edusharing');
+            $xmldbfield = new xmldb_field(
                 'usage_id',
                 XMLDB_TYPE_CHAR,
                 '255',
@@ -191,7 +198,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 null,
                 'section_id'
             );
-            $dbManager->add_field($xmlDbTable, $xmlDbField);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -203,21 +210,21 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
     try {
         $logic->parse_config_data();
     } catch (Exception $exception) {
-        error_log($exception->getMessage());
+        debugging($exception->getMessage());
         return $result;
     }
     $utils = new UtilityFunctions();
-    $appId = $logic->discern_app_id();
-    $utils->set_config_entry('application_appid', $appId);
+    $appid = $logic->discern_app_id();
+    $utils->set_config_entry('application_appid', $appid);
     if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
         return $result;
     }
     $service       = new EduSharingService();
-    $metadataLogic = new MetadataLogic($service);
-    $metadataLogic->set_app_id($appId);
-    $registrationLogic = new PluginRegistration($service);
-    $logic->set_registration_logic($registrationLogic);
-    $logic->set_metadata_logic($metadataLogic);
+    $metadatalogic = new MetadataLogic($service);
+    $metadatalogic->set_app_id($appid);
+    $registrationlogic = new PluginRegistration($service);
+    $logic->set_registration_logic($registrationlogic);
+    $logic->set_metadata_logic($metadatalogic);
     $logic->perform(false);
     return $result;
 }

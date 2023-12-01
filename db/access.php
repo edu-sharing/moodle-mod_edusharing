@@ -34,8 +34,8 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
             'admin'          => CAP_ALLOW,
-            'teacher'        => CAP_ALLOW
+            'teacher'        => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ],
 ];
