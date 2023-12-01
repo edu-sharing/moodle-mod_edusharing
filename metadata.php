@@ -29,19 +29,19 @@ use mod_edusharing\MetadataLogic;
 require_once(dirname(__FILE__) . '/../../config.php');
 
 try {
-    $publicKey = get_config('edusharing', 'application_public_key');
+    $publickey = get_config('edusharing', 'application_public_key');
 } catch (Exception $exception) {
-    $publicKey = '';
+    $publickey = '';
     unset($exception);
 }
 
-if (empty($publicKey)) {
+if (empty($publickey)) {
     try {
-        $keyPair = EduSharingHelper::generateKeyPair();
-        set_config('application_public_key', $keyPair['publicKey'], 'edusharing');
-        set_config('application_private_key', $keyPair['privateKey'], 'edusharing');
+        $keypair = EduSharingHelper::generateKeyPair();
+        set_config('application_public_key', $keypair['publicKey'], 'edusharing');
+        set_config('application_private_key', $keypair['privateKey'], 'edusharing');
     } catch (Exception $exception) {
-        error_log($exception->getMessage());
+        debugging($exception->getMessage());
     }
 }
 $logic    = new MetadataLogic(new EduSharingService());

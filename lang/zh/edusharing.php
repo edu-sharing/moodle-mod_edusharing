@@ -31,8 +31,8 @@ $string['newwindow'] = '在新窗口中显示';
 $string['display'] = '显示';
 $string['show_course_blocks'] = '显示课程板块';
 
-// modulename seems to be used in admin-panels
-// pluginname seems to be used in course-view
+// Modulename seems to be used in admin-panels.
+// Pluginname seems to be used in course-view.
 $string['modulename'] = 'edu-sharing 资源';
 $string['pluginname'] = 'edu-sharing 资源';
 $string['modulenameplural'] = 'edu-sharing';
@@ -40,7 +40,7 @@ $string['edusharing'] = 'edu-sharing';
 
 $string['edusharing:addinstance'] = 'Adds the main edu-sharing plugin';
 
-// mod_form.php
+// Mod_form.php.
 $string['edusharingname'] = '标题';
 
 $string['object_url_fieldset'] = 'edu-sharing 学习对象';
@@ -90,10 +90,10 @@ $string['window_width_help'] = '目标窗口宽度';
 $string['window_height'] = '显示高度';
 $string['window_height_help'] = '目标窗口的高度';
 
-// general error message
+// General error message.
 $string['exc_MESSAGE'] = '在连接edu-sharing.net时发生网络错误';
 
-// beautiful exceptions
+// Beautiful exceptions.
 $string['exc_SENDACTIVATIONLINK_SUCCESS'] = '成功发送激活链接';
 $string['exc_APPLICATIONACCESS_NOT_ACTIVATED_BY_USER'] = '访问未被用户激活';
 $string['exc_COULD_NOT_CONNECT_TO_HOST'] = '连接主机失败';
@@ -106,7 +106,7 @@ $string['exc_NO_PERMISSION'] = '权限不够';
 $string['exc_UNKNOWN_ERROR'] = '未知错误';
 $string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object could not be restored due to missing publish rights and will be skipped.';
 
-// metadata
+// Metadata.
 $string['currentVersion'] = 'Current plugin version';
 $string['conf_versiontext'] = 'Version:';
 $string['conf_linktext'] = 'Connect moodle to home repository:';
@@ -132,7 +132,7 @@ $string['repoWorkspace'] = 'My Files';
 $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 
-// auth parameters
+// Auth parameters.
 $string['convey_global_groups_yes'] = 'Convey cohorts';
 $string['convey_global_groups_no'] = 'Do not convey cohorts';
 

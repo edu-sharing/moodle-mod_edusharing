@@ -23,6 +23,8 @@
  * @todo Implement as moustache template
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\MetaDataFrontend;
@@ -55,7 +57,7 @@ if (!is_siteadmin()) {
 if (isset($_POST['repoReg'])) {
     if (!empty($_POST['appId'])) {
         set_config('application_appid', $_POST['appId'], 'edusharing');
-        error_log('appid set: ' . $_POST['appId']);
+        debugging('appid set: ' . $_POST['appId']);
     }
     if (!empty($_POST['host_aliases'])) {
         set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
@@ -66,41 +68,41 @@ if (isset($_POST['repoReg'])) {
 
 $filename = '';
 try {
-    $metadataUrl = optional_param('mdataurl', '', PARAM_NOTAGS);
+    $metadataurl = optional_param('mdataurl', '', PARAM_NOTAGS);
 } catch (Exception $exception) {
-    //This exception is stupid
+    // This exception is stupid.
     unset($exception);
 }
 
-if (!empty($metadataUrl)) {
+if (!empty($metadataurl)) {
     try {
         $utils = new UtilityFunctions();
-        $appId = $utils->get_config_entry('application_appid');
-        if (empty($appId)) {
+        $appid = $utils->get_config_entry('application_appid');
+        if (empty($appid)) {
             $utils->set_config_entry('application_appid', uniqid('moodle_'));
         }
         $service = new MetadataLogic(new EduSharingService());
-        $service->import_metadata($metadataUrl);
+        $service->import_metadata($metadataurl);
         echo '<h3 class="edu_success">Import successful.</h3>';
-    } catch (EduSharingUserException $eduSharingUserException) {
-        echo $eduSharingUserException->get_html_message();
+    } catch (EduSharingUserException $edusharinguserexception) {
+        echo $edusharinguserexception->get_html_message();
     } catch (Exception $exception) {
         echo '<p style="background: #FF8170">Unexpected error - please try again later<br></p>';
     }
     if ($service->reloadform) {
         echo MetaDataFrontend::get_meta_data_form();
     }
-    $repoForm = MetaDataFrontend::get_repo_form();
-    if ($repoForm !== null) {
-        echo $repoForm;
+    $repoform = MetaDataFrontend::get_repo_form();
+    if ($repoform !== null) {
+        echo $repoform;
     }
     exit();
 }
 
 echo MetaDataFrontend::get_meta_data_form();
-$repoForm = MetaDataFrontend::get_repo_form();
-if ($repoForm !== null) {
-    echo $repoForm;
+$repoform = MetaDataFrontend::get_repo_form();
+if ($repoform !== null) {
+    echo $repoform;
 }
 
 echo '</div></body></html>';

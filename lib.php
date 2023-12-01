@@ -56,15 +56,15 @@ function edusharing_supports(string $feature): int|bool {
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param stdClass $eduSharing An object from the form in mod_form.php
+ * @param stdClass $edusharing An object from the form in mod_form.php
  * @return int|bool The id of the newly inserted edusharing record
  */
-function edusharing_add_instance(stdClass $eduSharing): int|bool {
+function edusharing_add_instance(stdClass $edusharing): int|bool {
     $service = new EduSharingService();
     try {
-        $id = $service->add_instance($eduSharing);
+        $id = $service->add_instance($edusharing);
     } catch (Exception $exception) {
-        error_log('Instance creation failed: ' . $exception->getMessage());
+        debugging('Instance creation failed: ' . $exception->getMessage());
         return false;
     }
     return $id;
@@ -85,7 +85,7 @@ function edusharing_update_instance(stdClass $edusharing): bool {
     try {
         $service->update_instance($edusharing);
     } catch (Exception $exception) {
-        error_log('Instance update failed: ' . $exception->getMessage());
+        debugging('Instance update failed: ' . $exception->getMessage());
         return false;
     }
     return true;
@@ -104,7 +104,7 @@ function edusharing_delete_instance($id): bool {
     try {
         $service->delete_instance((string)$id);
     } catch (Exception $exception) {
-        error_log('Instance deletion failed: ' . $exception->getMessage());
+        debugging('Instance deletion failed: ' . $exception->getMessage());
         return false;
     }
     return true;
@@ -158,7 +158,7 @@ function edusharing_user_complete($course, $user, $mod, $edusharing) {
  * @return boolean
  */
 function edusharing_print_recent_activity($course, $isteacher, $timestart) {
-    return false; // True if anything was printed, otherwise false
+    return false;
 }
 
 /**
@@ -197,10 +197,7 @@ function edusharing_get_participants($edusharingid) {
  * @return mixed
  */
 function edusharing_scale_used($edusharingid, $scaleid) {
-    global $DB;
-
-    $return = false;
-    return $return;
+    return false;
 }
 
 /**
@@ -212,8 +209,6 @@ function edusharing_scale_used($edusharingid, $scaleid) {
  * @return boolean True if the scale is used by any edusharing
  */
 function edusharing_scale_used_anywhere($scaleid) {
-    global $DB;
-
     return false;
 }
 
@@ -242,12 +237,12 @@ function edusharing_uninstall() {
  * adding or updating an edu-sharing-resource, NOT every time the course
  * is shown.
  *
- * @param stdClass $courseModule
+ * @param stdClass $coursemodule
  * @return stdClass|bool
  */
-function edusharing_get_coursemodule_info(stdClass $courseModule): cached_cm_info|bool {
+function edusharing_get_coursemodule_info(stdClass $coursemodule): cached_cm_info|bool {
     $utils = new UtilityFunctions();
-    return $utils->get_course_module_info($courseModule);
+    return $utils->get_course_module_info($coursemodule);
 }
 
 /**
@@ -256,8 +251,7 @@ function edusharing_get_coursemodule_info(stdClass $courseModule): cached_cm_inf
  * @param \stdClass $cm The course module record.
  */
 function edusharing_pre_course_module_delete($cm) {
-    //$descr = $cm->get_description();
-    //error_log('edusharing_pre_course_module_delete: '.print_r($cm, true));
+    return false;
 }
 
 function edusharing_course_module_background_deletion_recommended() {
@@ -265,16 +259,15 @@ function edusharing_course_module_background_deletion_recommended() {
 }
 
 function edusharing_pre_block_delete($cm) {
-    //echo 'edusharing_pre_block_delete';
-    //error_log('edusharing_pre_block_delete');
+    return false;
 }
 
-function edusharing_update_settings_images($settingName) {
+function edusharing_update_settings_images($settingname) {
     $utils = new UtilityFunctions();
-    $utils->update_settings_images($settingName);
+    $utils->update_settings_images($settingname);
 }
 
 function edusharing_update_settings_name() {
-    // Reset language cache
+    // Reset language cache.
     get_string_manager()->reset_caches();
 }

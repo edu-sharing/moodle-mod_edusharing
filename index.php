@@ -36,7 +36,7 @@ try {
     }
     require_course_login($course);
     $event = course_module_instance_list_viewed::create([
-        'context' => context_course::instance($course->id)
+        'context' => context_course::instance($course->id),
     ]);
     $event->trigger();
     $PAGE->set_url('mod/edusharing/view.php', ['id' => $id]);
@@ -71,7 +71,8 @@ try {
     foreach ($edusharings as $edusharing) {
         if (!$edusharing->visible) {
             // Show dimmed if the mod is hidden.
-            $link = '<a class="dimmed" href="view.php?id=' . $edusharing->coursemodule . '">' . format_string($edusharing->name) . '</a>';
+            $link = '<a class="dimmed" href="view.php?id='
+                . $edusharing->coursemodule . '">' . format_string($edusharing->name) . '</a>';
         } else {
             // Show normal if the mod is visible.
             $link = '<a href="view.php?id=' . $edusharing->coursemodule . '">' . format_string($edusharing->name) . '</a>';
@@ -86,7 +87,7 @@ try {
 
     echo $OUTPUT->heading(get_string('modulenameplural', 'mod_edusharing'), 2);
 } catch (Exception $exception) {
-    error_log($exception->getLine() . ': ' . $exception->getMessage());
+    debugging($exception->getLine() . ': ' . $exception->getMessage());
     unset($exception);
     echo('error');
     die();

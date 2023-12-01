@@ -31,8 +31,8 @@ $string['newwindow'] = 'Anzeige in neuem Fenster';
 $string['display'] = 'Anzeige';
 $string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
-// modulename seems to be used in admin-panels
-// pluginname seems to be used in course-view
+// Modulename seems to be used in admin-panels.
+// Pluginname seems to be used in course-view.
 try {
     $string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
     $string['modulename_help'] = get_config('edusharing', 'info_text');
@@ -97,10 +97,10 @@ $string['window_width_help'] = 'Breite des Zielfensters in Pixeln.';
 $string['window_height'] = 'Anzeige-Höhe';
 $string['window_height_help'] = 'Höhe des Zielfensters in Pixeln.';
 
-// general error message
+// General error message.
 $string['exc_MESSAGE'] = 'Ein Fehler ist bei der Benutzung des edu-sharing.net Netzwerkes aufgetreten.';
 
-// beautiful exceptions
+// Beautiful exceptions.
 $string['exc_SENDACTIVATIONLINK_SUCCESS'] = 'Aktivierungslink erfolgreich versendet.';
 $string['exc_APPLICATIONACCESS_NOT_ACTIVATED_BY_USER'] = 'Zugriff nicht aktiviert.';
 $string['exc_COULD_NOT_CONNECT_TO_HOST'] = 'Verbindung zu Host fehlgeschlagen.';
@@ -113,7 +113,7 @@ $string['exc_NO_PERMISSION'] = 'Zugriffsrechte nicht ausreichend.';
 $string['exc_UNKNOWN_ERROR'] = 'Unbekannter Fehler.';
 $string['exc_NO_PUBLISH_RIGHTS'] = 'Ein edu-sharing-Inhalt konnte aufgrund fehlender Rechte des aktuellen Nutzers nicht eingebunden werden und wird übersprungen';
 
-// metadata
+// Metadata.
 $string['conf_linktext'] = 'Moodle mit dem Heimat-Repositorium verbinden:';
 $string['conf_btntext'] = 'Verbinden';
 $string['conf_hinttext'] = 'Dies öffnet ein neues Fenster in dem die Metadaten vom Repo geladen werden können und das Plugin beim Repo registriert werden kann.';
@@ -138,7 +138,7 @@ $string['repoWorkspace'] = 'Eigene Dateien';
 $string['save'] = 'Änderungen sichern';
 $string['emptyForDefault'] = 'leer für';
 
-// auth parameters
+// Auth parameters.
 $string['convey_global_groups_yes'] = 'Globale Gruppen übermitteln';
 $string['convey_global_groups_no'] = 'Globale Gruppen nicht übermitteln';
 $string['send_additional_auth'] = 'Übermittlung zusätzlicher Authentifizierungsinfos';

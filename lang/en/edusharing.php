@@ -31,8 +31,8 @@ $string['newwindow'] = 'Display in new window';
 $string['display'] = 'Display';
 $string['show_course_blocks'] = 'Show course blocks';
 
-// modulename seems to be used in admin-panels
-// pluginname seems to be used in course-view
+// Modulename seems to be used in admin-panels,
+// Pluginname seems to be used in course-view.
 try {
     $string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
     $string['modulename_help'] = get_config('edusharing', 'info_text');
@@ -96,10 +96,10 @@ $string['window_width_help'] = 'Width of target-window.';
 $string['window_height'] = 'Display-height';
 $string['window_height_help'] = 'Height for target-window.';
 
-// general error message
+// General error message.
 $string['exc_MESSAGE'] = 'An error occured utilizing the edu-sharing.net network.';
 
-// beautiful exceptions
+// Beautiful exceptions.
 $string['exc_SENDACTIVATIONLINK_SUCCESS'] = 'Successfully sent activation-link.';
 $string['exc_APPLICATIONACCESS_NOT_ACTIVATED_BY_USER'] = 'Access not activated by user.';
 $string['exc_COULD_NOT_CONNECT_TO_HOST'] = 'Could not connect to host.';
@@ -112,7 +112,7 @@ $string['exc_NO_PERMISSION'] = 'Insufficient permissions.';
 $string['exc_UNKNOWN_ERROR'] = 'Unknown error.';
 $string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object could not be restored due to missing publish rights and will be skipped.';
 
-// metadata
+// Metadata.
 $string['currentVersion'] = 'Current plugin version';
 $string['conf_versiontext'] = 'Version:';
 $string['connectToHomeRepository'] = 'Connect to Home Reposiory';
@@ -137,7 +137,7 @@ $string['save'] = 'Save changes';
 $string['emptyForDefault'] = 'empty for default';
 $string['filter_not_authorized'] = 'You are not authorized to access the requested content.';
 
-// auth parameters
+// Auth parameters.
 $string['convey_global_groups_yes'] = 'Convey cohorts';
 $string['convey_global_groups_no'] = 'Do not convey cohorts';
 $string['send_additional_auth'] = 'Send additional auth information';
