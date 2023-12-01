@@ -49,7 +49,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
         try {
             $edusharingservice = new EduSharingService();
             $ticket            = $edusharingservice->get_ticket();
-            // Adding the "general" fieldset, where all the common settings are showed.
+            // Adding the "general" fieldset, where all the common settings are shown.
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             // Adding the standard "name" field.
             $this->_form->addElement('text', 'name',
@@ -58,26 +58,26 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $this->_form->addRule('name', null, 'required', null, 'client');
             $this->_form->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
             $this->standard_intro_elements(get_string('description', Constants::EDUSHARING_MODULE_NAME));
-            // Object-section.
-            $this->_form->addElement('header', 'object_url_fieldset',
-                get_string('object_url_fieldset', Constants::EDUSHARING_MODULE_NAME,
-                    get_config('edusharing', 'application_appname')));
-            $this->_form->addElement('static', 'object_title',
-                get_string('object_title', Constants::EDUSHARING_MODULE_NAME),
-                get_string('object_title_help', Constants::EDUSHARING_MODULE_NAME));
-            // Object-uri.
-            $this->_form->addElement('text', 'object_url',
-                get_string('object_url', Constants::EDUSHARING_MODULE_NAME), ['readonly' => 'true']);
-            $this->_form->setType('object_url', PARAM_RAW_TRIMMED);
-            $this->_form->addRule('object_url', null, 'required', null, 'client');
-            $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-            $this->_form->addHelpButton('object_url', 'object_url', Constants::EDUSHARING_MODULE_NAME);
-            $searchurl    = get_config('edusharing', 'application_cc_gui_url');
-            $reposearch   = trim($searchurl, '/') . '/components/search?&applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
-            $searchbutton = $this->_form->addElement('button', 'searchbutton',
-                get_string('searchrec', Constants::EDUSHARING_MODULE_NAME,
-                    get_config('edusharing', 'application_appname')));
-            $repoonclick  = "
+            // Repo button and version select are not to be shown for edit form
+            if (!isset($_GET['update'])) {
+                $this->_form->addElement('header', 'object_url_fieldset',
+                    get_string('object_url_fieldset', Constants::EDUSHARING_MODULE_NAME,
+                        get_config('edusharing', 'application_appname')));
+                $this->_form->addElement('static', 'object_title',
+                    get_string('object_title', Constants::EDUSHARING_MODULE_NAME),
+                    get_string('object_title_help', Constants::EDUSHARING_MODULE_NAME));
+                $this->_form->addElement('text', 'object_url',
+                    get_string('object_url', Constants::EDUSHARING_MODULE_NAME), ['readonly' => 'true']);
+                $this->_form->setType('object_url', PARAM_RAW_TRIMMED);
+                $this->_form->addRule('object_url', null, 'required', null, 'client');
+                $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+                $this->_form->addHelpButton('object_url', 'object_url', Constants::EDUSHARING_MODULE_NAME);
+                $searchurl    = get_config('edusharing', 'application_cc_gui_url');
+                $reposearch   = trim($searchurl, '/') . '/components/search?&applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
+                $searchbutton = $this->_form->addElement('button', 'searchbutton',
+                    get_string('searchrec', Constants::EDUSHARING_MODULE_NAME,
+                        get_config('edusharing', 'application_appname')));
+                $repoonclick  = "
                             function openRepo(){
                                 window.addEventListener('message', function handleRepo(event) {
                                     if (event.data.event == 'APPLY_NODE') {
@@ -109,25 +109,25 @@ class mod_edusharing_mod_form extends moodleform_mod {
                             }
                             openRepo();
                         ";
-            $searchbutton->updateAttributes(
-                [
-                    'title' => get_string('uploadrec', Constants::EDUSHARING_MODULE_NAME,
-                        get_config('edusharing', 'application_appname')),
-                    'onclick' => $repoonclick,
-                ]
-            );
-            // Version-section.
-            $this->_form->addElement('header', 'version_fieldset',
-                get_string('object_version_fieldset', Constants::EDUSHARING_MODULE_NAME));
-            $radiogroup   = [];
-            $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
-                get_string('object_version_use_latest', Constants::EDUSHARING_MODULE_NAME), 0, []);
-            $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
-                get_string('object_version_use_exact', Constants::EDUSHARING_MODULE_NAME), 1, []);
-            $this->_form->addGroup($radiogroup, 'object_version',
-                get_string('object_version', Constants::EDUSHARING_MODULE_NAME), [' '], false);
-            $this->_form->setDefault('object_version', 0);
-            $this->_form->addHelpButton('object_version', 'object_version', Constants::EDUSHARING_MODULE_NAME);
+                $searchbutton->updateAttributes(
+                    [
+                        'title' => get_string('uploadrec', Constants::EDUSHARING_MODULE_NAME,
+                            get_config('edusharing', 'application_appname')),
+                        'onclick' => $repoonclick,
+                    ]
+                );
+                $this->_form->addElement('header', 'version_fieldset',
+                    get_string('object_version_fieldset', Constants::EDUSHARING_MODULE_NAME));
+                $radiogroup   = [];
+                $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
+                    get_string('object_version_use_latest', Constants::EDUSHARING_MODULE_NAME), 0, []);
+                $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
+                    get_string('object_version_use_exact', Constants::EDUSHARING_MODULE_NAME), 1, []);
+                $this->_form->addGroup($radiogroup, 'object_version',
+                    get_string('object_version', Constants::EDUSHARING_MODULE_NAME), [' '], false);
+                $this->_form->setDefault('object_version', 0);
+                $this->_form->addHelpButton('object_version', 'object_version', Constants::EDUSHARING_MODULE_NAME);
+            }
             // Display-section.
             $this->_form->addElement('header', 'object_display_fieldset',
                 get_string('object_display_fieldset', Constants::EDUSHARING_MODULE_NAME));
