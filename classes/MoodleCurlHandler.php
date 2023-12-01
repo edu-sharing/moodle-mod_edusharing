@@ -26,6 +26,7 @@ use EduSharingApiClient\CurlResult;
  * class MoodleCurlHandler
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class MoodleCurlHandler extends CurlHandler {
     /**
@@ -35,17 +36,17 @@ class MoodleCurlHandler extends CurlHandler {
      * in order to ensure compatibility with edu-sharing api library
      *
      * @param string $url
-     * @param array $curloptions
+     * @param array $curlOptions
      * @return CurlResult
      */
-    public function handleCurlRequest(string $url, array $curloptions): CurlResult {
+    public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $curl         = new curl();
         $params       = [];
         $options      = [];
         $allconstants = null;
-        foreach ($curloptions as $key => $value) {
+        foreach ($curlOptions as $key => $value) {
             if (is_int($key)) {
                 if ($allconstants === null) {
                     $allconstants = get_defined_constants(true)['curl'];

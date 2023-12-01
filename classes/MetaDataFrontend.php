@@ -24,6 +24,7 @@ use Exception;
  * Class MetaDataFrontend
  *
  * @author Marian Ziegler <ziegler@edu-sharnig.net>
+ * @package mod_edusharing
  */
 class MetaDataFrontend {
     /**

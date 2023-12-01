@@ -24,6 +24,7 @@ use mod_edusharing\UtilityFunctions;
  * Class mod_edusharing_observer
  *
  * callback definitions for events.
+ * @package mod_edusharing
  */
 class mod_edusharing_observer {
     /**
@@ -69,6 +70,7 @@ class mod_edusharing_observer {
 
     /**
      * Function course_module_created
+     * @param \core\event\course_module_created $event
      */
     public static function course_module_created(\core\event\course_module_created $event) {
         global $DB;

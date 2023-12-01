@@ -38,6 +38,11 @@ use mod_edusharing\MoodleCurlHandler;
 use mod_edusharing\PluginRegistration;
 use mod_edusharing\UtilityFunctions;
 
+/**
+ * Function xmldb_edusharing_install
+ *
+ * @return void
+ */
 function xmldb_edusharing_install(): void {
     global $CFG;
     require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');

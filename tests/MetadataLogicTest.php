@@ -32,6 +32,7 @@ use testUtils\FakeConfig;
  * Class MetadataLogicTest
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class MetadataLogicTest extends advanced_testcase {
     /**

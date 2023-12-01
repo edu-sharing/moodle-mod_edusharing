@@ -26,6 +26,14 @@ use core_external\external_value;
 use Exception;
 use mod_edusharing\Constants;
 
+/**
+ * Class UpdateInstance
+ *
+ * Service class for the endpoint 'mod_edusharing_get_ticket'.
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ */
 class UpdateInstance extends external_api {
     /**
      * Function execute_parameters

@@ -16,12 +16,22 @@
 
 /**
  * Define all the backup steps that will be used by the backup_choice_activity_task
- */
-/**
- * Define the complete choice structure for backup, with file and id annotations
+ *
+ * Also: Define the complete choice structure for backup, with file and id annotations
+ *
+ * @package    mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_edusharing_activity_structure_step extends backup_activity_structure_step {
 
+    /**
+     * Function define_structure
+     *
+     * @return backup_nested_element
+     * @throws base_element_struct_exception
+     * @throws base_step_exception
+     */
     protected function define_structure() {
 
         // To know if we are including userinfo.

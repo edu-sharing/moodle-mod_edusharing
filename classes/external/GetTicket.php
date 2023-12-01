@@ -31,6 +31,9 @@ use required_capability_exception;
  * Class GetTicket
  *
  * Service class for the endpoint 'mod_edusharing_get_ticket'.
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class GetTicket extends external_api {
     /**
@@ -71,8 +74,9 @@ class GetTicket extends external_api {
      *
      * handles the service call
      *
+     * @param array $input
+     * @return array
      * @throws required_capability_exception
-     * @throws Exception
      */
     public static function execute(array $input): array {
         if ($input['courseId'] !== 0) {

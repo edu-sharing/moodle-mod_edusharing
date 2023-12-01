@@ -28,13 +28,32 @@ use SimpleXMLElement;
  * Class MetadataLogic
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class MetadataLogic {
+    /**
+     * @var bool
+     */
     public bool     $reloadform   = false;
+    /**
+     * @var string|null
+     */
     private ?string $hostaliases  = null;
+    /**
+     * @var string|null
+     */
     private ?string           $wloguestuser = null;
+    /**
+     * @var string|null
+     */
     private ?string           $appid        = null;
+    /**
+     * @var EduSharingService
+     */
     private EduSharingService $service;
+    /**
+     * @var UtilityFunctions|null
+     */
     private ?UtilityFunctions $utils;
 
     /**
@@ -63,8 +82,10 @@ class MetadataLogic {
     /**
      * Function import_metadata
      *
+     * @param string $metadataurl
+     * @param string|null $host
      * @throws EduSharingUserException
-     * @throws Exception
+     * @throws dml_exception
      */
     public function import_metadata(string $metadataurl, ?string $host = null): void {
         global $CFG;

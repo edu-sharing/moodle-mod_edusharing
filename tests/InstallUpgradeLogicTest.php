@@ -30,6 +30,7 @@ use mod_edusharing\PluginRegistration;
  * Class InstallUpgradeLogicTest
  *
  * @author Marian Ziegler
+ * @package mod_edusharing
  */
 class InstallUpgradeLogicTest extends advanced_testcase {
 

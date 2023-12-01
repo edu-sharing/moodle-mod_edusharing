@@ -30,6 +30,7 @@ use mod_edusharing\PluginRegistration;
  * class PluginRegistrationTest
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class PluginRegistrationTest extends advanced_testcase {
     /**

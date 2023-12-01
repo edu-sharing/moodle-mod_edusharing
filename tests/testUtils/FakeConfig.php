@@ -26,8 +26,13 @@ use mod_edusharing\AppConfig;
  * This can be used to inject a basic fake config into UtilityFunctions for testing
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class FakeConfig implements AppConfig {
+
+    /**
+     * @var array
+     */
     private array $entries = [];
 
     /**

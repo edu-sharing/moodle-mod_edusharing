@@ -24,6 +24,7 @@ use testUtils\FakeConfig;
  * Class UtilityFunctionsTest
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class UtilityFunctionsTest extends advanced_testcase {
     /**

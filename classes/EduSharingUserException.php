@@ -25,8 +25,12 @@ use Throwable;
  * Class EduSharingUserException
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class EduSharingUserException extends Exception {
+    /**
+     * @var string|null
+     */
     private ?string $htmlmessage;
 
     /**

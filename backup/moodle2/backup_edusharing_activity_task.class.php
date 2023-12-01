@@ -22,8 +22,14 @@ require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/backup_edusharing_s
 require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/backup_edusharing_settingslib.php');
 
 /**
+ * Class backup_edusharing_activity_task
+ *
  * choice backup task that provides all the settings and steps to perform one
  * complete backup of the activity
+ *
+ * @package    mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_edusharing_activity_task extends backup_activity_task {
 
@@ -45,6 +51,8 @@ class backup_edusharing_activity_task extends backup_activity_task {
     /**
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
+     * @param string $content
+     * @return array|string|string[]|null
      */
     public static function encode_content_links($content) {
         global $CFG;

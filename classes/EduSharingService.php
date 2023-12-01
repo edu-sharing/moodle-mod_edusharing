@@ -42,10 +42,20 @@ use stdClass;
  * Wrapper service class for API utilities bundled in the auth plugin
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class EduSharingService {
+    /**
+     * @var EduSharingAuthHelper|null
+     */
     private ?EduSharingAuthHelper $authhelper;
+    /**
+     * @var EduSharingNodeHelper|null
+     */
     private ?EduSharingNodeHelper $nodehelper;
+    /**
+     * @var UtilityFunctions|null
+     */
     private ?UtilityFunctions     $utils;
 
     /**
@@ -54,8 +64,10 @@ class EduSharingService {
      * constructor params are optional if you want to use DI.
      * This possibility is needed for unit testing
      *
+     * @param EduSharingAuthHelper|null $authhelper
+     * @param EduSharingNodeHelper|null $nodehelper
+     * @param UtilityFunctions|null $utils
      * @throws dml_exception
-     * @throws Exception
      */
     public function __construct(
         ?EduSharingAuthHelper $authhelper = null,
@@ -97,8 +109,9 @@ class EduSharingService {
     /**
      * Function create_usage
      *
+     * @param stdClass $usagedata
+     * @return Usage
      * @throws JsonException
-     * @throws Exception
      */
     public function create_usage(stdClass $usagedata): Usage {
         return $this->nodehelper->createUsage(
@@ -113,6 +126,8 @@ class EduSharingService {
     /**
      * Function get_usage_id
      *
+     * @param stdClass $usagedata
+     * @return string
      * @throws Exception
      */
     public function get_usage_id(stdClass $usagedata): string {
@@ -128,6 +143,7 @@ class EduSharingService {
     /**
      * Function delete_usage
      *
+     * @param stdClass $usagedata
      * @throws Exception
      */
     public function delete_usage(stdClass $usagedata): void {
@@ -142,9 +158,11 @@ class EduSharingService {
     /**
      * Function get_node
      *
+     * @param object $postdata
+     * @return array
+     * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
-     * @throws JsonException
      */
     public function get_node($postdata): array {
         $usage = new Usage(
@@ -443,10 +461,12 @@ class EduSharingService {
     /**
      * Function require_edu_login
      *
-     * @throws require_login_exception
+     * @param int|null $courseid
+     * @param bool $checkticket
+     * @param bool $checksessionkey
      * @throws coding_exception
      * @throws moodle_exception
-     * @throws Exception
+     * @throws require_login_exception
      */
     public function require_edu_login(?int $courseid = null, bool $checkticket = true, bool $checksessionkey = true): void {
         require_login($courseid);

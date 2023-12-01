@@ -19,7 +19,7 @@ namespace mod_edusharing\event;
 /**
  * Class course_module_instance_list_viewed
  *
- * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package    mod_edusharing
  */
 class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
 }

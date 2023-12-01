@@ -28,6 +28,7 @@ use dml_exception;
  * It merely wraps moodle standard functions.
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class DefaultAppConfig implements AppConfig {
     /**

@@ -22,10 +22,23 @@ namespace mod_edusharing;
  * Class Constants
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class Constants {
+    /**
+     * string
+     */
     const EDUSHARING_MODULE_NAME          = 'edusharing';
+    /**
+     * string
+     */
     const EDUSHARING_TABLE                = 'edusharing';
+    /**
+     * string
+     */
     const EDUSHARING_DISPLAY_MODE_DISPLAY = 'window';
+    /**
+     * string
+     */
     const EDUSHARING_DISPLAY_MODE_INLINE  = 'inline';
 }

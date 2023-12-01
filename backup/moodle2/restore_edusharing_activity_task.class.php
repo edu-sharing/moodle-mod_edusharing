@@ -15,8 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * restore_edusharing_activity_task
+ *
  * edusharing restore task that provides all the settings and steps to perform one
  * complete restore of the activity
+ *
+ * @package    mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -25,6 +31,9 @@ global $CFG;
 
 require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/restore_edusharing_stepslib.php');
 
+/**
+ * class restore_edusharing_activity_task
+ */
 class restore_edusharing_activity_task extends restore_activity_task {
 
     /**
@@ -68,10 +77,10 @@ class restore_edusharing_activity_task extends restore_activity_task {
     }
 
     /**
+     * Function define_restore_log_rules
+     *
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
-     * edusharing logs. It must return one array
-     * of {@link restore_log_rule} objects
+     *
      */
     public static function define_restore_log_rules() {
         $rules = [];
@@ -88,9 +97,6 @@ class restore_edusharing_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
-     * course logs. It must return one array
-     * of {@link restore_log_rule} objects
      *
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at
@@ -107,6 +113,11 @@ class restore_edusharing_activity_task extends restore_activity_task {
         return $rules;
     }
 
+    /**
+     * Function after_restore
+     *
+     * @return void
+     */
     public function after_restore() {
         // Do something at end of restore.
     }

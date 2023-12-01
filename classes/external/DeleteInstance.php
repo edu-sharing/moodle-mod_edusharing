@@ -26,7 +26,12 @@ use core_external\external_value;
 use Exception;
 use mod_edusharing\Constants;
 use mod_edusharing\EduSharingService;
-
+/**
+ * class DeleteInstance
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ */
 class DeleteInstance extends external_api {
     /**
      * Function execute_parameters

@@ -30,8 +30,12 @@ use stdClass;
  * Class UtilityFunctions
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class UtilityFunctions {
+    /**
+     * @var AppConfig|null
+     */
     private ?AppConfig $appconfig;
 
     /**
@@ -101,7 +105,11 @@ class UtilityFunctions {
     /**
      * Functions get_redirect_url
      *
-     * @throws Exception
+     * @param stdClass $edusharing
+     * @param string $displaymode
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function get_redirect_url(
         stdClass $edusharing,
@@ -173,6 +181,8 @@ class UtilityFunctions {
     /**
      * Function encrypt_with_repo_key
      *
+     * @param string $data
+     * @return string
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -322,6 +332,8 @@ class UtilityFunctions {
     /**
      * Function get_config_entry
      *
+     * @param string $name
+     * @return mixed
      * @throws dml_exception
      */
     public function get_config_entry(string $name): mixed {

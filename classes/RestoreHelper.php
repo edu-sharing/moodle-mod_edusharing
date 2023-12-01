@@ -30,8 +30,12 @@ use stdClass;
  * Class RestoreHelper
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class RestoreHelper {
+    /**
+     * @var EduSharingService
+     */
     private EduSharingService $service;
 
     /**
@@ -46,8 +50,9 @@ class RestoreHelper {
     /**
      * Function convert_inline_options
      *
-     * @param $courseid
+     * @param int $courseid
      * @return void
+     *
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -122,8 +127,8 @@ class RestoreHelper {
     /**
      * Function convert_object
      *
-     * @param $object
-     * @param $courseid
+     * @param mixed $object
+     * @param mixed $courseid
      * @return mixed
      * @throws coding_exception
      * @throws dml_exception

@@ -16,6 +16,10 @@
 
 /**
  * Structure step to restore one edusharing activity
+ *
+ * @package    mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -25,9 +29,16 @@ use mod_edusharing\RestoreHelper;
 
 require_once(dirname(__FILE__).'/../../lib.php');
 
-
+/**
+ * class restore_edusharing_activity_structure_step
+ */
 class restore_edusharing_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * Function define_structure
+     *
+     * @return mixed
+     */
     protected function define_structure() {
         $paths = [];
         $paths[] = new restore_path_element('edusharing', '/activity/edusharing');
@@ -36,6 +47,12 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Function process_edusharing
+     *
+     * @param object $data
+     * @return void
+     */
     protected function process_edusharing($data) {
         global $DB;
 
@@ -61,6 +78,11 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         }
     }
 
+    /**
+     * Function after_execute
+     *
+     * @return void
+     */
     protected function after_execute() {
     }
 }

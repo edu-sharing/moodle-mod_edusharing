@@ -254,19 +254,42 @@ function edusharing_pre_course_module_delete($cm) {
     return false;
 }
 
+/**
+ * Function edusharing_course_module_background_deletion_recommended
+ *
+ * @return false
+ */
 function edusharing_course_module_background_deletion_recommended() {
     return false;
 }
 
+
+/**
+ * Function edusharing_pre_block_delete
+ *
+ * @param mixed $cm
+ * @return false
+ */
 function edusharing_pre_block_delete($cm) {
     return false;
 }
 
-function edusharing_update_settings_images($settingname) {
+/**
+ * Function edusharing_update_settings_images
+ *
+ * @param string $settingname
+ * @return void
+ */
+function edusharing_update_settings_images(string $settingname) {
     $utils = new UtilityFunctions();
     $utils->update_settings_images($settingname);
 }
 
+/**
+ * Function edusharing_update_settings_name
+ *
+ * @return void
+ */
 function edusharing_update_settings_name() {
     // Reset language cache.
     get_string_manager()->reset_caches();

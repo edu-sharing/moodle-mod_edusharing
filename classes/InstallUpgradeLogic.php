@@ -25,12 +25,24 @@ use JsonException;
  * Class InstallUpgradeLogic
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class InstallUpgradeLogic {
+    /**
+     * @var PluginRegistration|null
+     */
     private ?PluginRegistration $registrationlogic = null;
+    /**
+     * @var MetadataLogic|null
+     */
     private ?MetadataLogic      $metadatalogic     = null;
-
+    /**
+     * @var string
+     */
     private string $configpath;
+    /**
+     * @var array|null
+     */
     private ?array $configdata = null;
 
     /**

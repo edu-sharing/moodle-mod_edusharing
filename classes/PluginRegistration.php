@@ -24,8 +24,12 @@ use JsonException;
  * Class PluginRegistration
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package    mod_edusharing
  */
 class PluginRegistration {
+    /**
+     * @var EduSharingService
+     */
     private EduSharingService $service;
 
     /**
@@ -42,6 +46,11 @@ class PluginRegistration {
     /**
      * Function register_plugin
      *
+     * @param string $repourl
+     * @param string $login
+     * @param string $pwd
+     * @param string $data
+     * @return array
      * @throws EduSharingUserException
      * @throws JsonException
      */
@@ -53,6 +62,8 @@ class PluginRegistration {
     /**
      * Function validate_alfresco_session
      *
+     * @param string $repourl
+     * @param string $auth
      * @throws EduSharingUserException
      * @throws JsonException
      */
@@ -70,6 +81,10 @@ class PluginRegistration {
     /**
      * Function perform_registration
      *
+     * @param string $repourl
+     * @param string $data
+     * @param string $auth
+     * @return array
      * @throws EduSharingUserException
      * @throws JsonException
      */

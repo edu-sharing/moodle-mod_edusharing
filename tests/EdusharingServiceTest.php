@@ -36,6 +36,7 @@ use testUtils\FakeConfig;
  * Class EdusharingServiceTest
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class EdusharingServiceTest extends advanced_testcase {
     /**

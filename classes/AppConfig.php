@@ -26,9 +26,12 @@ use dml_exception;
  * Defines interaction with plugin config data.
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 interface AppConfig {
     /**
+     * Function set
+     *
      * @param string $name
      * @param mixed $value
      * @return void
@@ -36,6 +39,8 @@ interface AppConfig {
     public function set(string $name, mixed $value): void;
 
     /**
+     * Function get
+     *
      * @param string $name
      * @return string
      * @throws dml_exception

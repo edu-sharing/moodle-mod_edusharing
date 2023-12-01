@@ -33,6 +33,7 @@ use stdClass;
  * Service class for the endpoint 'mod_edusharing_add_instance'.
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
  */
 class AddInstance extends external_api {
     /**
