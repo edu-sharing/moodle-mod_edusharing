@@ -116,7 +116,7 @@ class UtilityFunctions {
         string $displaymode = Constants::EDUSHARING_DISPLAY_MODE_DISPLAY
     ): string {
         global $USER;
-        $url = $this->get_config_entry('application_cc_gui_url');
+        $url = rtrim($this->get_config_entry('application_cc_gui_url'), '/');
         $url .= '/renderingproxy';
         $url .= '?app_id=' . urlencode($this->get_config_entry('application_appid'));
         $url .= '&session=' . urlencode(session_id());

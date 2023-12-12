@@ -467,10 +467,21 @@ class EduSharingService {
      * @throws coding_exception
      * @throws moodle_exception
      * @throws require_login_exception
+     * @throws Exception
      */
     public function require_edu_login(?int $courseid = null, bool $checkticket = true, bool $checksessionkey = true): void {
         require_login($courseid);
         $checksessionkey && require_sesskey();
         $checkticket && $this->get_ticket();
+    }
+
+    /**
+     * Function get_preview_image
+     *
+     * @param Usage $usage
+     * @return CurlResult
+     */
+    public function get_preview_image(Usage $usage): CurlResult {
+        return $this->nodehelper->getPreview($usage);
     }
 }

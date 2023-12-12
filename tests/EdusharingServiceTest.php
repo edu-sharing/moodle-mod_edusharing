@@ -101,8 +101,11 @@ class EdusharingServiceTest extends advanced_testcase {
     public function test_if_get_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists(): void {
         global $USER;
         unset($USER->edusharing_userticket);
-        $basehelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $authmock   = $this->getMockBuilder(EduSharingAuthHelper::class)
+        $USER->firstname = 'Max';
+        $USER->lastname  = 'Mustermann';
+        $USER->email     = 'max@mustermann.de';
+        $basehelper      = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authmock        = $this->getMockBuilder(EduSharingAuthHelper::class)
             ->setConstructorArgs([$basehelper])
             ->onlyMethods(['getTicketForUser', 'getTicketAuthenticationInfo'])
             ->getMock();
@@ -133,6 +136,9 @@ class EdusharingServiceTest extends advanced_testcase {
         global $USER;
         $USER->edusharing_userticket             = 'testTicket';
         $USER->edusharing_userticketvalidationts = 1689769393;
+        $USER->firstname                         = 'Max';
+        $USER->lastname                          = 'Mustermann';
+        $USER->email                             = 'max@mustermann.de';
         $basehelper                              = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $authmock                                = $this->getMockBuilder(EduSharingAuthHelper::class)
             ->setConstructorArgs([$basehelper])

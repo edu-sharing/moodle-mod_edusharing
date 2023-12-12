@@ -26,6 +26,9 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\PluginRegistration;
 
+global $CFG;
+require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+
 /**
  * class PluginRegistrationTest
  *

@@ -136,8 +136,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
                     0 => get_string('pagewindow', Constants::EDUSHARING_MODULE_NAME),
                     1 => get_string('newwindow', Constants::EDUSHARING_MODULE_NAME),
                 ];
-            $this->_form->addElement('select', 'popup_window',
-                get_string('display', Constants::EDUSHARING_MODULE_NAME), $windowoptions);
+            $this->_form->addElement('select', 'popup_window', get_string('display', Constants::EDUSHARING_MODULE_NAME), $windowoptions);
             $this->_form->setDefault('popup_window', !empty($CFG->resource_popup));
             // Add standard elements, common to all modules.
             $this->standard_coursemodule_elements();

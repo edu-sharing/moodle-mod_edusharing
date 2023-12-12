@@ -101,7 +101,7 @@ class UpdateInstance extends external_api {
             $isupdateneeded    = true;
         }
         if (isset($edustructure['objectUrl']) && $edustructure['objectUrl'] !== $eduinstance->object_url) {
-            $eduinstance->object_urk = $edustructure['objectUrl'];
+            $eduinstance->object_url = $edustructure['objectUrl'];
             $isupdateneeded          = true;
         }
         if (isset($edustructure['objectVersion']) && $edustructure['objectVersion'] !== $eduinstance->object_version) {

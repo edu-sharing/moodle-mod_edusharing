@@ -23,8 +23,6 @@
  * @todo Implement as moustache template
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\MetaDataFrontend;
@@ -57,7 +55,6 @@ if (!is_siteadmin()) {
 if (isset($_POST['repoReg'])) {
     if (!empty($_POST['appId'])) {
         set_config('application_appid', $_POST['appId'], 'edusharing');
-        debugging('appid set: ' . $_POST['appId']);
     }
     if (!empty($_POST['host_aliases'])) {
         set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');

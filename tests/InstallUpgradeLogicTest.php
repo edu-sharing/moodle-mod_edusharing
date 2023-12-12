@@ -67,6 +67,8 @@ class InstallUpgradeLogicTest extends advanced_testcase {
      * @throws dml_exception
      */
     public function test_perform_returns_void_if_all_goes_well(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
         $basehelper        = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $authhelper        = new EduSharingAuthHelper($basehelper);
         $nodeconfig        = new EduSharingNodeHelperConfig(new UrlHandling(true));
