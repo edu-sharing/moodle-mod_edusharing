@@ -22,6 +22,7 @@ use coding_exception;
 use dml_exception;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
+use EduSharingApiClient\DisplayMode;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
