@@ -94,7 +94,7 @@ class UpdateInstance extends external_api {
             'id'     => $edustructure['id'],
             'course' => $edustructure['courseId'],
         ];
-        $eduinstance    = $DB->get_record(Constants::EDUSHARING_TABLE, $where, MUST_EXIST);
+        $eduinstance    = $DB->get_record(Constants::EDUSHARING_TABLE, $where, '*', MUST_EXIST);
         $isupdateneeded = false;
         if (isset($edustructure['name']) && $edustructure['name'] !== $eduinstance->name) {
             $eduinstance->name = $edustructure['name'];

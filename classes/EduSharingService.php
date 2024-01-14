@@ -90,6 +90,7 @@ class EduSharingService {
      * @throws Exception
      */
     private function init(): void {
+        global $CFG;
         $this->utils === null && $this->utils = new UtilityFunctions();
         if ($this->authhelper === null || $this->nodehelper === null) {
             $internalurl = $this->utils->get_internal_url();
@@ -101,7 +102,7 @@ class EduSharingService {
             $basehelper->registerCurlHandler(new MoodleCurlHandler());
             $this->authhelper === null && $this->authhelper = new EduSharingAuthHelper($basehelper);
             if ($this->nodehelper === null) {
-                $nodeconfig       = new EduSharingNodeHelperConfig(new UrlHandling(true));
+                $nodeconfig       = new EduSharingNodeHelperConfig(new UrlHandling(true, $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey()));
                 $this->nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
             }
         }
@@ -159,21 +160,31 @@ class EduSharingService {
     /**
      * Function get_node
      *
-     * @param object $postdata
+     * @param Usage $usage
+     * @param array|null $renderingParams
+     * @param string|null $userid
      * @return array
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      */
-    public function get_node($postdata): array {
-        $usage = new Usage(
-            $postdata->nodeId,
-            $postdata->nodeVersion,
-            $postdata->containerId,
-            $postdata->resourceId,
-            $postdata->usageId
-        );
-        return $this->nodehelper->getNodeByUsage($usage);
+    public function get_node(Usage $usage, ?array $renderingParams = null, ?string $userid = null): array {
+        return $this->nodehelper->getNodeByUsage($usage, DisplayMode::INLINE, $renderingParams, $userid);
+    }
+
+    /**
+     * Function get_redirect_url
+     *
+     * @param Usage $usage
+     * @param string|null $userid
+     * @param string $mode
+     * @return string
+     * @throws JsonException
+     * @throws NodeDeletedException
+     * @throws UsageDeletedException
+     */
+    public function get_redirect_url(Usage $usage, ?string $userid = null, string $mode = 'content'): string {
+        return $this->nodehelper->getRedirectUrl($mode, $usage, $userid);
     }
 
     /**

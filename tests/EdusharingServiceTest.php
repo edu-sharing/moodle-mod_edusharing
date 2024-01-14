@@ -283,23 +283,12 @@ class EdusharingServiceTest extends advanced_testcase {
      * @throws dml_exception
      */
     public function test_if_get_node_calls_node_helper_method_with_proper_params(): void {
-        $usageobject              = new stdClass();
-        $usageobject->nodeId      = 'nodeIdTest';
-        $usageobject->usageId     = 'usageIdTest';
-        $usageobject->nodeVersion = 'nodeVersionTest';
-        $usageobject->containerId = 'containerIdTest';
-        $usageobject->resourceId  = 'resourceIdTest';
-        $usage                    = new Usage(
-            $usageobject->nodeId,
-            $usageobject->nodeVersion,
-            $usageobject->containerId,
-            $usageobject->resourceId,
-            $usageobject->usageId
-        );
-        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
-        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
-        $authhelper               = new EduSharingAuthHelper($basehelper);
-        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+        $usage          = new Usage('nodeIdTest', 'nodeVersionTest',
+            'containerIdTest', 'resourceIdTest', 'usageIdTest');
+        $basehelper     = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig     = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper     = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock = $this->getMockBuilder(EduSharingNodeHelper::class)
             ->onlyMethods(['getNodeByUsage'])
             ->setConstructorArgs([$basehelper, $nodeconfig])
             ->getMock();
@@ -307,7 +296,7 @@ class EdusharingServiceTest extends advanced_testcase {
             ->method('getNodeByUsage')
             ->with($usage);
         $service = new EduSharingService($authhelper, $nodehelpermock);
-        $service->get_node($usageobject);
+        $service->get_node($usage);
     }
 
     /**
