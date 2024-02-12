@@ -175,7 +175,7 @@ class UtilityFunctions {
         if (isset($USER->profile[$eduauthkey])) {
             return $USER->profile[$eduauthkey];
         }
-        return $USER->username;
+        return $USER->username . $this->get_config_entry('auth_suffix');
     }
 
     /**

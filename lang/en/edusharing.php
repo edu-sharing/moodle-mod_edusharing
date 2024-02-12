@@ -142,7 +142,8 @@ $string['convey_global_groups_yes'] = 'Convey cohorts';
 $string['convey_global_groups_no'] = 'Do not convey cohorts';
 $string['send_additional_auth'] = 'Send additional auth information';
 $string['send_additional_auth_help'] = 'If checked, the app authentication request will include the first and last name as well as email address.';
-
+$string['auth_suffix'] = 'Authentication suffix';
+$string['auth_suffix_help'] = 'If configured, this suffix will be added to the submitted auth string';
 
 $string['soaprequired'] = 'The PHP extension soap must be activated.';
 

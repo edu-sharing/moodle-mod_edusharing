@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.6] - 2024-02-04
+
+### Fixed
+
+- Javascript logic bug which led to error when embedding objects with missing version property 
+
+## [8.0.5] - 2024-02-01
+
+### Fixed
+
+- Javascript syntax error in activity embedding form logic
+
+## [8.0.4] - 2024-01-29
+
+### Added
+
+- New config entry for authentication suffix to be added to submitted authentication parameter
+
+### Fixed
+
+- When adding a node with an empty version array as an activity, the UI-elements in the form are now properly filled and no JS error occurs
+
 ## [8.0.3] - 2024-01-14
 
 ### Added 

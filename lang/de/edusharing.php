@@ -143,6 +143,10 @@ $string['convey_global_groups_yes'] = 'Globale Gruppen übermitteln';
 $string['convey_global_groups_no'] = 'Globale Gruppen nicht übermitteln';
 $string['send_additional_auth'] = 'Übermittlung zusätzlicher Authentifizierungsinfos';
 $string['send_additional_auth_help'] = 'Ist diese Option aktiviert, werden bei der app auth Anfrage Vor- und Nachname sowie E-Mail-Addresse übermittelt.';
+$string['auth_suffix'] = 'Authentifizierungssuffix';
+$string['auth_suffix_help'] = 'Dieses Suffix wird an den übermittelten Authentifzierungsstring angehängt';
+
+
 
 $string['soaprequired'] = 'Die PHP-Erweiterung soap muss aktiviert sein.';
 

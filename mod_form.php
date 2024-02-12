@@ -82,18 +82,21 @@ class mod_edusharing_mod_form extends moodleform_mod {
                                 window.addEventListener('message', function handleRepo(event) {
                                     if (event.data.event == 'APPLY_NODE') {
                                         const node = event.data.data;
+                                        window.console.log(node);
                                         window.win.close();
                                         window.document.getElementById('id_object_url').value = node.objectUrl;
                                         let title = node.title;
                                         if(!title){
                                             title = node.properties['cm:name'];
                                         }
-                                        let version = node.properties['cclom:version'][0];
-                                        if (version) {
+                                        let version = -1;
+                                        let versionArray = node.properties['cclom:version'];
+                                        if (versionArray !== undefined) {
+                                            version = node.properties['cclom:version'][0];
                                             window.document.getElementById('id_object_version_1').value = version;
                                         }
                                         let aspects = node.aspects;
-                                        if (aspects.includes('ccm:published') || aspects.includes('ccm:collection_io_reference')) {
+                                        if (aspects.includes('ccm:published') || aspects.includes('ccm:collection_io_reference') || version === -1) {
                                             window.document.getElementById('id_object_version_0').checked = true;
                                             window.document.getElementById('id_object_version_1').closest('label').hidden = true;
                                         }
