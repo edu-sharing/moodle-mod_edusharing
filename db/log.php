@@ -33,12 +33,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $DB; // TODO: this is a hack, we should really do something with the SQL in SQL tables
+global $DB;
 
-$logs = array(
-    array('module' => 'edusharing', 'action' => 'add', 'mtable' => 'edusharing', 'field' => 'name'),
-    array('module' => 'edusharing', 'action' => 'update', 'mtable' => 'edusharing', 'field' => 'name'),
-    array('module' => 'edusharing', 'action' => 'view', 'mtable' => 'edusharing', 'field' => 'name'),
-    array('module' => 'edusharing', 'action' => 'view all', 'mtable' => 'edusharing', 'field' => 'name'),
-
-);
+$logs = [
+    ['module' => 'edusharing', 'action' => 'add', 'mtable' => 'edusharing', 'field' => 'name'],
+    ['module' => 'edusharing', 'action' => 'update', 'mtable' => 'edusharing', 'field' => 'name'],
+    ['module' => 'edusharing', 'action' => 'view', 'mtable' => 'edusharing', 'field' => 'name'],
+    ['module' => 'edusharing', 'action' => 'view all', 'mtable' => 'edusharing', 'field' => 'name'],
+];

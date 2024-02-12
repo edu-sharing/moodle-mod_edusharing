@@ -20,7 +20,7 @@
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
  * function in this file will attempt to perform all the necessary actions to
- * upgrade your older installtion to the current version. If there's something
+ * upgrade your older installation to the current version. If there's something
  * it cannot do itself, it will tell you what you need to do.  The commands in
  * here will all be database-neutral, using the functions defined in
  * lib/ddllib.php
@@ -30,7 +30,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use mod_edusharing\EduSharingService;
+use mod_edusharing\InstallUpgradeLogic;
+use mod_edusharing\MetadataLogic;
+use mod_edusharing\PluginRegistration;
+use mod_edusharing\UtilityFunctions;
 
 /**
  * xmldb_edusharing_upgrade
@@ -38,41 +42,34 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $oldversion
  * @return bool
  */
-function xmldb_edusharing_upgrade($oldversion=0) {
-
-    global $CFG, $THEME, $DB;
-
-    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
-
-    $result = true;
-
-    if ($result && $oldversion < 2016011401) {
-
-        // usage2
+function xmldb_edusharing_upgrade($oldversion=0): bool {
+    global $CFG, $DB;
+    $dbmanager = $DB->get_manager();
+    $result    = true;
+    if ($oldversion < 2016011401) {
+        // Usage2.
         try {
             $xmldbtable = new xmldb_table('edusharing');
-            $sql = 'UPDATE {edusharing} SET object_version = 0 WHERE window_versionshow = 1';
+            $sql        = 'UPDATE {edusharing} SET object_version = 0 WHERE window_versionshow = 1';
             $DB->execute($sql);
             $sql = 'UPDATE {edusharing} SET object_version = window_version WHERE window_versionshow = 0';
             $DB->execute($sql);
             $xmldbfield = new xmldb_field('window_versionshow');
-            $dbman->drop_field($xmldbtable, $xmldbfield);
+            $dbmanager->drop_field($xmldbtable, $xmldbfield);
             $xmldbfield = new xmldb_field('window_version');
-            $dbman->drop_field($xmldbtable, $xmldbfield);
+            $dbmanager->drop_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-
         $homeconf = dirname(__FILE__).'/../conf/esmain/homeApplication.properties.xml';
         if (file_exists($homeconf)) {
             $app = new DOMDocument();
             $app->load($homeconf);
             $app->preserveWhiteSpace = false;
-            $entrys = $app->getElementsByTagName('entry');
-            foreach ($entrys as $entry) {
+            $entries = $app->getElementsByTagName('entry');
+            foreach ($entries as $entry) {
                 $homeappproperties[$entry->getAttribute('key')] = $entry->nodeValue;
             }
-
             $homeappproperties['blowfishkey'] = 'thetestkey';
             $homeappproperties['blowfishiv'] = 'initvect';
 
@@ -90,12 +87,22 @@ function xmldb_edusharing_upgrade($oldversion=0) {
                 $repoproperties[$entry->getAttribute('key')] = $entry->nodeValue;
             }
 
-            $repoproperties['authenticationwebservice'] = str_replace('authentication', 'authbyapp', $repoproperties['authenticationwebservice']);
-            $repoproperties['authenticationwebservice_wsdl'] = str_replace('authentication', 'authbyapp', $repoproperties['authenticationwebservice_wsdl']);
+            $repoproperties['authenticationwebservice'] = str_replace(
+                'authentication',
+                'authbyapp',
+                $repoproperties['authenticationwebservice']
+            );
+            $repoproperties['authenticationwebservice_wsdl'] = str_replace('authentication',
+                'authbyapp',
+                $repoproperties['authenticationwebservice_wsdl']
+            );
             if (mb_substr($repoproperties['usagewebservice'], -1) != '2') {
                 $repoproperties['usagewebservice'] = $repoproperties['usagewebservice'] . '2';
             }
-            $repoproperties['usagewebservice_wsdl'] = str_replace('usage?wsdl', 'usage2?wsdl', $repoproperties['usagewebservice_wsdl']);
+            $repoproperties['usagewebservice_wsdl'] = str_replace('usage?wsdl',
+                'usage2?wsdl',
+                $repoproperties['usagewebservice_wsdl']
+            );
             $repoproperties['contenturl'] = $repoproperties['clientprotocol'] . '://' . $repoproperties['domain'] . ':' .
                                             $repoproperties['clientport'] . '/edu-sharing/renderingproxy';
 
@@ -151,7 +158,7 @@ function xmldb_edusharing_upgrade($oldversion=0) {
                 null,
                 'name'
             );
-            $dbman->add_field($xmldbtable, $xmldbfield);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -172,15 +179,13 @@ function xmldb_edusharing_upgrade($oldversion=0) {
                 null,
                 'module_id'
             );
-            $dbman->add_field($xmldbtable, $xmldbfield);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
 
     }
-
     if ($result && $oldversion < 2022042501) {
-
         try {
             $xmldbtable = new xmldb_table('edusharing');
             $xmldbfield = new xmldb_field(
@@ -193,40 +198,33 @@ function xmldb_edusharing_upgrade($oldversion=0) {
                 null,
                 'section_id'
             );
-            $dbman->add_field($xmldbtable, $xmldbfield);
+            $dbmanager->add_field($xmldbtable, $xmldbfield);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-
     }
-
-
-    if (file_exists(dirname(__FILE__).'/install_config.php')) {
-        require_once dirname(__FILE__). '/install_config.php';
-        $metadataurl = REPO_URL.'/metadata?format=lms&external=true';
-        $repo_admin = REPO_ADMIN;
-        $repo_pw = REPO_PW;
-        $appID = null;
-
-        if (AUTO_APPID_FROM_URL == 'true'){
-            $appID = basename($CFG->wwwroot);
-        }
-
-        if (edusharing_import_metadata($metadataurl, $appID, MOODLE_HOST_ALIASES)){
-            error_log('Successfully imported metadata from '.$metadataurl);
-            $repo_url = get_config('edusharing', 'application_cc_gui_url');
-            $data = createXmlMetadata();
-            $answer = json_decode(registerPlugin($repo_url, $repo_admin, $repo_pw, $data), true);
-            if (isset($answer['appid'])){
-                error_log('Successfully registered the edusharing-moodle-plugin at: '.$repo_url);
-            }else{
-                error_log('INSTALL ERROR: Could not register the edusharing-moodle-plugin at: '.$repo_url.' because: '.$answer['message']);
-            }
-        }else{
-            error_log('INSTALL ERROR: Could not import metadata from '.$metadataurl);
-        }
-        unlink(dirname(__FILE__).'/install_config.php');
+    if ($oldversion < 2023100100) {
+        unset_config('repository_restApi', 'edusharing');
     }
-
+    $logic = new InstallUpgradeLogic();
+    try {
+        $logic->parse_config_data();
+    } catch (Exception $exception) {
+        debugging($exception->getMessage());
+        return $result;
+    }
+    $utils = new UtilityFunctions();
+    $appid = $logic->discern_app_id();
+    $utils->set_config_entry('application_appid', $appid);
+    if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
+        return $result;
+    }
+    $service       = new EduSharingService();
+    $metadatalogic = new MetadataLogic($service);
+    $metadatalogic->set_app_id($appid);
+    $registrationlogic = new PluginRegistration($service);
+    $logic->set_registration_logic($registrationlogic);
+    $logic->set_metadata_logic($metadatalogic);
+    $logic->perform(false);
     return $result;
 }

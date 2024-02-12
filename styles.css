@@ -1,7 +1,11 @@
-#fitem_id_edu_url{
+#fitem_id_edu_url {
     display: none;
 }
 
-#fitem_id_object_url{
+#fitem_id_object_url {
+    display: none;
+}
+
+#fitem_id_edu_edit_mode {
     display: none;
 }

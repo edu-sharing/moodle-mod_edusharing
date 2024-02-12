@@ -21,16 +21,31 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(__FILE__) . '/../../config.php');
-require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
 
-if (empty(get_config('edusharing', 'application_public_key'))) {
-    require_once(dirname(__FILE__) . '/AppPropertyHelper.php');
-    $modedusharingapppropertyhelper = new mod_edusharing_app_property_helper();
-    $modedusharingapppropertyhelper->edusharing_add_ssl_keypair_to_home_config();
+use EduSharingApiClient\EduSharingHelper;
+use mod_edusharing\EduSharingService;
+use mod_edusharing\MetadataLogic;
+
+require_once(dirname(__FILE__) . '/../../config.php');
+
+try {
+    $publickey = get_config('edusharing', 'application_public_key');
+} catch (Exception $exception) {
+    $publickey = '';
+    unset($exception);
 }
 
-$metadata = createXmlMetadata();
+if (empty($publickey)) {
+    try {
+        $keypair = EduSharingHelper::generateKeyPair();
+        set_config('application_public_key', $keypair['publicKey'], 'edusharing');
+        set_config('application_private_key', $keypair['privateKey'], 'edusharing');
+    } catch (Exception $exception) {
+        debugging($exception->getMessage());
+    }
+}
+$logic    = new MetadataLogic(new EduSharingService());
+$metadata = $logic->create_xml_metadata();
 
 header('Content-type: text/xml');
 print($metadata);

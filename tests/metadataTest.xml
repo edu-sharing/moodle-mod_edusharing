@@ -1,0 +1,20 @@
+<properties>
+    <comment>
+        myComment
+    </comment>
+    <entry key="clientprotocol">http</entry>
+    <entry key="authenticationwebservice">http://test.de/edu-sharing/services/authbyapp</entry>
+    <entry key="usagewebservice">http://test.de/edu-sharing/services/usage2</entry>
+    <entry key="public_key">publicKeyTest</entry>
+    <entry key="contenturl">http://test.de/esrender/application/esmain/index.php</entry>
+    <entry key="appcaption">local</entry>
+    <entry key="clientport">8100</entry>
+    <entry key="port">8080</entry>
+    <entry key="domain">test.de</entry>
+    <entry key="authenticationwebservice_wsdl">http://test.de/edu-sharing/services/authbyapp?wsdl</entry>
+    <entry key="type">REPOSITORY</entry>
+    <entry key="appid">enterprise-docker-maven-fixes-8-0</entry>
+    <entry key="usagewebservice_wsdl">http:/test.de/edu-sharing/services/usage2?wsdl</entry>
+    <entry key="protocol">http</entry>
+    <entry key="host">repository-service</entry>
+</properties>

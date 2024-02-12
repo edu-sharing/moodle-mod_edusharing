@@ -1,124 +1,197 @@
 <?php
-defined('MOODLE_INTERNAL') || die();
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+declare(strict_types=1);
+
+use mod_edusharing\EduSharingService;
+use mod_edusharing\RestoreHelper;
+use mod_edusharing\UtilityFunctions;
+
+/**
+ * Class mod_edusharing_observer
+ *
+ * callback definitions for events.
+ * @package mod_edusharing
+ */
 class mod_edusharing_observer {
-
-    /*
-     * delete edu-sharing record and usage contained in deleted module
+    /**
+     * Function courseModuleDeleted
      *
-     * */
+     * @param \core\event\course_module_deleted $event
+     * @return void
+     */
     public static function course_module_deleted(\core\event\course_module_deleted $event) {
         global $DB;
-        $data = $event->get_data();
+        $data     = $event->get_data();
         $objectid = $data['objectid'];
-        //delete es-activities in course-modules
-        $eduObjects = $DB -> get_records('edusharing', array('module_id' => $objectid));
-        foreach($eduObjects as $object) {
-            edusharing_delete_instance($object['id']);
+        // Delete es-activities in course-modules.
+        try {
+            $eduobjects = $DB->get_records('edusharing', ['module_id' => $objectid]);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-        //delete es-activities in course-sections
-        $eduObjects = $DB -> get_records('edusharing', array('section_id' => $objectid));
-        foreach($eduObjects as $object) {
-            edusharing_delete_instance($object['id']);
+        $service = new EduSharingService();
+        foreach ($eduobjects as $object) {
+            try {
+                $service->delete_instance($object['id']);
+            } catch (Exception $exception) {
+                debugging($exception->getMessage());
+            }
+        }
+        // Delete es-activities in course-sections.
+        try {
+            $eduobjects = $DB->get_records('edusharing', ['section_id' => $objectid]);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
+        }
+        foreach ($eduobjects as $object) {
+            try {
+                $service->delete_instance($object['id']);
+            } catch (Exception $exception) {
+                debugging($exception->getMessage());
+            }
         }
     }
 
+    /**
+     * Function course_module_created
+     * @param \core\event\course_module_created $event
+     */
     public static function course_module_created(\core\event\course_module_created $event) {
         global $DB;
         $data = $event->get_data();
-        $module = $DB->get_record($data['other']['modulename'],array('id' =>$data['other']['instanceid']));
-        $text = $module->intro;
-        $id_type = 'module_id';
-
-        if(!set_module_id_in_db($text, $data, $id_type)){
-            error_log('course_module_created: could not set module_id');
+        try {
+            $module = $DB->get_record($data['other']['modulename'], ['id' => $data['other']['instanceid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-        //error_log('course_module_created: '.$module->intro);
+        $text   = $module->intro;
+        $idtype = 'module_id';
+        $utils  = new UtilityFunctions();
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
+    /**
+     * Function courseModuleCreatedOrUpdated
+     *
+     * @param \core\event\course_module_updated $event
+     * @return void
+     */
     public static function course_module_updated(\core\event\course_module_updated $event) {
         global $DB;
         $data = $event->get_data();
-        $module = $DB->get_record($data['other']['modulename'],array('id' =>$data['other']['instanceid']));
-        $text = $module->intro;
-        $id_type = 'module_id';
-
-        if(!set_module_id_in_db($text, $data, $id_type)){
-            error_log('course_module_updated: could not set module_id');
+        try {
+            $module = $DB->get_record($data['other']['modulename'], ['id' => $data['other']['instanceid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-        //error_log('course_module_updated: '.$module->intro);
+        $text   = $module->intro;
+        $idtype = 'module_id';
+        $utils  = new UtilityFunctions();
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
+    /**
+     * Function courseSectionUpdatedOrCreated
+     *
+     * @param \core\event\course_section_created $event
+     * @return void
+     */
     public static function course_section_created(\core\event\course_section_created $event) {
         global $DB;
         $data = $event->get_data();
-        $module = $DB->get_record('course_sections',array('id' =>$data['objectid']));
-        $text = $module->summary;
-        $id_type = 'section_id';
-
-        if(!set_module_id_in_db($text, $data, $id_type)){
-            error_log('course_section_created: could not set module_id');
+        try {
+            $module = $DB->get_record('course_sections', ['id' => $data['objectid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-        //error_log('course_section_created: '.$module->summary);
+        $text = $module->summary;
+        if ($text === null) {
+            return;
+        }
+        $idtype = 'section_id';
+        $utils  = new UtilityFunctions();
+        $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
+    /**
+     * Function courseSectionUpdatedOrCreated
+     *
+     * @param \core\event\course_section_updated $event
+     * @return void
+     */
     public static function course_section_updated(\core\event\course_section_updated $event) {
         global $DB;
         $data = $event->get_data();
-        $module = $DB->get_record('course_sections',array('id' =>$data['objectid']));
-        $text = $module->summary;
-        $id_type = 'section_id';
-
-        if(!set_module_id_in_db($text, $data, $id_type)){
-            error_log('course_section_updated: could not set module_id');
+        try {
+            $module = $DB->get_record('course_sections', ['id' => $data['objectid']], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-        //error_log('course_section_updated: '.$module->summary);
+        $text   = $module->summary;
+        $idtype = 'section_id';
+        $utils  = new UtilityFunctions();
+        $utils->set_module_id_in_db($text, $data, $idtype);;
     }
 
 
-    /*
-     * delete edu-sharing record and usage contained in deleted course (wysiwyg)
+    /**
+     * Function courseDeleted
      *
-     * triggered immediately on deletion
-     *
-     * */
+     * @param \core\event\course_deleted $event
+     */
     public static function course_deleted(\core\event\course_deleted $event) {
         global $DB;
-        $data = $event->get_data();
+        $data     = $event->get_data();
         $objectid = $data['objectid'];
-        $eduObjects = $DB -> get_records('edusharing', array('course' => $objectid));
-        foreach($eduObjects as $object) {
-            edusharing_delete_instance($object['id']);
+        try {
+            $eduobjects = $DB->get_records('edusharing', ['course' => $objectid], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
-    }
-
-
-    public static function course_restored(\core\event\course_restored $event) {
-        $eventData = $event->get_data();
-        $courseId = $eventData['courseid'];
-        mod_edusharing_restorehelper::edusharing_convert_inline_objects($courseId);
-    }
-}
-
-function set_module_id_in_db($text, $data, $id_type)
-{
-    global $DB;
-    preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $text, $matchesimg_atto,
-        PREG_PATTERN_ORDER);
-    preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $text, $matchesa_atto,
-        PREG_PATTERN_ORDER);
-    $matches_atto = array_merge($matchesimg_atto[0], $matchesa_atto[0]);
-
-    if (!empty($matches_atto)) {
-        foreach ($matches_atto as $match) {
-            $resourceId = '';
-            if (($pos = strpos($match, "resourceId=")) !== FALSE) {
-                $resourceId = substr($match, $pos + 11);
-                $resourceId = substr($resourceId, 0, strpos($resourceId, "&"));
+        $service = new EduSharingService();
+        foreach ($eduobjects as $object) {
+            try {
+                $service->delete_instance($object['id']);
+            } catch (Exception $exception) {
+                debugging($exception->getMessage());
             }
-            $DB->set_field('edusharing', $id_type, $data['objectid'], array('id' => $resourceId));
         }
     }
-    return true;
-}
 
+    /**
+     * Function courseRestored
+     *
+     * @param \core\event\course_restored $event
+     */
+    public static function course_restored(\core\event\course_restored $event) {
+        $eventdata = $event->get_data();
+        $courseid  = $eventdata['courseid'];
+        try {
+            $helper = new RestoreHelper(new EduSharingService());
+            $helper->convert_inline_options($courseid);
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+        }
+    }
+}

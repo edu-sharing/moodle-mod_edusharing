@@ -20,146 +20,87 @@
  * @package mod_edusharing
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @todo Implement as moustache template
  */
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot.'/mod/edusharing/locallib.php');
-?>
-<html>
+
+use mod_edusharing\EduSharingService;
+use mod_edusharing\EduSharingUserException;
+use mod_edusharing\MetaDataFrontend;
+use mod_edusharing\MetadataLogic;
+use mod_edusharing\PluginRegistrationFrontend;
+use mod_edusharing\UtilityFunctions;
+
+global $CFG;
+
+require_once(dirname(__FILE__, 3) . '/config.php');
+require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+
+echo '<html>
 <head>
     <title>edu-sharing metadata import</title>
     <link rel="stylesheet" href="import_metadata_style.css" />
 </head>
 <body>
-
 <div class="h5p-header">
     <h1>Import metadata from an edu-sharing repository</h1>
 </div>
-
-<div class="wrap">
-
-<?php
-
+<div class="wrap">';
 if (!is_siteadmin()) {
     echo '<h3>Access denied!</h3>';
     echo '<p>Please login with your admin account in moodle.</p>';
     exit();
 }
 
-if(isset($_POST['repoReg'])){
-    if (!empty($_POST['appId'])){
+
+if (isset($_POST['repoReg'])) {
+    if (!empty($_POST['appId'])) {
         set_config('application_appid', $_POST['appId'], 'edusharing');
-        error_log('appid set: '.$_POST['appId']);
     }
-    if (!empty($_POST['host_aliases'])){
+    if (!empty($_POST['host_aliases'])) {
         set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
     }
-    callRepo($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
+    echo PluginRegistrationFrontend::register_plugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
     exit();
 }
 
 $filename = '';
+try {
+    $metadataurl = optional_param('mdataurl', '', PARAM_NOTAGS);
+} catch (Exception $exception) {
+    // This exception is stupid.
+    unset($exception);
+}
 
-$metadataurl = optional_param('mdataurl', '', PARAM_NOTAGS);
 if (!empty($metadataurl)) {
-    edusharing_import_metadata($metadataurl);
-    echo getRepoForm();
+    try {
+        $utils = new UtilityFunctions();
+        $appid = $utils->get_config_entry('application_appid');
+        if (empty($appid)) {
+            $utils->set_config_entry('application_appid', uniqid('moodle_'));
+        }
+        $service = new MetadataLogic(new EduSharingService());
+        $service->import_metadata($metadataurl);
+        echo '<h3 class="edu_success">Import successful.</h3>';
+    } catch (EduSharingUserException $edusharinguserexception) {
+        echo $edusharinguserexception->get_html_message();
+    } catch (Exception $exception) {
+        echo '<p style="background: #FF8170">Unexpected error - please try again later<br></p>';
+    }
+    if ($service->reloadform) {
+        echo MetaDataFrontend::get_meta_data_form();
+    }
+    $repoform = MetaDataFrontend::get_repo_form();
+    if ($repoform !== null) {
+        echo $repoform;
+    }
     exit();
 }
 
-echo get_form();
-echo getRepoForm();
+echo MetaDataFrontend::get_meta_data_form();
+$repoform = MetaDataFrontend::get_repo_form();
+if ($repoform !== null) {
+    echo $repoform;
+}
 
 echo '</div></body></html>';
 exit();
-
-
-function callRepo($repoUrl, $user, $pwd){
-
-    $data = createXmlMetadata();
-
-    $answer = json_decode(registerPlugin($repoUrl, $user, $pwd, $data), true);
-    if ( isset($answer['appid']) ){
-        echo('<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '.$repoUrl.'</h3>');
-    }else{
-        echo('<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: '.$repoUrl.'</h3>');
-        if ( isset($answer['message']) ){
-            echo '<p class="edu_error">'.$answer['message'].'</p>';
-        }
-        echo '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
-        echo '
-            <p class="edu_metadata"> To register the Moodle-PlugIn manually got to the 
-            <a href="'.$repoUrl.'" target="_blank">Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
-            Only the system administrator may use this tool.<br>
-            Enter the URL of the Moodle you want to connect. The URL should look like this:  
-            „[Moodle-install-directory]/mod/edusharing/metadata.php".<br>
-            Click on "CONNECT" to register the LMS. You will be notified with a feedback message and your LMS instance 
-            will appear as an entry in the list of registered applications.<br>
-            If the automatic registration failed due to a connection issue caused by a proxy-server, you also need to 
-            add the proxy-server IP-address as a "host_aliases"-attribute.
-            </p>
-        ';
-    }
-}
-
-function getRepoForm(){
-    $repo_url = get_config('edusharing', 'application_cc_gui_url');
-    $appId = get_config('edusharing', 'application_appid');
-    $host_aliases = get_config('edusharing', 'application_host_aliases');
-    if (!empty($repo_url)){
-        return '
-            <form class="repo-reg" action="import_metadata.php" method="post">
-                <h3>Try to register the edu-sharing moodle-plugin with a repository:</h3>
-                <p>If your moodle is behind a proxy-server, this might not work and you have to register the plugin manually.</p>
-                <div class="edu_metadata">
-                    <div class="repo_input">
-                        <p class="repo_input_name">Repo-URL:</p><input type="text" value="'.$repo_url.'" name="repoUrl" />
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
-                        <p class="repo_input_name">Repo-Admin-Password:</p><input class="short_input" type="password" name="repoPwd">
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Change Moodle-AppID:</p><input type="text" value="'.$appId.'" name="appId" />
-                        <p>(optional)</p>
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Add Host-Alias:</p><input type="text" value="'.$host_aliases.'" name="host_aliases" />
-                        <p>(optional)</p>
-                    </div>
-                    <input class="btn" type="submit" value="Register Repo" name="repoReg">
-                </div>            
-            </form>
-         ';
-    }else{
-        return false;
-    }
-}
-
-/**
- * Form for importing repository properties
- * @param string $url The url to retrieve repository metadata
- * @return string
- *
- */
-function get_form() {
-    global $CFG;
-    return '
-        <form action="import_metadata.php" method="post" name="mdform">
-            <h3>Enter your metadata endpoint here:</h3>
-            <p>Hint: Just click on the example to copy it into the input-field.</p>
-            <div class="edu_metadata">                
-                <div class="edu_endpoint">
-                    <p>Metadata-Endpoint:</p>
-                    <input type="text" id="metadata" name="mdataurl" value="">
-                    <input class="btn" type="submit" value="Import">
-                </div>
-                <div class="edu_example">
-                    <p>(Example: <a href="javascript:void();"
-                                   onclick="document.forms[0].mdataurl.value=\'http://your-server-name/edu-sharing/metadata?format=lms&external=true\'">
-                                   http://your-server-name/edu-sharing/metadata?format=lms&external=true</a>)
-                   </p>
-                </div>
-            </div>
-        </form>
-        <p>To export the edu-sharing plugin metadata use the following url: <span class="edu_export">' . $CFG->wwwroot . '/mod/edusharing/metadata.php</span></p>';
-}

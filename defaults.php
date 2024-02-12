@@ -22,8 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$defaults = array(
+defined('MOODLE_INTERNAL') || die();
+
+$defaults = [
     '_use_config_plugins'  => true,
     'nodeName'  => '',
-);
+];
 
