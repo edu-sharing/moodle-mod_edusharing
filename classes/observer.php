@@ -82,6 +82,9 @@ class mod_edusharing_observer {
             return;
         }
         $text   = $module->intro;
+        if ($text === null) {
+            return;
+        }
         $idtype = 'module_id';
         $utils  = new UtilityFunctions();
         $utils->set_module_id_in_db($text, $data, $idtype);
@@ -103,6 +106,9 @@ class mod_edusharing_observer {
             return;
         }
         $text   = $module->intro;
+        if ($text === null) {
+            return;
+        }
         $idtype = 'module_id';
         $utils  = new UtilityFunctions();
         $utils->set_module_id_in_db($text, $data, $idtype);
@@ -147,7 +153,10 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $text   = $module->summary;
+        $text = $module->summary;
+        if ($text === null) {
+            return;
+        }
         $idtype = 'section_id';
         $utils  = new UtilityFunctions();
         $utils->set_module_id_in_db($text, $data, $idtype);;
