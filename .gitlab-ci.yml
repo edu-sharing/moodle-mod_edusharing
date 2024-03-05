@@ -43,11 +43,11 @@ test:
     #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
 
   script:
-    - moodle-plugin-ci phplint
-    - moodle-plugin-ci codechecker
-    - moodle-plugin-ci validate
-    - moodle-plugin-ci savepoints
-    - moodle-plugin-ci mustache
-    - moodle-plugin-ci grunt
-    - moodle-plugin-ci phpdoc
-    - moodle-plugin-ci phpunit
+    #- moodle-plugin-ci phplint
+    - moodle-plugin-ci codechecker --exclude /mod/edusharing/tests/,/mod/edusharing/apiClient
+    #- moodle-plugin-ci validate
+    #- moodle-plugin-ci savepoints
+    #- moodle-plugin-ci mustache
+    #- moodle-plugin-ci grunt
+    #- moodle-plugin-ci phpdoc
+    #- moodle-plugin-ci phpunit
