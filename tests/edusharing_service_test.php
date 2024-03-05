@@ -38,7 +38,7 @@ use testUtils\FakeConfig;
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
  */
-class EdusharingServiceTest extends advanced_testcase {
+class edusharing_service_test extends advanced_testcase {
 
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new
