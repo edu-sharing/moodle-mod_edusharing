@@ -18,7 +18,20 @@ declare(strict_types=1);
 
 namespace testUtils;
 
+/**
+ * Class TestStringGenerator
+ *
+ * Get your strings while they're hot!
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ */
 class TestStringGenerator {
+    /**
+     * Function getattoteststring
+     *
+     * @return String
+     */
     public static function getattoteststring(): String {
         return '<p dir="ltr" style="text-align: left;"><a class="edusharing_atto"'
             . ' style="" href="http://test.de/lib/editor/atto/plugins/edusharing/preview.php?resourceId=6&amp;'

@@ -45,10 +45,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_if_import_metadata_sets_all_config_entries_on_success(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -98,10 +97,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_if_import_metadata_generates_new_app_id_if_none_present(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -134,10 +132,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_if_import_metadata_uses_configured_app_id_if_found(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -171,10 +168,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_if_import_metadata_uses_app_id_class_variable_if_set(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -206,10 +202,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
-     **/
+     */
     public function test_if_import_metadata_does_not_set_host_aliases_if_none_are_set(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -243,10 +238,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
-     **/
+     */
     public function test_if_import_metadata_sets_host_aliases_if_set_as_class_variables(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -281,10 +275,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      **/
     public function test_if_import_metadata_does_not_set_wlo_guest_user_if_none_provided(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -319,10 +312,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      **/
     public function test_if_import_metadata_does_set_wlo_guest_user_if_class_variable_is_set(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -358,10 +350,9 @@ class MetadataLogicTest extends advanced_testcase {
      * @return void
      * @throws EduSharingUserException
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      **/
     public function test_if_import_metadata_generates_new_key_pair_if_none_found(): void {
+        $this->resetAfterTest();
         global $_SERVER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $_SERVER['SERVER_NAME'] = 'testServer';
@@ -396,11 +387,10 @@ class MetadataLogicTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
-     *
      * @throws dml_exception
      */
     public function test_if_create_xml_metadata_creates_xml_with_all_needed_entries(): void {
+        $this->resetAfterTest();
         global $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $CFG->wwwroot = 'https://www.example.com/moodle';

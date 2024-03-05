@@ -29,6 +29,7 @@ use EduSharingApiClient\CurlResult;
  * @package mod_edusharing
  */
 class MoodleCurlHandler extends CurlHandler {
+    // phpcs:disable -- Function cannot be lowercase as it implements an interface
     /**
      * Function handleCurlRequest
      *
@@ -39,8 +40,8 @@ class MoodleCurlHandler extends CurlHandler {
      * @param array $curlOptions
      * @return CurlResult
      */
-    // phpcs:ignore -- Function cannot be lowercase as it implements an interface
     public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
+        // phpcs:enable
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $curl         = new curl();

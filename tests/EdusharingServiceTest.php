@@ -39,15 +39,16 @@ use testUtils\FakeConfig;
  * @package mod_edusharing
  */
 class EdusharingServiceTest extends advanced_testcase {
+
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws Exception
      */
     public function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new(): void {
+        $this->resetAfterTest();
         global $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $fakeconfig = new FakeConfig();
@@ -68,11 +69,11 @@ class EdusharingServiceTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      * @throws Exception
      */
     public function test_if_get_ticket_returns_existing_ticket_if_auth_info_is_ok(): void {
+        $this->resetAfterTest();
         global $USER;
         unset($USER->edusharing_userticketvalidationts);
         $USER->edusharing_userticket = 'testTicket';
@@ -94,11 +95,11 @@ class EdusharingServiceTest extends advanced_testcase {
     /**
      * Function test_if_getT_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists
      *
-     * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
     public function test_if_get_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists(): void {
+        $this->resetAfterTest();
         global $USER;
         unset($USER->edusharing_userticket);
         $USER->firstname = 'Max';
@@ -128,11 +129,11 @@ class EdusharingServiceTest extends advanced_testcase {
     /**
      * Function test_if_get_ticket_returns_ticket_from_auth_helper_if_ticket_is_too_old_and_auth_info_call_fails
      *
-     * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
     public function test_if_get_ticket_returns_ticket_from_auth_helper_if_ticket_is_too_old_and_auth_info_call_fails(): void {
+        $this->resetAfterTest();
         global $USER;
         $USER->edusharing_userticket             = 'testTicket';
         $USER->edusharing_userticketvalidationts = 1689769393;
@@ -303,10 +304,9 @@ class EdusharingServiceTest extends advanced_testcase {
      * test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
@@ -370,10 +370,9 @@ class EdusharingServiceTest extends advanced_testcase {
      * Function test_if_update_instance_resets_data_and_returns_false_on_update_error
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_update_instance_resets_data_and_returns_false_on_update_error(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
@@ -437,10 +436,9 @@ class EdusharingServiceTest extends advanced_testcase {
      * Function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
@@ -503,10 +501,9 @@ class EdusharingServiceTest extends advanced_testcase {
      * Function test_if_add_instance_returns_false_and_resets_data_on_creation_failure
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_add_instance_returns_false_and_resets_data_on_creation_failure(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
@@ -594,11 +591,11 @@ class EdusharingServiceTest extends advanced_testcase {
     /**
      * Function test_if_delete_instance_calls_database_with_proper_params
      *
-     * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
     public function test_if_delete_instance_calls_database_with_proper_params(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $dbrecord             = new stdClass();
         $dbrecord->id         = 'edusharingId123';
@@ -645,11 +642,11 @@ class EdusharingServiceTest extends advanced_testcase {
     /**
      * Function test_if_import_metadata_calls_curl_with_the_correct_params
      *
-     * @backupGlobals enabled
      * @return void
      * @throws dml_exception
      */
     public function test_if_import_metadata_calls_curl_with_the_correct_params(): void {
+        $this->resetAfterTest();
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $url                        = 'http://test.de';
@@ -779,10 +776,9 @@ class EdusharingServiceTest extends advanced_testcase {
      *
      * @return void
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_get_render_html_calls_curl_handler_with_correct_params_and_returns_content_on_success(): void {
+        $this->resetAfterTest();
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $basehelper                 = new EduSharingHelperBase(
@@ -817,10 +813,9 @@ class EdusharingServiceTest extends advanced_testcase {
      *
      * @return void
      * @throws dml_exception
-     *
-     * @backupGlobals enabled
      */
     public function test_get_render_html_returns_error_message_if_curl_result_has_error(): void {
+        $this->resetAfterTest();
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $basehelper                 = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');

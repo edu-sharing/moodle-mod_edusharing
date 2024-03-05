@@ -77,10 +77,10 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      */
     public function test_if_get_auth_key_returns_user_id_if_sso_is_active(): void {
+        $this->resetAfterTest();
         global $SESSION, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $fakeconfig = new FakeConfig();
@@ -97,10 +97,10 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      */
     public function test_get_auth_key_returns_guest_id_if_guest_option_is_active(): void {
+        $this->resetAfterTest();
         global $SESSION, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
@@ -118,10 +118,10 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      */
     public function test_get_auth_key_returns_configured_auth_key_if_set(): void {
+        $this->resetAfterTest();
         global $SESSION, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
@@ -139,10 +139,10 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      */
     public function test_get_auth_key_returns_auth_key_in_profile_if_all_previous_are_not_met(): void {
+        $this->resetAfterTest();
         global $SESSION, $USER, $CFG;
         unset($SESSION->edusharing_sso);
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
@@ -160,10 +160,10 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      * @throws dml_exception
      */
     public function test_get_auth_key_returns_user_name_as_last_resort(): void {
+        $this->resetAfterTest();
         global $SESSION, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         unset($SESSION->edusharing_sso);
@@ -181,9 +181,9 @@ class UtilityFunctionsTest extends advanced_testcase {
      *
      * @return void
      *
-     * @backupGlobals enabled
      */
     public function test_if_set_module_in_db_finds_matches_and_sets_resource_ids_to_db_if_matches_found(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
         $idtype = 'testType';
@@ -208,10 +208,9 @@ class UtilityFunctionsTest extends advanced_testcase {
      * Function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
@@ -227,10 +226,9 @@ class UtilityFunctionsTest extends advanced_testcase {
      * Function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $this->resetAfterTest();
         $utils                   = new UtilityFunctions();
@@ -263,10 +261,9 @@ class UtilityFunctionsTest extends advanced_testcase {
      * Function test_if_get_course_module_info_returns_false_if_no_record_found
      *
      * @return void
-     *
-     * @backupGlobals enabled
      */
     public function test_if_get_course_module_info_returns_false_if_no_record_found(): void {
+        $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
         $utils = new UtilityFunctions();
         $this->resetAfterTest();
