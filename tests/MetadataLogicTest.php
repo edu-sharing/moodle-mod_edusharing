@@ -28,6 +28,7 @@ use mod_edusharing\MetadataLogic;
 use mod_edusharing\UtilityFunctions;
 use testUtils\FakeConfig;
 
+// phpcs:ignore -- no Moodle internal check needed.
 global $CFG;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 

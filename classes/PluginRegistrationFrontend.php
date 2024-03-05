@@ -45,7 +45,9 @@ class PluginRegistrationFrontend {
         try {
             $result = $registrationlogic->register_plugin($repourl, $login, $pwd, $data);
         } catch (Exception $exception) {
-            $return .= $errormessage . '<p class="edu_error">' . ($exception instanceof EduSharingUserException ? $exception->getMessage() : 'Unexpected error') . '</p>';
+            $exceptionmessage = $exception instanceof EduSharingUserException
+                ? $exception->getMessage() : 'Unexpected error';
+            $return .= $errormessage . '<p class="edu_error">' . $exceptionmessage . '</p>';
             return $return;
         }
         if (isset($result['appid'])) {
@@ -53,6 +55,7 @@ class PluginRegistrationFrontend {
         }
         $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">'.$result['message'].'</p>' : '';
         $return .= '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
+        // phpcs:disable -- just messy html.
         $return .= '<p class="edu_metadata"> To register the Moodle-PlugIn manually got to the
             <a href="'.$repourl.'" target="_blank"> Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
             Only the system administrator may use this tool.<br>
@@ -63,6 +66,7 @@ class PluginRegistrationFrontend {
             If the automatic registration failed due to a connection issue caused by a proxy-server, you also need to 
             add the proxy-server IP-address as a "host_aliases"-attribute.
             </p>';
+        // phpcs:enable
 
         return $return;
     }

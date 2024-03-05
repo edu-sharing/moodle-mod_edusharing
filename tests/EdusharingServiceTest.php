@@ -361,6 +361,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('update_record')
             ->with('edusharing', $eduobjectupdate);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $this->assertEquals(true, $servicemock->update_instance($eduobject, $currenttime));
     }
@@ -427,6 +428,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('update_record')
             ->with('edusharing', $memento);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $this->assertEquals(false, $servicemock->update_instance($eduobject, $currenttime));
     }
@@ -473,6 +475,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('update_record')
             ->with('edusharing', $insertededuobject);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['get_object_id_from_url'])
@@ -540,6 +543,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('delete_records')
             ->with('edusharing', ['id' => 3]);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
             ->onlyMethods(['get_object_id_from_url'])
@@ -612,6 +616,7 @@ class EdusharingServiceTest extends advanced_testcase {
         $dbmock->expects($this->once())
             ->method('delete_records')
             ->with('edusharing', ['id' => 'edusharingId123']);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $basehelper    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $authhelper    = new EduSharingAuthHelper($basehelper);

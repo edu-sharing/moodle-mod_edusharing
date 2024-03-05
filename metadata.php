@@ -29,6 +29,14 @@ use mod_edusharing\MetadataLogic;
 require_once(dirname(__FILE__) . '/../../config.php');
 
 try {
+    require_login();
+} catch (Exception $exception) {
+    echo $exception->getMessage();
+    unset($exception);
+    exit();
+}
+
+try {
     $publickey = get_config('edusharing', 'application_public_key');
 } catch (Exception $exception) {
     $publickey = '';

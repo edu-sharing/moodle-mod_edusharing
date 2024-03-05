@@ -19,6 +19,7 @@ declare(strict_types = 1);
 use core\moodle_database_for_testing;
 use mod_edusharing\UtilityFunctions;
 use testUtils\FakeConfig;
+use testUtils\TestStringGenerator;
 
 /**
  * Class UtilityFunctionsTest
@@ -194,9 +195,12 @@ class UtilityFunctionsTest extends advanced_testcase {
             ->method('set_field')
             ->withConsecutive(
                 ['edusharing', $idtype, 'value1', ['id' => 'resourceID1']],
-                ['edusharing', $idtype, 'value1', ['id' => 'resourceID2']], );
+                ['edusharing', $idtype, 'value1', ['id' => 'resourceID2']],
+            );
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
-        $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda"><a resourceId=resourceID2& class="dsfg_edusharing_atto_afdd">text</a>';
+        $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda">';
+        $text          .= '<a resourceId=resourceID2& class="dsfg_edusharing_atto_afdd">text</a>';
         $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
@@ -214,6 +218,7 @@ class UtilityFunctionsTest extends advanced_testcase {
             ->onlyMethods(['set_field'])
             ->getMock();
         $dbmock->expects($this->never())->method('set_field');
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $utils->set_module_id_in_db('NothingHere', [], 'idType');
     }
@@ -247,6 +252,7 @@ class UtilityFunctionsTest extends advanced_testcase {
                 [],
                 ['edusharing', ['id' => 'instanceId'], '*', MUST_EXIST])
             ->willReturnOnConsecutiveCalls($returnone, $returntwo);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $result        = $utils->get_course_module_info($module);
         $this->assertTrue($result instanceof cached_cm_info);
@@ -274,6 +280,7 @@ class UtilityFunctionsTest extends advanced_testcase {
             ->method('get_record')
             ->with('edusharing', ['id' => 'instanceId'], 'id, name, intro, introformat', MUST_EXIST)
             ->willThrowException(new Exception());
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $this->assertEquals(false, $utils->get_course_module_info($module));
     }
@@ -284,7 +291,9 @@ class UtilityFunctionsTest extends advanced_testcase {
      * @return void
      */
     public function test_get_inline_object_matches_returns_only_atto_matches_from_input(): void {
-        $text   = file_get_contents(__DIR__ . '/attoTestString.txt');
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/TestStringGenerator.php');
+        $text   = TestStringGenerator::getattoteststring();
         $utils  = new UtilityFunctions();
         $result = $utils->get_inline_object_matches($text);
         $this->assertTrue(count($result) === 4);

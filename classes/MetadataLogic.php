@@ -170,8 +170,10 @@ class MetadataLogic {
      */
     public function create_xml_metadata(): string {
         global $CFG;
+        // phpcs:disable -- This is just a long string.
         $xml = new SimpleXMLElement(
             '<?xml version="1.0" encoding="utf-8" ?><!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"><properties></properties>');
+        // phpcs:enable
         try {
             $entry = $xml->addChild('entry', $this->utils->get_config_entry('application_appid'));
             $entry->addAttribute('key', 'appid');

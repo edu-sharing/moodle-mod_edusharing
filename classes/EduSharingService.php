@@ -102,7 +102,12 @@ class EduSharingService {
             $basehelper->registerCurlHandler(new MoodleCurlHandler());
             $this->authhelper === null && $this->authhelper = new EduSharingAuthHelper($basehelper);
             if ($this->nodehelper === null) {
-                $nodeconfig       = new EduSharingNodeHelperConfig(new UrlHandling(true, $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey()));
+                $nodeconfig       = new EduSharingNodeHelperConfig(
+                    new UrlHandling(
+                        true,
+                        $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey()
+                    )
+                );
                 $this->nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
             }
         }
@@ -161,15 +166,15 @@ class EduSharingService {
      * Function get_node
      *
      * @param Usage $usage
-     * @param array|null $renderingParams
+     * @param array|null $renderingparams
      * @param string|null $userid
      * @return array
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      */
-    public function get_node(Usage $usage, ?array $renderingParams = null, ?string $userid = null): array {
-        return $this->nodehelper->getNodeByUsage($usage, DisplayMode::INLINE, $renderingParams, $userid);
+    public function get_node(Usage $usage, ?array $renderingparams = null, ?string $userid = null): array {
+        return $this->nodehelper->getNodeByUsage($usage, DisplayMode::INLINE, $renderingparams, $userid);
     }
 
     /**

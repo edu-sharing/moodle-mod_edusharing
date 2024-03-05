@@ -41,6 +41,7 @@ if ($ADMIN->fulltree) {
                     </div>' . $hint . '
                 </div>
         </div>';
+    // phpcs:disable -- just messy html
     $strversion = '<div class="form-item row">
                 <div class="form-label col-sm-3 text-sm-right">
                     <p>' . get_string('conf_versiontext', 'edusharing') . '</p>
@@ -52,6 +53,7 @@ if ($ADMIN->fulltree) {
                     </div>' . $hint . '
                 </div>
         </div>';
+    // phpcs:enable
     $settings->add(new admin_setting_heading('edusharing', get_string('currentVersion', 'edusharing'), $strversion));
     $settings->add(new admin_setting_heading('edusharing/repo', get_string('connectToHomeRepository', 'edusharing'), $str));
     $settings->add(new admin_setting_heading('edusharing/app', get_string('appProperties', 'edusharing'), ''));

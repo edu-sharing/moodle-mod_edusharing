@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>apiClient</location>
+        <name>Edu-Sharing PHP Auth Plugin</name>
+        <version>8</version>
+        <license>GNU General Public License</license>
+        <licenseversion>3</licenseversion>
+    </library>
+</libraries>

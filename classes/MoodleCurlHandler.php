@@ -39,6 +39,7 @@ class MoodleCurlHandler extends CurlHandler {
      * @param array $curlOptions
      * @return CurlResult
      */
+    // phpcs:ignore -- Function cannot be lowercase as it implements an interface
     public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
@@ -46,6 +47,7 @@ class MoodleCurlHandler extends CurlHandler {
         $params       = [];
         $options      = [];
         $allconstants = null;
+        // phpcs:ignore -- var name is camelCase to match interface.
         foreach ($curlOptions as $key => $value) {
             if (is_int($key)) {
                 if ($allconstants === null) {

@@ -22,13 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $DB;
-
 use EduSharingApiClient\Usage;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__) . '/../../config.php');
+
+global $DB;
 
 try {
     require_login();
@@ -43,12 +43,12 @@ try {
         (string)$edusharing->id,
         (string)$edusharing->usage_id
     );
-    $curlResult = $service->get_preview_image($usage);
+    $curlresult = $service->get_preview_image($usage);
 } catch (Exception $exception) {
     echo 'Error occurred: ' . $exception->getMessage();
     exit();
 }
 
-header('Content-type: ' . $curlResult->info['content_type']);
-echo $curlResult->content;
+header('Content-type: ' . $curlresult->info['content_type']);
+echo $curlresult->content;
 exit();

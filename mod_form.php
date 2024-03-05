@@ -58,7 +58,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $this->_form->addRule('name', null, 'required', null, 'client');
             $this->_form->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
             $this->standard_intro_elements(get_string('description', Constants::EDUSHARING_MODULE_NAME));
-            // Repo button and version select are not to be shown for edit form
+            // Repo button and version select are not to be shown for edit form.
             if (!isset($_GET['update'])) {
                 $this->_form->addElement('header', 'object_url_fieldset',
                     get_string('object_url_fieldset', Constants::EDUSHARING_MODULE_NAME,
@@ -77,6 +77,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 $searchbutton = $this->_form->addElement('button', 'searchbutton',
                     get_string('searchrec', Constants::EDUSHARING_MODULE_NAME,
                         get_config('edusharing', 'application_appname')));
+                // phpcs:disable -- just messy html and js.
                 $repoonclick  = "
                             function openRepo(){
                                 window.addEventListener('message', function handleRepo(event) {
@@ -112,6 +113,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
                             }
                             openRepo();
                         ";
+                // phpcs:enable
                 $searchbutton->updateAttributes(
                     [
                         'title' => get_string('uploadrec', Constants::EDUSHARING_MODULE_NAME,
@@ -139,7 +141,8 @@ class mod_edusharing_mod_form extends moodleform_mod {
                     0 => get_string('pagewindow', Constants::EDUSHARING_MODULE_NAME),
                     1 => get_string('newwindow', Constants::EDUSHARING_MODULE_NAME),
                 ];
-            $this->_form->addElement('select', 'popup_window', get_string('display', Constants::EDUSHARING_MODULE_NAME), $windowoptions);
+            $this->_form->addElement('select', 'popup_window',
+                get_string('display', Constants::EDUSHARING_MODULE_NAME), $windowoptions);
             $this->_form->setDefault('popup_window', !empty($CFG->resource_popup));
             // Add standard elements, common to all modules.
             $this->standard_coursemodule_elements();

@@ -26,6 +26,7 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\PluginRegistration;
 
+// phpcs:ignore -- No Moodle internal check needed.
 global $CFG;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 

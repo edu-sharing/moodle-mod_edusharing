@@ -45,6 +45,7 @@ class MetaDataFrontend {
             return '<p style="background: #FF8170">Error<br></p>';
         }
         if (!empty($repourl)) {
+            // phpcs:disable -- This is just messy html and inline js
             return '
             <form class="repo-reg" action="import_metadata.php" method="post">
                 <h3>Try to register the edu-sharing moodle-plugin with a repository:</h3>
@@ -69,6 +70,7 @@ class MetaDataFrontend {
                 </div>
             </form>
          ';
+            // phpcs:enable
         }
         return null;
     }
@@ -82,6 +84,7 @@ class MetaDataFrontend {
      */
     public static function get_meta_data_form(): string {
         global $CFG;
+        // phpcs:disable -- This is just messy html and inline js
         return '
         <form action="import_metadata.php" method="post" name="mdform">
             <h3>Enter your metadata endpoint here:</h3>
@@ -101,5 +104,6 @@ class MetaDataFrontend {
             </div>
         </form>
         <p>To export the edu-sharing plugin metadata use the following url: <span class="edu_export">' . $CFG->wwwroot . '/mod/edusharing/metadata.php</span></p>';
+        // phpcs:enable
     }
 }

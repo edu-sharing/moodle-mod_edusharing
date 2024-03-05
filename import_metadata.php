@@ -30,10 +30,18 @@ use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistrationFrontend;
 use mod_edusharing\UtilityFunctions;
 
-global $CFG;
+require_once(dirname(__FILE__) . '/../../config.php');
 
-require_once(dirname(__FILE__, 3) . '/config.php');
+global $CFG;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+
+try {
+    require_login();
+} catch (Exception $exception) {
+    echo $exception->getMessage();
+    unset($exception);
+    exit();
+}
 
 echo '<html>
 <head>

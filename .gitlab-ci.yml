@@ -14,6 +14,7 @@ variables:
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
+  IGNORE_PATHS: "mod/edusharing/apiClient"
 
 test:
   before_script:
@@ -44,10 +45,10 @@ test:
 
   script:
     #- moodle-plugin-ci phplint
-    - moodle-plugin-ci codechecker --exclude /mod/edusharing/tests/,/mod/edusharing/apiClient
+    - moodle-plugin-ci codechecker
     #- moodle-plugin-ci validate
     #- moodle-plugin-ci savepoints
     #- moodle-plugin-ci mustache
     #- moodle-plugin-ci grunt
-    #- moodle-plugin-ci phpdoc
+    - moodle-plugin-ci phpdoc
     #- moodle-plugin-ci phpunit
