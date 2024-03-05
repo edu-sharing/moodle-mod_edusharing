@@ -46,7 +46,7 @@ test:
   script:
     #- moodle-plugin-ci phplint
     - moodle-plugin-ci codechecker
-    #- moodle-plugin-ci validate
+    - moodle-plugin-ci validate
     #- moodle-plugin-ci savepoints
     #- moodle-plugin-ci mustache
     #- moodle-plugin-ci grunt
