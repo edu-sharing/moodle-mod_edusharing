@@ -53,6 +53,7 @@ $string['object_url'] = 'Object';
 $string['object_url_help'] = 'Please use the buttons below to select an object from repository. Its object-ID will be inserted here automatically.';
 $string['object_title'] = 'Selected object';
 $string['object_title_help'] = 'Please use the button below to select an object...';
+$string['edusharing:addinstance'] = 'Add instance.';
 
 $string['object_version_fieldset'] = 'Object-versioning';
 $string['object_version'] = 'Use ..';
