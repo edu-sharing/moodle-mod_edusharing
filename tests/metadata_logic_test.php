@@ -16,16 +16,18 @@
 
 declare(strict_types=1);
 
+// Namespace does not match PSR. But Moodle likes it this way.
+namespace mod_edusharing;
+
+use advanced_testcase;
+use dml_exception;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\UrlHandling;
-use mod_edusharing\EduSharingService;
-use mod_edusharing\EduSharingUserException;
-use mod_edusharing\MetadataLogic;
-use mod_edusharing\UtilityFunctions;
+use SimpleXMLElement;
 use testUtils\FakeConfig;
 
 // phpcs:ignore -- no Moodle internal check needed.
@@ -37,8 +39,9 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @covers \mod_edusharing\MetadataLogic
  */
-class MetadataLogicTest extends advanced_testcase {
+class metadata_logic_test extends advanced_testcase {
     /**
      * Function test_if_import_metadata_sets_all_config_entries_on_success
      *

@@ -16,8 +16,15 @@
 
 declare(strict_types = 1);
 
+// Namespace does not match PSR. But Moodle likes it this way.
+namespace mod_edusharing;
+
+use advanced_testcase;
+use cached_cm_info;
 use core\moodle_database_for_testing;
-use mod_edusharing\UtilityFunctions;
+use dml_exception;
+use Exception;
+use stdClass;
 use testUtils\FakeConfig;
 use testUtils\TestStringGenerator;
 
@@ -26,8 +33,9 @@ use testUtils\TestStringGenerator;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @covers \mod_edusharing\UtilityFunctions
  */
-class UtilityFunctionsTest extends advanced_testcase {
+class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok
      *

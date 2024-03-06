@@ -34,6 +34,7 @@ use JsonException;
  *
  * @author Marian Ziegler
  * @package mod_edusharing
+ * @covers \mod_edusharing\InstallUpgradeLogic
  */
 class install_upgrade_logic_test extends advanced_testcase {
 
