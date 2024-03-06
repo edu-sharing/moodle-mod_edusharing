@@ -40,10 +40,10 @@ test:
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
     - cd $MOODLE_DIR
+    - php admin/tool/phpunit/cli/init.php
     - cd mod/edusharing/apiClient
     - git clone https://github.com/edu-sharing/php-auth-plugin.git
     - cp -a php-auth-plugin/src/. ./src
-    - cd $MOODLE_DIR
     #- php -S $IPADDRESS:8000 -t $MOODLE_DIR > /dev/null 2>&1 &
     #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
 
@@ -55,5 +55,4 @@ test:
     #- moodle-plugin-ci mustache
     #- moodle-plugin-ci grunt
     - moodle-plugin-ci phpdoc
-    - php admin/tool/phpunit/cli/init.php
     #- moodle-plugin-ci phpunit
