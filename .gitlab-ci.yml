@@ -1,7 +1,7 @@
 image: moodlehq/moodle-php-apache:8.3
 
 services:
-  - mysql:8.3.0
+  - mysql:8.2.0
   - name: selenium/standalone-chrome:4
     alias: selenium-standalone-chrome
 
