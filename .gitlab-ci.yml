@@ -1,4 +1,4 @@
-image: moodlehq/moodle-php-apache:8.0
+image: moodlehq/moodle-php-apache:8.3
 
 services:
   - mysql:8.3.0
