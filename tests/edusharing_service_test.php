@@ -16,6 +16,8 @@
 
 declare(strict_types=1);
 
+namespace mod_edusharing;
+
 use core\moodle_database_for_testing;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
 use EduSharingApiClient\CurlResult;
@@ -37,6 +39,7 @@ use testUtils\FakeConfig;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @covers \mod_edusharing\EduSharingService
  */
 class edusharing_service_test extends advanced_testcase {
 
