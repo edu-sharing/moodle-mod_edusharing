@@ -16,15 +16,18 @@
 
 declare(strict_types = 1);
 
+// Namespace does not match PSR. But Moodle likes it this way.
+namespace mod_edusharing;
+
+use advanced_testcase;
+use dml_exception;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\UrlHandling;
-use mod_edusharing\EduSharingService;
-use mod_edusharing\InstallUpgradeLogic;
-use mod_edusharing\MetadataLogic;
-use mod_edusharing\PluginRegistration;
+use Exception;
+use JsonException;
 
 /**
  * Class InstallUpgradeLogicTest
@@ -32,7 +35,7 @@ use mod_edusharing\PluginRegistration;
  * @author Marian Ziegler
  * @package mod_edusharing
  */
-class InstallUpgradeLogicTest extends advanced_testcase {
+class install_upgrade_logic_test extends advanced_testcase {
 
     /**
      * Function test_parse_config_data_throws_exception_if_file_not_found

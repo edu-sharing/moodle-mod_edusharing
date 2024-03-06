@@ -16,6 +16,7 @@
 
 declare(strict_types=1);
 
+// Namespace does not match PSR. But Moodle likes it this way.
 namespace mod_edusharing;
 
 use core\moodle_database_for_testing;
@@ -32,9 +33,6 @@ use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
 use Exception;
 use JsonException;
-use mod_edusharing\EduSharingService;
-use mod_edusharing\MoodleCurlHandler;
-use mod_edusharing\UtilityFunctions;
 use stdClass;
 use testUtils\FakeConfig;
 
