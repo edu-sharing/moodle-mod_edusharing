@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @covers \mod_edusharing\PluginRegistration
  */
 class plugin_registration_test extends advanced_testcase {
     /**

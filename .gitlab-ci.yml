@@ -48,7 +48,7 @@ test:
     #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
 
   script:
-    #- moodle-plugin-ci phplint
+    - moodle-plugin-ci phplint
     - moodle-plugin-ci codechecker
     - moodle-plugin-ci validate
     #- moodle-plugin-ci savepoints
