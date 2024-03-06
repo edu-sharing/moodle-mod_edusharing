@@ -1,7 +1,7 @@
-image: moodlehq/moodle-php-apache:8.1
+image: moodlehq/moodle-php-apache:8.3
 
 services:
-  - mysql:8.2.0
+  - mysql:8.3.0
   - name: selenium/standalone-chrome:4
     alias: selenium-standalone-chrome
 
@@ -9,7 +9,7 @@ variables:
   DB: "mysqli"
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  MOODLE_BRANCH: "MOODLE_401_STABLE"
+  MOODLE_BRANCH: "MOODLE_403_STABLE"
   # Only needed, when your project is within a group/subgroup of "moodle".
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
@@ -39,8 +39,8 @@ test:
     - umask u+x
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
-    - moodle-plugin-ci add-config '$CFG->phpunit_prefix = "phpu_";'
-    - moodle-plugin-ci add-config '$CFG->prefix = "phpu_";'
+    - moodle-plugin-ci add-config '$CFG->phpunit_prefix = "t_";'
+    # - moodle-plugin-ci add-config '$CFG->prefix = "t_";'
     - cd $MOODLE_DIR
     - php admin/tool/phpunit/cli/init.php
     - cd mod/edusharing/apiClient
