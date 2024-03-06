@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace mod_edusharing;
 
 use core\moodle_database_for_testing;
+use dml_exception;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
@@ -29,9 +30,12 @@ use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\UrlHandling;
 use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
+use Exception;
+use JsonException;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\MoodleCurlHandler;
 use mod_edusharing\UtilityFunctions;
+use stdClass;
 use testUtils\FakeConfig;
 
 /**
