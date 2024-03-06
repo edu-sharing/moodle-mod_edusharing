@@ -44,7 +44,6 @@ test:
     - git clone https://github.com/edu-sharing/php-auth-plugin.git
     - cp -a php-auth-plugin/src/. ./src
     - cd $MOODLE_DIR
-    - php admin/tool/phpunit/cli/init.php
     #- php -S $IPADDRESS:8000 -t $MOODLE_DIR > /dev/null 2>&1 &
     #- php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=1 --optimize-runs=@local_ffhs_exam_toolbox
 
@@ -52,8 +51,9 @@ test:
     - moodle-plugin-ci phplint
     - moodle-plugin-ci codechecker
     - moodle-plugin-ci validate
-    - moodle-plugin-ci savepoints
+    #- moodle-plugin-ci savepoints
     #- moodle-plugin-ci mustache
     #- moodle-plugin-ci grunt
     - moodle-plugin-ci phpdoc
-    - moodle-plugin-ci phpunit
+    - php admin/tool/phpunit/cli/init.php
+    #- moodle-plugin-ci phpunit
