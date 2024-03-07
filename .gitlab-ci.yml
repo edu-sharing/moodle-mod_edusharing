@@ -30,6 +30,8 @@ test:
     # Setup Behat.
     - export IPADDRESS=`grep "$HOSTNAME$" /etc/hosts | awk '{print $1}'`
     - export MOODLE_BEHAT_WWWROOT="http://$IPADDRESS:8000"
+    # Clean up in case of cached container
+    - rm -rf /builds/edu-sharing/community/integration/moodledata
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
     - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci 4.4.0
@@ -39,7 +41,6 @@ test:
     - umask u+x
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
-    #- moodle-plugin-ci add-config '$CFG->phpunit_prefix = "t_";'
     - cd $MOODLE_DIR
     - php admin/tool/phpunit/cli/init.php
     - cd mod/edusharing/apiClient
