@@ -118,10 +118,12 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             set_config('EDU_AUTH_PARAM_NAME_LASTNAME', EDU_AUTH_PARAM_NAME_LASTNAME, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_FIRSTNAME', EDU_AUTH_PARAM_NAME_FIRSTNAME, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_EMAIL', EDU_AUTH_PARAM_NAME_EMAIL, 'edusharing');
+            upgrade_mod_savepoint(true, 2016011401, 'edusharing');
 
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
+
 
     }
 
@@ -142,6 +144,12 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             }
             set_config('repProperties', null, 'edusharing');
         }
+        try {
+            upgrade_mod_savepoint(true, 2016120901, 'edusharing');
+        } catch (Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+        }
+
     }
 
     if ($result && $oldversion < 2019062110) {
@@ -159,6 +167,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 'name'
             );
             $dbmanager->add_field($xmldbtable, $xmldbfield);
+            upgrade_mod_savepoint(true, 2019062110, 'edusharing');
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -180,6 +189,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 'module_id'
             );
             $dbmanager->add_field($xmldbtable, $xmldbfield);
+            upgrade_mod_savepoint(true, 2019062401, 'edusharing');
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -199,12 +209,18 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 'section_id'
             );
             $dbmanager->add_field($xmldbtable, $xmldbfield);
+            upgrade_mod_savepoint(true, 2022042501, 'edusharing');
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
     }
     if ($oldversion < 2023100100) {
         unset_config('repository_restApi', 'edusharing');
+        try {
+            upgrade_mod_savepoint(true, 2023100100, 'edusharing');
+        } catch (Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+        }
     }
     $logic = new InstallUpgradeLogic();
     try {
