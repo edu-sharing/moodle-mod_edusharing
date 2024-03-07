@@ -108,11 +108,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
 
             set_config('repProperties', json_encode($repoproperties), 'edusharing');
         }
-
         try {
-
             include(dirname(__FILE__).'/../conf/cs_conf.php');
-
             set_config('EDU_AUTH_KEY', EDU_AUTH_KEY, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_USERID', EDU_AUTH_PARAM_NAME_USERID, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_LASTNAME', EDU_AUTH_PARAM_NAME_LASTNAME, 'edusharing');
@@ -123,8 +120,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-
-
     }
 
     if ($result && $oldversion < 2016120901) {
@@ -149,7 +144,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         } catch (Exception $exception) {
             trigger_error($exception->getMessage(), E_USER_WARNING);
         }
-
     }
 
     if ($result && $oldversion < 2019062110) {
@@ -171,7 +165,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-
     }
 
     if ($result && $oldversion < 2019062401) {
@@ -193,8 +186,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-
     }
+
     if ($result && $oldversion < 2022042501) {
         try {
             $xmldbtable = new xmldb_table('edusharing');
