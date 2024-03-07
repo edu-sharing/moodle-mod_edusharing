@@ -39,7 +39,7 @@ test:
     - umask u+x
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
-    #- moodle-plugin-ci add-config '$CFG->phpunit_prefix = "t_";'
+    - moodle-plugin-ci add-config '$CFG->phpunit_prefix = "t_";'
     - cd $MOODLE_DIR
     - php admin/tool/phpunit/cli/init.php
     - cd mod/edusharing/apiClient
