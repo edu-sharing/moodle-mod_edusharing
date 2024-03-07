@@ -122,99 +122,103 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         }
     }
 
-    if ($result && $oldversion < 2016120901) {
+    if ($result) {
+        if ($oldversion < 2016120901) {
 
-        $appproperties = get_config('edusharing', 'appProperties');
-        if (!empty($appproperties)) {
-            foreach (json_decode($appproperties, true) as $key => $value) {
-                set_config('application_' . $key, $value, 'edusharing');
+            $appproperties = get_config('edusharing', 'appProperties');
+            if (!empty($appproperties)) {
+                foreach (json_decode($appproperties, true) as $key => $value) {
+                    set_config('application_' . $key, $value, 'edusharing');
+                }
+                set_config('appProperties', null, 'edusharing');
             }
-            set_config('appProperties', null, 'edusharing');
-        }
 
-        $repproperties = get_config('edusharing', 'repProperties');
-        if (!empty($repproperties)) {
-            foreach (json_decode($repproperties, true) as $key => $value) {
-                set_config('repository_' . $key, $value, 'edusharing');
+            $repproperties = get_config('edusharing', 'repProperties');
+            if (!empty($repproperties)) {
+                foreach (json_decode($repproperties, true) as $key => $value) {
+                    set_config('repository_' . $key, $value, 'edusharing');
+                }
+                set_config('repProperties', null, 'edusharing');
             }
-            set_config('repProperties', null, 'edusharing');
+            try {
+                upgrade_mod_savepoint(true, 2016120901, 'edusharing');
+            } catch (Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_WARNING);
+            }
         }
-        try {
-            upgrade_mod_savepoint(true, 2016120901, 'edusharing');
-        } catch (Exception $exception) {
-            trigger_error($exception->getMessage(), E_USER_WARNING);
+
+        if ($oldversion < 2019062110) {
+
+            try {
+                $xmldbtable = new xmldb_table('edusharing');
+                $xmldbfield = new xmldb_field(
+                    'module_id',
+                    XMLDB_TYPE_INTEGER,
+                    '10',
+                    null,
+                    false,
+                    false,
+                    null,
+                    'name'
+                );
+                $dbmanager->add_field($xmldbtable, $xmldbfield);
+                upgrade_mod_savepoint(true, 2019062110, 'edusharing');
+            } catch (Exception $e) {
+                trigger_error($e->getMessage(), E_USER_WARNING);
+            }
+        }
+
+        if ($oldversion < 2019062401) {
+
+            try {
+                $xmldbtable = new xmldb_table('edusharing');
+                $xmldbfield = new xmldb_field(
+                    'section_id',
+                    XMLDB_TYPE_INTEGER,
+                    '10',
+                    null,
+                    true,
+                    false,
+                    null,
+                    'module_id'
+                );
+                $dbmanager->add_field($xmldbtable, $xmldbfield);
+                upgrade_mod_savepoint(true, 2019062401, 'edusharing');
+            } catch (Exception $e) {
+                trigger_error($e->getMessage(), E_USER_WARNING);
+            }
+        }
+
+        if ($oldversion < 2022042501) {
+            try {
+                $xmldbtable = new xmldb_table('edusharing');
+                $xmldbfield = new xmldb_field(
+                    'usage_id',
+                    XMLDB_TYPE_CHAR,
+                    '255',
+                    null,
+                    false,
+                    false,
+                    null,
+                    'section_id'
+                );
+                $dbmanager->add_field($xmldbtable, $xmldbfield);
+                upgrade_mod_savepoint(true, 2022042501, 'edusharing');
+            } catch (Exception $e) {
+                trigger_error($e->getMessage(), E_USER_WARNING);
+            }
+        }
+
+        if ($oldversion < 2023100100) {
+            unset_config('repository_restApi', 'edusharing');
+            try {
+                upgrade_mod_savepoint(true, 2023100100, 'edusharing');
+            } catch (Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_WARNING);
+            }
         }
     }
 
-    if ($result && $oldversion < 2019062110) {
-
-        try {
-            $xmldbtable = new xmldb_table('edusharing');
-            $xmldbfield = new xmldb_field(
-                'module_id',
-                XMLDB_TYPE_INTEGER,
-                '10',
-                null,
-                false,
-                false,
-                null,
-                'name'
-            );
-            $dbmanager->add_field($xmldbtable, $xmldbfield);
-            upgrade_mod_savepoint(true, 2019062110, 'edusharing');
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-        }
-    }
-
-    if ($result && $oldversion < 2019062401) {
-
-        try {
-            $xmldbtable = new xmldb_table('edusharing');
-            $xmldbfield = new xmldb_field(
-                'section_id',
-                XMLDB_TYPE_INTEGER,
-                '10',
-                null,
-                true,
-                false,
-                null,
-                'module_id'
-            );
-            $dbmanager->add_field($xmldbtable, $xmldbfield);
-            upgrade_mod_savepoint(true, 2019062401, 'edusharing');
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-        }
-    }
-
-    if ($result && $oldversion < 2022042501) {
-        try {
-            $xmldbtable = new xmldb_table('edusharing');
-            $xmldbfield = new xmldb_field(
-                'usage_id',
-                XMLDB_TYPE_CHAR,
-                '255',
-                null,
-                false,
-                false,
-                null,
-                'section_id'
-            );
-            $dbmanager->add_field($xmldbtable, $xmldbfield);
-            upgrade_mod_savepoint(true, 2022042501, 'edusharing');
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-        }
-    }
-    if ($oldversion < 2023100100) {
-        unset_config('repository_restApi', 'edusharing');
-        try {
-            upgrade_mod_savepoint(true, 2023100100, 'edusharing');
-        } catch (Exception $exception) {
-            trigger_error($exception->getMessage(), E_USER_WARNING);
-        }
-    }
     $logic = new InstallUpgradeLogic();
     try {
         $logic->parse_config_data();
