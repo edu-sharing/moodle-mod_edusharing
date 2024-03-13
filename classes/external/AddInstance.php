@@ -18,8 +18,12 @@ declare(strict_types=1);
 
 namespace mod_edusharing\external;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/lib/externallib.php');
+
 use context_course;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -35,7 +39,7 @@ use stdClass;
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
  */
-class AddInstance extends external_api {
+class AddInstance extends \core_external\external_api {
     /**
      * Function execute_parameters
      *
