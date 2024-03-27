@@ -20,6 +20,7 @@ namespace mod_edusharing\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+// Once Moodle versions < 4.2 are out of LTS, we need to revert this to the proper namespaces.
 global $CFG;
 require_once($CFG->dirroot . '/lib/externallib.php');
 

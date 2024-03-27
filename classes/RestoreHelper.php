@@ -61,7 +61,7 @@ class RestoreHelper {
         global $DB;
         $sections = $DB->get_records('course_sections', ['course' => $courseid]);
         foreach ($sections as $section) {
-            $matchesatto = $this->get_inline_objects($section->summary);
+            $matchesatto = $this->get_inline_objects($section->summary ?? '');
             if (!empty($matchesatto)) {
                 foreach ($matchesatto as $match) {
                     $section->summary = str_replace($match, $this->convert_object($match, $courseid), $section->summary);
@@ -98,7 +98,7 @@ class RestoreHelper {
             }
             $DB->update_record($cm->name, $module);
         }
-        rebuild_course_cache($courseid, true);
+        rebuild_course_cache((int)$courseid, true);
     }
 
     /**
