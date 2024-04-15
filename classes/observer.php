@@ -173,7 +173,7 @@ class mod_edusharing_observer {
         $data     = $event->get_data();
         $objectid = $data['objectid'];
         try {
-            $eduobjects = $DB->get_records('edusharing', ['course' => $objectid], '*', MUST_EXIST);
+            $eduobjects = $DB->get_records('edusharing', ['course' => $objectid], '', '*', MUST_EXIST);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
             return;
