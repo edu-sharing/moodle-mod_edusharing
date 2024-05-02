@@ -165,8 +165,8 @@ class RestoreHelper {
         if ($id !== false) {
             try {
                 $usage = $this->add_usage($edusharing, $id);
-            } catch (MissingRightsException $missingRightsException) {
-                unset($missingRightsException);
+            } catch (MissingRightsException $missingrightsexception) {
+                unset($missingrightsexception);
                 return get_string('error_missing_rights_on_restore' . ': ' . ($params['nodeId'] ?? 'blank nodeId'));
             } catch (Exception $exception) {
                 unset($exception);
