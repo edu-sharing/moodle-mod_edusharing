@@ -27,6 +27,7 @@ use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
+use EduSharingApiClient\MissingRightsException;
 use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\UrlHandling;
 use EduSharingApiClient\Usage;
@@ -119,6 +120,8 @@ class EduSharingService {
      * @param stdClass $usagedata
      * @return Usage
      * @throws JsonException
+     * @throws MissingRightsException
+     * @throws Exception
      */
     public function create_usage(stdClass $usagedata): Usage {
         return $this->nodehelper->createUsage(

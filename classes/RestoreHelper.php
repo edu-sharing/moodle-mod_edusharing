@@ -21,6 +21,7 @@ namespace mod_edusharing;
 use coding_exception;
 use dml_exception;
 use DOMDocument;
+use EduSharingApiClient\MissingRightsException;
 use EduSharingApiClient\Usage;
 use Exception;
 use moodle_exception;
@@ -162,7 +163,15 @@ class RestoreHelper {
         $edusharing->timemodified   = time();
         $id                         = $DB->insert_record('edusharing', $edusharing);
         if ($id !== false) {
-            $usage = $this->add_usage($edusharing, $id);
+            try {
+                $usage = $this->add_usage($edusharing, $id);
+            } catch (MissingRightsException $missingRightsException) {
+                unset($missingRightsException);
+                return get_string('error_missing_rights_on_restore' . ': ' . ($params['nodeId'] ?? 'blank nodeId'));
+            } catch (Exception $exception) {
+                unset($exception);
+                return '';
+            }
             if ($usage !== null) {
                 if (isset($usage->usageId)) {
                     $edusharing->id      = $id;
@@ -191,6 +200,7 @@ class RestoreHelper {
      * @return Usage|null
      * @throws \JsonException
      * @throws Exception
+     * @throws MissingRightsException
      */
     public function add_usage(stdClass $data, int $newitemid): ?Usage {
         $usagedata              = new stdClass();
