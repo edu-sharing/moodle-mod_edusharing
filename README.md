@@ -4,6 +4,10 @@ The edu-sharing activity module adds a new option to the activities/resource men
 
 The edu-sharing activity module is also needed as a dependency for all other edu-sharing plugins (filter, submission, editor). 
 
+## Requirements
+
+Please note: Plugin versions > 8.0.0 require an environment running PHP 8.0 or higher
+
 ## Installation
 
 After installation connect the activity module to an edu-sharing repository (plugin settings / repository settings)
