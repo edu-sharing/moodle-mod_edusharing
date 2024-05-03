@@ -43,7 +43,7 @@ $mapping = [
     'EduSharingApiClient\UrlHandling'                => __DIR__ . '/apiClient/src/EduSharing/UrlHandling.php',
     'EduSharingApiClient\Usage'                      => __DIR__ . '/apiClient/src/EduSharing/Usage.php',
     'EduSharingApiClient\UsageDeletedException'      => __DIR__ . '/apiClient/src/EduSharing/UsageDeletedException.php',
-    'EduSharingApiClient\MissingRightsException'     => __DIR__ . '/apiClient/src/EduSharing/MissingRightsException.php'
+    'EduSharingApiClient\MissingRightsException'     => __DIR__ . '/apiClient/src/EduSharing/MissingRightsException.php',
 ];
 
 spl_autoload_register(function ($class) use ($mapping) {
