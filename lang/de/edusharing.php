@@ -146,8 +146,6 @@ $string['send_additional_auth_help'] = 'Ist diese Option aktiviert, werden bei d
 $string['auth_suffix'] = 'Authentifizierungssuffix';
 $string['auth_suffix_help'] = 'Dieses Suffix wird an den übermittelten Authentifzierungsstring angehängt';
 
-
-
 $string['soaprequired'] = 'Die PHP-Erweiterung soap muss aktiviert sein.';
 
 $string['error_missing_authwsdl'] = 'Parameter "authenticationwebservice_wsdl" wurde nicht konfiguriert.';
@@ -163,4 +161,4 @@ $string['error_loading_memento'] = 'Fehler beim Laden des temporären Objektes.'
 $string['error_set_soap_headers'] = 'SOAP-Header konnten nicht gesetzt werden - ';
 $string['error_get_app_properties'] = 'Pluginkonfiguration konnte nicht geladen werden.';
 $string['error_encrypt_with_repo_public'] = 'Daten konnten nicht verschlüsselt werden.';
-$string['error_missing_rights_on_restore'] = 'Diese Edu-Sharing-Objekt fehlt aufgrund mangelnder Nutzerrechter bei der Kurswiederherstellung.';
+$string['error_missing_rights_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt aufgrund mangelnder Nutzerrechter bei der Kurswiederherstellung.';
