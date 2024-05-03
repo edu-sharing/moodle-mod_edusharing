@@ -30,8 +30,7 @@ use SimpleXMLElement;
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
  */
-class MetadataLogic
-{
+class MetadataLogic {
     /**
      * @var bool
      */
