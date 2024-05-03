@@ -30,23 +30,24 @@ use SimpleXMLElement;
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
  */
-class MetadataLogic {
+class MetadataLogic
+{
     /**
      * @var bool
      */
-    public bool     $reloadform   = false;
+    public bool $reloadform = false;
     /**
      * @var string|null
      */
-    private ?string $hostaliases  = null;
+    private ?string $hostaliases = null;
     /**
      * @var string|null
      */
-    private ?string           $wloguestuser = null;
+    private ?string $wloguestuser = null;
     /**
      * @var string|null
      */
-    private ?string           $appid        = null;
+    private ?string $appid = null;
     /**
      * @var EduSharingService
      */
@@ -118,9 +119,9 @@ class MetadataLogic {
             $this->utils->set_config_entry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
         if (empty ($host)) {
-            if (! empty($_SERVER['SERVER_ADDR'])) {
+            if (!empty($_SERVER['SERVER_ADDR'])) {
                 $host = $_SERVER['SERVER_ADDR'];
-            } else if (! empty($_SERVER['SERVER_NAME'])) {
+            } else if (!empty($_SERVER['SERVER_NAME'])) {
                 $host = gethostbyname($_SERVER['SERVER_NAME']);
             } else {
                 throw new Exception('Host could not be discerned. Cancelling ES-registration process.');
