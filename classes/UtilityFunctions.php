@@ -153,7 +153,7 @@ class UtilityFunctions {
         global $USER, $SESSION;
 
         // Set by external sso script.
-        if (!empty($SESSION->edusharing_sso)) {
+        if (!empty($SESSION->edusharing_sso) && $this->get_config_entry('obfuscate_auth_param') === '1') {
             return $SESSION->edusharing_sso[$this->get_config_entry('EDU_AUTH_PARAM_NAME_USERID')];
         }
         $guestoption = $this->get_config_entry('edu_guest_option');

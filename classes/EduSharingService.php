@@ -146,7 +146,7 @@ class EduSharingService {
             $usagedata->containerId,
             $usagedata->resourceId
         );
-        $usageid === null && throw new Exception('No usage found');
+        $usageid === null && throw new Exception('No usage found: ' . json_encode($usagedata));
         return $usageid;
     }
 

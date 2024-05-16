@@ -25,9 +25,10 @@ global $CFG;
 require_once($CFG->dirroot . '/lib/externallib.php');
 
 use context_course;
-use core_external\external_function_parameters;
-use core_external\external_single_structure;
-use core_external\external_value;
+use external_api;
+use external_function_parameters;
+use external_single_structure;
+use external_value;
 use Exception;
 use mod_edusharing\EduSharingService;
 use stdClass;
@@ -40,7 +41,7 @@ use stdClass;
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
  */
-class AddInstance extends \core_external\external_api {
+class AddInstance extends external_api {
     /**
      * Function execute_parameters
      *

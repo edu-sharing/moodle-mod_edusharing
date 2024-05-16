@@ -99,6 +99,13 @@ if ($ADMIN->fulltree) {
             '1'
         )
     );
+    $settings->add(
+        new admin_setting_configcheckbox('edusharing/obfuscate_auth_param',
+            new lang_string('obfuscate_auth_param', 'edusharing'),
+            new lang_string('obfuscate_auth_param_help', 'edusharing'),
+            '0'
+        )
+    );
     $settings->add(new admin_setting_configtext('edusharing/auth_suffix',
         new lang_string('auth_suffix', 'edusharing'),
          new lang_string('auth_suffix_help', 'edusharing'),

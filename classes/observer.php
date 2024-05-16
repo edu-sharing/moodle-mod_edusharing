@@ -189,7 +189,7 @@ class mod_edusharing_observer {
     }
 
     /**
-     * Function courseRestored
+     * Function course_restored
      *
      * @param \core\event\course_restored $event
      */
@@ -201,6 +201,33 @@ class mod_edusharing_observer {
             $helper->convert_inline_options($courseid);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
+        }
+    }
+
+    /**
+     * Function user_loggedin
+     *
+     * @param \core\event\user_loggedin $event
+     */
+    public static function user_loggedin(\core\event\user_loggedin $event) {
+        global $SESSION, $USER;
+        $SESSION->edusharing_sso = [];
+        $utils = new UtilityFunctions();
+        try {
+            if ($utils->get_config_entry('obfuscate_auth_param') !== '1') {
+                return;
+            }
+            $authparam = $utils->get_config_entry('EDU_AUTH_PARAM_NAME_USERID');
+            $salt = $utils->get_config_entry('SALT');
+            if ($salt === false) {
+                $salt = uniqid();
+                $utils->set_config_entry('SALT', $salt);
+            }
+            $SESSION->edusharing_sso[$authparam] = hash('sha256', $USER->username . $salt)
+                . '@' . $utils->get_config_entry('application_appid');
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+            return;
         }
     }
 }

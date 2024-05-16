@@ -54,4 +54,8 @@ $observers = [
         'eventname' => '\core\event\course_restored',
         'callback' => 'mod_edusharing_observer::course_restored',
     ],
+    [
+        'eventname' => '\core\event\user_loggedin',
+        'callback' => 'mod_edusharing_observer::user_loggedin',
+    ],
 ];

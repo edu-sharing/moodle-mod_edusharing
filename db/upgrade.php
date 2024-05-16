@@ -217,6 +217,18 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 trigger_error($exception->getMessage(), E_USER_WARNING);
             }
         }
+
+        if ($oldversion < 2024050900) {
+            try {
+                $salt = get_config('vhb', 'salt');
+                if ($salt !== false) {
+                    set_config('SALT', $salt, 'edusharing');
+                }
+                upgrade_mod_savepoint(true, 2024050900, 'edusharing');
+            } catch (Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_WARNING);
+            }
+        }
     }
 
     $logic = new InstallUpgradeLogic();

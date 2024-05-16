@@ -54,6 +54,7 @@ function xmldb_edusharing_install(): void {
         $utils = new UtilityFunctions();
         $utils->set_config_entry('application_appid', $appid);
         $utils->set_config_entry('send_additional_auth', '1');
+        $utils->set_config_entry('obfuscate_auth_param', '0');
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
             return;
         }
