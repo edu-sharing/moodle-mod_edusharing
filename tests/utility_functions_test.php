@@ -87,13 +87,14 @@ class utility_functions_test extends advanced_testcase {
      *
      * @throws dml_exception
      */
-    public function test_if_get_auth_key_returns_user_id_if_sso_is_active(): void {
+    public function test_if_get_auth_key_returns_user_id_if_sso_is_active_and_obfuscation_is_active(): void {
         $this->resetAfterTest();
         global $SESSION, $CFG;
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'EDU_AUTH_PARAM_NAME_USERID' => 'test',
+            'obfuscate_auth_param' => '1',
         ]);
         $utils                   = new UtilityFunctions($fakeconfig);
         $SESSION->edusharing_sso = ['test' => 'expectedId'];
