@@ -145,7 +145,7 @@ $string['send_additional_auth'] = 'Send additional auth information';
 $string['send_additional_auth_help'] = 'If checked, the app authentication request will include the first and last name as well as email address.';
 $string['auth_suffix'] = 'Authentication suffix';
 $string['auth_suffix_help'] = 'If configured, this suffix will be added to the submitted auth string';
-$string['obfuscate_auth_param'] = 'User ID pseudonomyzation';
+$string['obfuscate_auth_param'] = 'User ID pseudonymization';
 $string['obfuscate_auth_param_help'] = 'If activated, Moodle users will be pseudonymized in the Edu-Sharing repository';
 
 $string['soaprequired'] = 'The PHP extension soap must be activated.';
