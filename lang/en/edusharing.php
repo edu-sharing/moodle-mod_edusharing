@@ -48,6 +48,8 @@ $string['pluginadministration'] = 'edu-sharing';
 $string['edusharingname'] = 'Title';
 $string['description'] = 'Description';
 
+$string['edusharing:wysiwygvisibility'] = 'Add, edit and remove Edu-Sharing content in WYSIWYG editors.';
+
 $string['object_url_fieldset'] = '{$a} Learning-object';
 $string['object_url'] = 'Object';
 $string['object_url_help'] = 'Please use the buttons below to select an object from repository. Its object-ID will be inserted here automatically.';

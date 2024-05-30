@@ -38,4 +38,15 @@ $capabilities = [
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ],
+    'mod/edusharing:wysiwygvisibility' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes'   => [
+            'coursecreator' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+            'admin'          => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+        ],
+    ],
 ];

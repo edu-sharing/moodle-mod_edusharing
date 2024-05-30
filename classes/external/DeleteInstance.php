@@ -88,7 +88,7 @@ class DeleteInstance extends external_api {
         global $DB;
         try {
             $context = context_course::instance($edudeletestructure['courseId']);
-            require_capability('atto/edusharing:visible', $context);
+            require_capability('mod/edusharing:wysiwygvisibility', $context);
             $where = [
                 'id'     => $edudeletestructure['id'],
                 'course' => $edudeletestructure['courseId'],

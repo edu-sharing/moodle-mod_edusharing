@@ -49,6 +49,8 @@ $string['pluginadministration'] = 'edu-sharing';
 $string['edusharingname'] = 'Titel';
 $string['description'] = 'Beschreibung';
 
+$string['edusharing:wysiwygvisibility'] = 'Einfügen, Bearbeiten und entfernend von Edu-Sharing-Inhalten in WYSIWYG-Editoren';
+
 $string['object_url_fieldset'] = '{$a} Lernobjekt';
 $string['object_url'] = 'Link zum Objekt';
 $string['object_url_help'] = 'Bitte nutzen Sie die Buttons, um ein Objekt zu suchen oder hochzuladen. Die ID des Objekts wird dann automatisch eingefügt.';

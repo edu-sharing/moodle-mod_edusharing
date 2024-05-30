@@ -95,7 +95,7 @@ class UpdateInstance extends external_api {
     public static function execute(array $edustructure): array {
         global $DB;
         $context = context_course::instance($edustructure['courseId']);
-        require_capability('atto/edusharing:visible', $context);
+        require_capability('mod/edusharing:wysiwygvisibility', $context);
         $where          = [
             'id'     => $edustructure['id'],
             'course' => $edustructure['courseId'],
