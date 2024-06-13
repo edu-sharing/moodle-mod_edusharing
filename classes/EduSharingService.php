@@ -192,7 +192,7 @@ class EduSharingService {
      * @throws UsageDeletedException
      */
     public function get_redirect_url(Usage $usage, ?string $userid = null, string $mode = 'content'): string {
-        return $this->nodehelper->getRedirectUrl($mode, $usage, $userid);
+        return $this->nodehelper->getRedirectUrl($mode, $usage, [], $userid);
     }
 
     /**

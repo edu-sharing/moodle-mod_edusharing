@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.1.3] - 2024-05-30
+## [8.1.3] - 2024-06-03
 
 ### Added
 
 - WYSIWYG visibility capability to replace old atto capability
+
+### Fixed
+
+- Ambiguous replies from the repository usage creation endpoint could lead to a type error during course restoration. A proper check has been added to prevent a runtime error.
 
 ## [8.1.2] - 2024-05-17
 

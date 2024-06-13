@@ -170,7 +170,7 @@ class RestoreHelper {
                 return get_string('error_missing_rights_on_restore', 'edusharing') . ': ' . ($params['nodeId'] ?? 'blank nodeId');
             } catch (Exception $exception) {
                 unset($exception);
-                return '';
+                return get_string('error_unexpected_on_restore', 'edusharing')  . ': ' . ($params['nodeId'] ?? 'blank nodeId');
             }
             if ($usage !== null) {
                 if (isset($usage->usageId)) {

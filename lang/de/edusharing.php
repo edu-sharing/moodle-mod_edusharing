@@ -166,3 +166,4 @@ $string['error_set_soap_headers'] = 'SOAP-Header konnten nicht gesetzt werden - 
 $string['error_get_app_properties'] = 'Pluginkonfiguration konnte nicht geladen werden.';
 $string['error_encrypt_with_repo_public'] = 'Daten konnten nicht verschlüsselt werden.';
 $string['error_missing_rights_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt aufgrund mangelnder Nutzerrechter bei der Kurswiederherstellung.';
+$string['error_unexpected_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt aufgrund eines unerwarteten Fehlers bei der Kurswiederherstellung.';
