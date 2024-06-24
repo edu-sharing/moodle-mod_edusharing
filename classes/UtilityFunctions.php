@@ -23,6 +23,7 @@ use coding_exception;
 use context_course;
 use context_system;
 use dml_exception;
+use DOMDocument;
 use Exception;
 use stdClass;
 
@@ -206,16 +207,12 @@ class UtilityFunctions {
      */
     public function set_module_id_in_db(string $text, array $data, string $idtype): void {
         global $DB;
-        preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi',
-            $text, $matchesimgatto, PREG_PATTERN_ORDER);
-        preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi',
-            $text, $matchesaatto, PREG_PATTERN_ORDER);
-        $matchesatto = array_merge($matchesimgatto[0], $matchesaatto[0]);
-        foreach ($matchesatto as $match) {
+        $esmatches = $this->get_inline_object_matches($text);
+        foreach ($esmatches as $match) {
             $resourceid = '';
-            $pos        = strpos($match, "resourceId=");
+            $pos        = strpos($match, 'resourceid="');
             if ($pos !== false) {
-                $resourceid = substr($match, $pos + 11);
+                $resourceid = substr($match, $pos + 12);
                 $resourceid = substr($resourceid, 0, strpos($resourceid, "&"));
             }
             try {
@@ -324,9 +321,18 @@ class UtilityFunctions {
      * @return array
      */
     public function get_inline_object_matches(string $inputtext): array {
-        preg_match_all('#<img(.*)class="(.*)edusharing_atto(.*)"(.*)>#Umsi', $inputtext, $matchesimg, PREG_PATTERN_ORDER);
-        preg_match_all('#<a(.*)class="(.*)edusharing_atto(.*)">(.*)</a>#Umsi', $inputtext, $matchesa, PREG_PATTERN_ORDER);
-        return array_merge($matchesimg[0], $matchesa[0]);
+        $contenttype = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+        $dom = new DOMDocument();
+        $dom->loadHTML($contenttype . $inputtext, LIBXML_NOERROR);
+        $allelements = $dom->getElementsByTagName("*");
+        $matches = [];
+        foreach ($allelements as $item) {
+            $classes = $item->attributes->getNamedItem('class')->nodeValue ?? '';
+            if (str_contains($classes, 'edusharing_atto')) {
+                $matches[] = $dom->saveHTML($item);
+            }
+        }
+        return $matches;
     }
 
     /**

@@ -167,3 +167,4 @@ $string['error_get_app_properties'] = 'Cannot load plugin config';
 $string['error_encrypt_with_repo_public'] = 'Cannot encrypt data.';
 $string['error_missing_rights_on_restore'] = 'This Edu-Sharing object is missing due to insufficient user rights during course restoration.';
 $string['error_unexpected_on_restore'] = 'This Edu-Sharing object is missing due to an unexpected error having occurred during restoration';
+$string['error_parsing_on_restore'] = 'This Edu-Sharing object is missing due to a parsing error having occurred during restoration';

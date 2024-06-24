@@ -209,7 +209,7 @@ class utility_functions_test extends advanced_testcase {
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda">';
-        $text          .= '<a resourceId=resourceID2& class="dsfg_edusharing_atto_afdd">text</a>';
+        $text          .= '<a resourceId="resourceID2&" class="dsfg_edusharing_atto_afdd">text</a>';
         $utils->set_module_id_in_db($text, $data, $idtype);
     }
 
