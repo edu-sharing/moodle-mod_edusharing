@@ -198,29 +198,47 @@ class UtilityFunctions {
     }
 
     /**
-     * Function set_module_id_in_db
+     * Function set_moodle_ids_in_edusharing_entries
      *
      * @param string $text
-     * @param array $data
-     * @param string $idtype
-     * @return void
+     * @param int $sectionid
+     * @param int $moduleid
+     *
+     * @throws dml_exception
      */
-    public function set_module_id_in_db(string $text, array $data, string $idtype): void {
+    public function set_moodle_ids_in_edusharing_entries(string $text, int $sectionid, int $moduleid = 0): void {
         global $DB;
         $esmatches = $this->get_inline_object_matches($text);
         foreach ($esmatches as $match) {
-            $resourceid = '';
-            $pos        = strpos($match, 'resourceid="');
-            if ($pos !== false) {
-                $resourceid = substr($match, $pos + 12);
-                $resourceid = substr($resourceid, 0, strpos($resourceid, "&"));
+            $resourceid = $this->get_resource_id_from_match($match);
+            $edusharing = $DB->get_record('edusharing', ['id' => $resourceid], '*', MUST_EXIST);
+            $edusharing->section_id = $sectionid;
+            if ($moduleid !== 0) {
+                $edusharing->module_id = $moduleid;
             }
-            try {
-                $DB->set_field('edusharing', $idtype, $data['objectid'], ['id' => $resourceid]);
-            } catch (Exception $exception) {
-                debugging('Could not set module_id: ' . $exception->getMessage());
-            }
+            $DB->update_record('edusharing', $edusharing);
         }
+    }
+
+    /**
+     * Function get_resource_id_from_match
+     *
+     * @param string $match
+     * @return string
+     */
+    public function get_resource_id_from_match(string $match): string {
+        $resourceid = '';
+        $pos        = strpos($match, 'resourceid="');
+        $offset     = 12;
+        if ($pos === false) {
+            $pos = strpos($match, "resourceId=");
+            $offset = 11;
+        }
+        if ($pos !== false) {
+            $resourceid = substr($match, $pos + $offset);
+            $resourceid = substr($resourceid, 0, strpos($resourceid, "&"));
+        }
+        return $resourceid;
     }
 
     /**

@@ -186,31 +186,105 @@ class utility_functions_test extends advanced_testcase {
     }
 
     /**
-     * Function test_if_set_module_in_db_finds_matches_and_sets_resource_ids_to_db_if_matches_found
+     * Function test_if_set_moodle_ids_in_edusharing_entries_does_not_set_anything_if_no_matches
      *
      * @return void
      *
      */
-    public function test_if_set_module_in_db_finds_matches_and_sets_resource_ids_to_db_if_matches_found(): void {
+    public function test_if_set_moodle_ids_in_edusharing_entries_does_not_set_anything_if_no_matches(): void {
         $this->resetAfterTest();
         require_once('lib/dml/tests/dml_test.php');
-        $utils  = new UtilityFunctions();
-        $idtype = 'testType';
-        $data   = ['objectid' => 'value1'];
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
-            ->onlyMethods(['set_field'])
+            ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
+        $dbmock->expects($this->never())->method('get_record');
+        $dbmock->expects($this->never())->method('update_record');
+
+    }
+
+    /**
+     * Function test_if_set_moodle_ids_in_edusharing_entries_sets_found_resource_ids_to_db
+     *
+     * @return void
+     *
+     */
+    public function test_if_set_moodle_ids_in_edusharing_entries_sets_found_resource_ids_to_db(): void {
+        $this->resetAfterTest();
+        require_once('lib/dml/tests/dml_test.php');
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record', 'update_record'])
+            ->getMock();
+        $edusharing1 = new stdClass();
+        $edusharing1->id = 1;
+        $edusharing2 = new stdClass();
+        $edusharing2->id = 2;
         $dbmock->expects($this->exactly(2))
-            ->method('set_field')
+            ->method('get_record')
             ->withConsecutive(
-                ['edusharing', $idtype, 'value1', ['id' => 'resourceID1']],
-                ['edusharing', $idtype, 'value1', ['id' => 'resourceID2']],
+                ['edusharing', ['id' => 'resourceID1'], '*', MUST_EXIST],
+                ['edusharing', ['id' => 'resourceID2'], '*', MUST_EXIST]
+            )->willReturnOnConsecutiveCalls($edusharing1, $edusharing2);
+        $sectionid = 4;
+        $moduleid = 5;
+        $edusharing3 = clone $edusharing1;
+        $edusharing3->section_id = $sectionid;
+        $edusharing3->module_id = $moduleid;
+        $edusharing4 = clone $edusharing2;
+        $edusharing4->section_id = $sectionid;
+        $edusharing4->module_id = $moduleid;
+        $dbmock->expects($this->exactly(2))
+            ->method('update_record')
+            ->withConsecutive(
+                ['edusharing', $edusharing3],
+                ['edusharing', $edusharing4]
             );
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
-        $text          = '<img resourceId=resourceID1& class="as_edusharing_atto_asda">';
-        $text          .= '<a resourceId="resourceID2&" class="dsfg_edusharing_atto_afdd">text</a>';
-        $utils->set_module_id_in_db($text, $data, $idtype);
+        $text = '<img resourceId=resourceID1& class="as_edusharing_atto_asda">';
+        $text .= '<a resourceId="resourceID2&" class="dsfg_edusharing_atto_afdd">text</a>';
+        $utils = new UtilityFunctions();
+        $utils->set_moodle_ids_in_edusharing_entries($text, $sectionid, $moduleid);
+    }
+
+    /**
+     * Function test_if_set_module_in_db_only_sets_section_id_if_no_module_id_provided
+     *
+     * @return void
+     *
+     */
+    public function test_if_set_module_in_db_only_sets_section_id_if_no_module_id_provided(): void {
+        $this->resetAfterTest();
+        require_once('lib/dml/tests/dml_test.php');
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record', 'update_record'])
+            ->getMock();
+        $edusharing1 = new stdClass();
+        $edusharing1->id = 1;
+        $edusharing2 = new stdClass();
+        $edusharing2->id = 2;
+        $dbmock->expects($this->exactly(2))
+            ->method('get_record')
+            ->withConsecutive(
+                ['edusharing', ['id' => 'resourceID1'], '*', MUST_EXIST],
+                ['edusharing', ['id' => 'resourceID2'], '*', MUST_EXIST]
+            )->willReturnOnConsecutiveCalls($edusharing1, $edusharing2);
+        $sectionid = 4;
+        $edusharing3 = clone $edusharing1;
+        $edusharing3->section_id = $sectionid;
+        $edusharing4 = clone $edusharing2;
+        $edusharing4->section_id = $sectionid;
+        $dbmock->expects($this->exactly(2))
+            ->method('update_record')
+            ->withConsecutive(
+                ['edusharing', $edusharing3],
+                ['edusharing', $edusharing4]
+            );
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
+        $GLOBALS['DB'] = $dbmock;
+        $text = '<img resourceId=resourceID1& class="as_edusharing_atto_asda">';
+        $text .= '<a resourceId="resourceID2&" class="dsfg_edusharing_atto_afdd">text</a>';
+        $utils = new UtilityFunctions();
+        $utils->set_moodle_ids_in_edusharing_entries($text, $sectionid);
     }
 
     /**
@@ -228,7 +302,7 @@ class utility_functions_test extends advanced_testcase {
         $dbmock->expects($this->never())->method('set_field');
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
-        $utils->set_module_id_in_db('NothingHere', [], 'idType');
+        $utils->set_moodle_ids_in_edusharing_entries('NothingHere', 1, 2);
     }
 
     /**
