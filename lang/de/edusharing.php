@@ -148,7 +148,10 @@ $string['send_additional_auth_help'] = 'Ist diese Option aktiviert, werden bei d
 $string['auth_suffix'] = 'Authentifizierungssuffix';
 $string['auth_suffix_help'] = 'Dieses Suffix wird an den übermittelten Authentifzierungsstring angehängt';
 $string['obfuscate_auth_param'] = 'Pseudonymisierung der Nutzer ID';
-$string['obfuscate_auth_param_help'] = 'Ist diese Option aktiviert, werdeb die Moodle-Nutzer gegenüber dem Edu-Sharing Repo pseudonymisiert.';
+$string['obfuscate_auth_param_help'] = 'Ist diese Option aktiviert, werden die Moodle-Nutzer gegenüber dem Edu-Sharing Repo pseudonymisiert.';
+$string['require_login_for_metadata'] = 'Login für Metadatenabfrage nötig';
+$string['require_login_for_metadata_help'] = 'Ist diese Option aktiviert, ist ein Login nötig, um die App-Metadaten abzufragen';
+
 
 $string['soaprequired'] = 'Die PHP-Erweiterung soap muss aktiviert sein.';
 

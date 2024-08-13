@@ -25,11 +25,17 @@
 use EduSharingApiClient\EduSharingHelper;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\MetadataLogic;
+use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
+$utils = new UtilityFunctions();
+
+
 try {
-    require_login();
+    if ($utils->get_config_entry('require_login_for_metadata') == '1') {
+        require_login();
+    }
 } catch (Exception $exception) {
     echo $exception->getMessage();
     unset($exception);

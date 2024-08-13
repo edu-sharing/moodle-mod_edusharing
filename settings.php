@@ -64,6 +64,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/application_cc_gui_url', 'cc_gui_url', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('edusharing/application_docker_network_url',
         'docker_network_url', '', '', PARAM_TEXT, 50));
+    $settings->add(
+        new admin_setting_configcheckbox('edusharing/require_login_for_metadata',
+            new lang_string('require_login_for_metadata', 'edusharing'),
+            new lang_string('require_login_for_metadata_help', 'edusharing'),
+            '0'
+        )
+    );
     $settings->add(new admin_setting_configtextarea('edusharing/application_private_key', 'private_key', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtextarea('edusharing/application_public_key', 'public_key', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_heading('edusharing/rep', get_string('homerepProperties', 'edusharing'), ''));
