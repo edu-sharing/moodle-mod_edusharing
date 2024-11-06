@@ -27,10 +27,11 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\UtilityFunctions;
 
+
 require_once(dirname(__FILE__) . '/../../config.php');
 
+$service = new EduSharingService();
 $utils = new UtilityFunctions();
-
 
 try {
     if ($utils->get_config_entry('require_login_for_metadata') == '1') {
@@ -58,7 +59,7 @@ if (empty($publickey)) {
         debugging($exception->getMessage());
     }
 }
-$logic    = new MetadataLogic(new EduSharingService());
+$logic    = new MetadataLogic($service);
 $metadata = $logic->create_xml_metadata();
 
 header('Content-type: text/xml');

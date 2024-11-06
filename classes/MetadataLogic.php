@@ -183,7 +183,7 @@ class MetadataLogic {
             $entry->addAttribute('key', 'subtype');
             $entry = $xml->addChild('entry', parse_url($CFG->wwwroot, PHP_URL_HOST));
             $entry->addAttribute('key', 'domain');
-            $entry = $xml->addChild('entry', $this->utils->get_config_entry('application_host'));
+            $entry = $xml->addChild('entry', $this->utils->get_config_entry('application_host') === false ? '' : $this->utils->get_config_entry('application_host'));
             $entry->addAttribute('key', 'host');
             $entry = $xml->addChild('entry', $this->utils->get_config_entry('application_host_aliases'));
             $entry->addAttribute('key', 'host_aliases');
