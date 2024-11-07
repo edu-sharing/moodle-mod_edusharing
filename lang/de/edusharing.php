@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// phpcs:ignoreFile
+
 /**
  * German strings for edu-sharing
  *
@@ -29,7 +31,6 @@ $string['uploadrec'] = 'Hochladen in das {$a} Repositorium ...';
 $string['pagewindow'] = 'Anzeige im gleichen Fenster';
 $string['newwindow'] = 'Anzeige in neuem Fenster';
 $string['display'] = 'Anzeige';
-$string['show_course_blocks'] = 'Zeige Kurs-Blöcke';
 
 // Modulename seems to be used in admin-panels.
 // Pluginname seems to be used in course-view.

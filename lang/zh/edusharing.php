@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// phpcs:ignoreFile
+
 /**
  * zh strings for edusharing
  *
@@ -29,7 +31,6 @@ $string['uploadrec'] = '上传到edu-sharing资源库 ...';
 $string['pagewindow'] = '在页面中显示';
 $string['newwindow'] = '在新窗口中显示';
 $string['display'] = '显示';
-$string['show_course_blocks'] = '显示课程板块';
 
 // Modulename seems to be used in admin-panels.
 // Pluginname seems to be used in course-view.

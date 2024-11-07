@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// phpcs:ignoreFile
+
 /**
  * English strings for edusharing
  *
@@ -29,8 +31,6 @@ $string['uploadrec'] = 'Upload to {$a} repository ...';
 $string['pagewindow'] = 'In-page display';
 $string['newwindow'] = 'Display in new window';
 $string['display'] = 'Display';
-$string['show_course_blocks'] = 'Show course blocks';
-
 // Modulename seems to be used in admin-panels,
 // Pluginname seems to be used in course-view.
 try {
