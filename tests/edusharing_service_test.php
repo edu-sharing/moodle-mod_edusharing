@@ -41,6 +41,8 @@ use testUtils\FakeConfig;
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\EduSharingService
  */
 class edusharing_service_test extends \advanced_testcase {

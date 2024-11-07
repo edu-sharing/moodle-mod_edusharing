@@ -34,6 +34,8 @@ use JsonException;
  *
  * @author Marian Ziegler
  * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\InstallUpgradeLogic
  */
 class install_upgrade_logic_test extends advanced_testcase {

@@ -20,6 +20,8 @@ namespace mod_edusharing\event;
  * Class course_module_instance_list_viewed
  *
  * @package    mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
 }

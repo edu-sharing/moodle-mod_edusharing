@@ -25,6 +25,8 @@ use Exception;
  *
  * @author Marian Ziegler <ziegler@edu-sharnig.net>
  * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class MetaDataFrontend {
     /**

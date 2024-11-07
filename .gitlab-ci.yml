@@ -1,4 +1,4 @@
-image: moodlehq/moodle-php-apache:8.2
+image: moodlehq/moodle-php-apache:8.3
 
 services:
   - mysql:8.3.0
@@ -9,12 +9,12 @@ variables:
   DB: "mysqli"
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  MOODLE_BRANCH: "MOODLE_403_STABLE"
+  MOODLE_BRANCH: "MOODLE_405_STABLE"
   # Only needed, when your project is within a group/subgroup of "moodle".
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
-  IGNORE_PATHS: "mod/edusharing/apiClient"
+  IGNORE_PATHS: "mod/edusharing/apiClient,mod/edusharing/lang"
 
 test:
   before_script:
@@ -34,7 +34,7 @@ test:
     - rm -rf /builds/edu-sharing/community/integration/moodledata
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
-    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci 4.4.0
+    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
     - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
     - chmod u+x ci/bin/moodle-plugin-ci
     - chmod u+x ci/bin/*

@@ -39,6 +39,8 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  *
  * @author Marian Ziegler <ziegler@edu-sharing.net>
  * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\MetadataLogic
  */
 class metadata_logic_test extends advanced_testcase {
