@@ -10,6 +10,18 @@ Please note: Plugin versions > 8.0.0 require an environment running PHP 8.0 or h
 
 ## Installation
 
+The Edu-sharing activity module is available on the Moodle Plugins Repository: [Link](https://moodle.org/plugins/mod_edusharing). It can be installed directly to your Moodle deployment or manually by using the downloadable zip file.
+
+Advanced admins can also use git to install the plugin directly on their server:
+
+```
+cd $YOUR_MOODLE_BASEDIR/mod
+git clone https://github.com/edu-sharing/moodle-mod_edusharing.git edusharing
+cd edusharing
+git submodule init
+git submodule update
+```
+
 After installation connect the activity module to an edu-sharing repository (plugin settings / repository settings)
 For a full documentation with screenshots of the post installation steps for the edu-sharing plugin package visit the [documentation pages](http://docs.edu-sharing.com/confluence/edp/en).
 
