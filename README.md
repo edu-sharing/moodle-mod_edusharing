@@ -27,7 +27,7 @@ For a full documentation with screenshots of the post installation steps for the
 
 ## Update note
 
-For changes please refer to the changelog
+For changes please refer to the changelog in this repository
 
 ## Documentation
 
