@@ -78,12 +78,19 @@ class InstallUpgradeLogic {
      */
     public function perform(bool $isinstall = true): void {
         global $CFG;
+        if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
+            $this->configdata = [
+                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . ':' . getenv('EDUSHARING_REPOSITORY_PORT') . '/edusharing',
+                'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
+                'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD')
+            ];
+        }
         if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
             || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
         ) {
             return;
         }
-        $metadataurl = $this->configdata['repoUrl'] . '/metadata?format=lms&external=true';
+        $metadataurl = rtrim($this->configdata['repoUrl'], '/') . '/metadata?format=lms&external=true';
         if ($isinstall && $this->configdata['autoAppIdFromUrl']) {
             $this->metadatalogic->set_app_id(basename($CFG->wwwroot));
         }
