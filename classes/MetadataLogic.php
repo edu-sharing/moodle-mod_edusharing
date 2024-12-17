@@ -90,10 +90,12 @@ class MetadataLogic {
      * @throws dml_exception
      */
     public function import_metadata(string $metadataurl, ?string $host = null): void {
+        error_log("IMPORT METADATA");
         global $CFG;
         $xml = new DOMDocument();
         libxml_use_internal_errors(true);
         $result = $this->service->import_metadata($metadataurl);
+        error_log("result: " . json_encode($result));
         if ($result->error !== 0) {
             $message = $result->info['message'] ?? 'unknown';
             debugging('cURL Error: ' . $message);

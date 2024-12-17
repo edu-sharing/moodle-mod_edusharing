@@ -68,7 +68,8 @@ class InstallUpgradeLogic {
             $this->configdata = [
                 'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edusharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
-                'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD')
+                'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD'),
+                'autoAppIdFromUrl' => false
             ];
             error_log(json_encode($this->configdata));
             return;
@@ -92,7 +93,6 @@ class InstallUpgradeLogic {
         if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
             || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
         ) {
-            error_log("CHECK 95 NOT OK");
             return;
         }
         $metadataurl = rtrim($this->configdata['repoUrl'], '/') . '/metadata?format=lms&external=true';
