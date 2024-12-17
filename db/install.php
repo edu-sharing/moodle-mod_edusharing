@@ -45,7 +45,6 @@ use mod_edusharing\UtilityFunctions;
  */
 function xmldb_edusharing_install(): void {
     global $CFG;
-    error_log("RUNNING INSTALL SCRIPT");
     require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     $logic = new InstallUpgradeLogic();
     try {
@@ -71,6 +70,7 @@ function xmldb_edusharing_install(): void {
         $logic->set_metadata_logic($metadatalogic);
         $logic->perform();
     } catch (Exception $exception) {
+        error_log($exception->getMessage());
         debugging(($exception instanceof JsonException
                 ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());
         return;
