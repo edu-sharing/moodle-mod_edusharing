@@ -104,6 +104,7 @@ class MetadataLogic {
                 '<p style="background: #FF8170">cURL Error: ' . $message . '<br></p>');
         }
         if (!$xml->loadXML($result->content)) {
+            error_log("CANNOT LOAD XML");
             $this->reloadform = true;
             throw new EduSharingUserException('xml error', 0, null,
                 '<p style="background: #FF8170">could not load ' . $metadataurl . ' please check url <br></p>');
@@ -127,6 +128,7 @@ class MetadataLogic {
             } else if (!empty($_SERVER['SERVER_NAME'])) {
                 $host = gethostbyname($_SERVER['SERVER_NAME']);
             } else {
+                error_log("HOST CANNOT BE DISCERNED");
                 throw new Exception('Host could not be discerned. Cancelling ES-registration process.');
             }
         }
