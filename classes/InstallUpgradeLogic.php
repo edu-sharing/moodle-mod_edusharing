@@ -66,7 +66,7 @@ class InstallUpgradeLogic {
         if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
             $port = empty(getenv('EDUSHARING_REPOSITORY_PORT')) ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
             $this->configdata = [
-                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edusharing',
+                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
                 'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD'),
                 'autoAppIdFromUrl' => false
