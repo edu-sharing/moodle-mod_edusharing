@@ -87,14 +87,12 @@ class InstallUpgradeLogic {
      * @return void
      */
     public function perform(bool $isinstall = true): void {
+        error_log("RUNNING PERFORM");
         global $CFG;
-        if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
-
-
-        }
         if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
             || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
         ) {
+            error_log("CHECK 95 NOT OK");
             return;
         }
         $metadataurl = rtrim($this->configdata['repoUrl'], '/') . '/metadata?format=lms&external=true';
