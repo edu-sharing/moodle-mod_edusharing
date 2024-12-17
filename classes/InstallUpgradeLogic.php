@@ -77,10 +77,15 @@ class InstallUpgradeLogic {
      * @return void
      */
     public function perform(bool $isinstall = true): void {
+        error_log("RUNNING PERFORM");
+        error_log(json_encode(getenv()));
         global $CFG;
         if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
+            error_log("SETTING CONFIGDATA FROM ENV");
+
+            $port = empty(getenv('EDUSHARING_REPOSITORY_PORT')) ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
             $this->configdata = [
-                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . ':' . getenv('EDUSHARING_REPOSITORY_PORT') . '/edusharing',
+                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edusharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
                 'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD')
             ];
