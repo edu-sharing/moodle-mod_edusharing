@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\MetadataLogic
  */
-class metadata_logic_test extends advanced_testcase {
+final class metadata_logic_test extends advanced_testcase {
     /**
      * Function test_if_import_metadata_sets_all_config_entries_on_success
      *

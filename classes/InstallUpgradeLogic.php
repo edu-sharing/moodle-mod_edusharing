@@ -64,15 +64,18 @@ class InstallUpgradeLogic {
      */
     public function parse_config_data(): void {
         if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
-            $port = empty(getenv('EDUSHARING_REPOSITORY_PORT')) ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
-            $hostaliases = empty(getenv('EDUSHARING_MOODLE_HOST_ALIASES')) ? '' : (':' . getenv('EDUSHARING_MOODLE_HOST_ALIASES'));
+            $port = empty(getenv('EDUSHARING_REPOSITORY_PORT'))
+                ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
+            $hostaliases = empty(getenv('EDUSHARING_MOODLE_HOST_ALIASES'))
+                ? '' : (':' . getenv('EDUSHARING_MOODLE_HOST_ALIASES'));
             $this->configdata = [
-                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
+                'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT')
+                    . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
                 'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD'),
                 'host' => getenv('EDUSHARING_MOODLE_HOST'),
                 'hostAliases_optional' => $hostaliases,
-                'autoAppIdFromUrl' => false
+                'autoAppIdFromUrl' => false,
             ];
             return;
         }

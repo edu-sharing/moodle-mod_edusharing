@@ -37,7 +37,7 @@ use testUtils\TestStringGenerator;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\UtilityFunctions
  */
-class utility_functions_test extends advanced_testcase {
+final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok
      *

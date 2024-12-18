@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\PluginRegistration
  */
-class plugin_registration_test extends advanced_testcase {
+final class plugin_registration_test extends advanced_testcase {
     /**
      * Function test_register_plugin_returns_content_from_service_call_on_success
      *

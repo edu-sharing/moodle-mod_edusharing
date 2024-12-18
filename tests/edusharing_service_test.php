@@ -45,7 +45,7 @@ use testUtils\FakeConfig;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\EduSharingService
  */
-class edusharing_service_test extends \advanced_testcase {
+final class edusharing_service_test extends \advanced_testcase {
 
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new

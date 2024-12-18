@@ -38,7 +38,7 @@ use JsonException;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_edusharing\InstallUpgradeLogic
  */
-class install_upgrade_logic_test extends advanced_testcase {
+final class install_upgrade_logic_test extends advanced_testcase {
 
     /**
      * Function test_parse_config_data_throws_exception_if_file_not_found
