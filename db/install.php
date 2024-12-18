@@ -56,10 +56,8 @@ function xmldb_edusharing_install(): void {
         $utils->set_config_entry('send_additional_auth', '1');
         $utils->set_config_entry('obfuscate_auth_param', '0');
         if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
-            error_log("DATA NOT OK");
             return;
         }
-        error_log("DATA OK");
         $basehelper = new EduSharingHelperBase($data['repoUrl'], '', $appid);
         $basehelper->registerCurlHandler(new MoodleCurlHandler());
         $authhelper = new EduSharingAuthHelper($basehelper);
@@ -72,7 +70,6 @@ function xmldb_edusharing_install(): void {
         $logic->set_metadata_logic($metadatalogic);
         $logic->perform();
     } catch (Exception $exception) {
-        error_log($exception->getMessage());
         debugging(($exception instanceof JsonException
                 ? 'Metadata import and plugin registration failed, invalid installConfig.json: ' : '') . $exception->getMessage());
         return;

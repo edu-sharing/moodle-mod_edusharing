@@ -43,7 +43,6 @@ use mod_edusharing\UtilityFunctions;
  * @return bool
  */
 function xmldb_edusharing_upgrade($oldversion=0): bool {
-    error_log("RUNNING UPGRADE");
     global $CFG, $DB;
     $dbmanager = $DB->get_manager();
     $result    = true;

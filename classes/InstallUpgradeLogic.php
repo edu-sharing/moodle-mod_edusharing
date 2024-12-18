@@ -65,13 +65,15 @@ class InstallUpgradeLogic {
     public function parse_config_data(): void {
         if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
             $port = empty(getenv('EDUSHARING_REPOSITORY_PORT')) ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
+            $hostaliases = empty(getenv('EDUSHARING_MOODLE_HOST_ALIASES')) ? '' : (':' . getenv('EDUSHARING_MOODLE_HOST_ALIASES'));
             $this->configdata = [
                 'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT') . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
                 'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD'),
+                'host' => getenv('EDUSHARING_MOODLE_HOST'),
+                'hostAliases_optional' => $hostaliases,
                 'autoAppIdFromUrl' => false
             ];
-            error_log(json_encode($this->configdata));
             return;
         }
         if (! file_exists($this->configpath)) {
@@ -88,7 +90,6 @@ class InstallUpgradeLogic {
      * @return void
      */
     public function perform(bool $isinstall = true): void {
-        error_log("RUNNING PERFORM");
         global $CFG;
         if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
             || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
