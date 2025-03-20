@@ -100,6 +100,8 @@ class mod_edusharing_mod_form extends moodleform_mod {
                                         if (aspects.includes('ccm:published') || aspects.includes('ccm:collection_io_reference') || version === -1) {
                                             window.document.getElementById('id_object_version_0').checked = true;
                                             window.document.getElementById('id_object_version_1').closest('label').hidden = true;
+                                        } else {
+                                            window.document.getElementById('id_object_version_1').closest('label').hidden = false;
                                         }
                                         window.document.getElementById('fitem_id_object_title')
                                             .getElementsByClassName('form-control-static')[0].innerHTML = title;
