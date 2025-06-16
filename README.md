@@ -1,3 +1,4 @@
+[![Moodle Plugin CI](https://github.com/edu-sharing/moodle-mod_edusharing/actions/workflows/moodle-plugin-ci.yml/badge.svg)](https://github.com/edu-sharing/moodle-mod_edusharing/actions/workflows/moodle-plugin-ci.yml)
 # edu-sharing activity module
 
 The edu-sharing activity module adds a new option to the activities/resource menu. Using the edu-sharing resource allows you to either pick content from the repository or upload it to a folder of the repository. You may pick which version of the content you would like to provide in the course (always the latest vs. the version you just picked).
