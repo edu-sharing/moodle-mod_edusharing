@@ -31,6 +31,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/lib/externallib.php');
 
+/**
+ * class GetSecuredNode
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class GetSecuredNode extends external_api {
 
     /**
@@ -80,13 +88,13 @@ class GetSecuredNode extends external_api {
      */
     public static function execute(array $structure): array {
         $service = new EduSharingService();
-        $securedNode = $service->get_secured_node($structure['nodeId']);
-        $renderingUrl = $service->get_rendering_2_url();
+        $securednode = $service->get_secured_node($structure['nodeId']);
+        $renderingurl = $service->get_rendering_2_url();
         return [
-            'securedNode' => $securedNode->securedNode,
-            'signature' => $securedNode->signature,
-            'jwt' => $securedNode->jwt,
-            'renderingBaseUrl' => $renderingUrl
+            'securedNode' => $securednode->securedNode,
+            'signature' => $securednode->signature,
+            'jwt' => $securednode->jwt,
+            'renderingBaseUrl' => $renderingurl,
         ];
     }
 }

@@ -195,11 +195,11 @@ class InstallUpgradeLogic {
      * @throws Exception
      */
     private function check_docker_env_vars() {
-        $mandatoryvariables =  [
+        $mandatoryvariables = [
             'EDUSHARING_REPOSITORY_PROT',
             'EDUSHARING_REPOSITORY_HOST',
             'EDUSHARING_REPOSITORY_USERNAME',
-            'EDUSHARING_REPOSITORY_PASSWORD'
+            'EDUSHARING_REPOSITORY_PASSWORD',
         ];
         $missingvariables = [];
         foreach ($mandatoryvariables as $mandatoryvariable) {
