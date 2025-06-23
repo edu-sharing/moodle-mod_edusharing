@@ -61,4 +61,13 @@ $functions = [
             MOODLE_OFFICIAL_MOBILE_SERVICE,
         ],
     ],
+    'mod_edusharing_get_secured_node' => [
+        'classname'   => 'mod_edusharing\external\GetSecuredNode',
+        'description' => 'Gets the secured node and all data needed for rendering with rendering service 2',
+        'type'        => 'read',
+        'ajax'        => true,
+        'services'    => [
+            MOODLE_OFFICIAL_MOBILE_SERVICE,
+        ],
+    ]
 ];

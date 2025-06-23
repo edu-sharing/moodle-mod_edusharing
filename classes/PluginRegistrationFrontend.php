@@ -52,7 +52,7 @@ class PluginRegistrationFrontend {
             $return .= $errormessage . '<p class="edu_error">' . $exceptionmessage . '</p>';
             return $return;
         }
-        if (isset($result['appid'])) {
+        if (isset($result['id'])) {
             return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '. $repourl .'</h3>';
         }
         $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">'.$result['message'].'</p>' : '';

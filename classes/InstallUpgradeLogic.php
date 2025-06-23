@@ -64,10 +64,11 @@ class InstallUpgradeLogic {
      */
     public function parse_config_data(): void {
         if (! empty(getenv('EDUSHARING_RENDER_DOCKER_DEPLOYMENT'))) {
+            $this->check_docker_env_vars();
             $port = empty(getenv('EDUSHARING_REPOSITORY_PORT'))
                 ? '' : (':' . getenv('EDUSHARING_REPOSITORY_PORT'));
             $hostaliases = empty(getenv('EDUSHARING_MOODLE_HOST_ALIASES'))
-                ? '' : (':' . getenv('EDUSHARING_MOODLE_HOST_ALIASES'));
+                ? '' : (getenv('EDUSHARING_MOODLE_HOST_ALIASES'));
             $this->configdata = [
                 'repoUrl' => getenv('EDUSHARING_REPOSITORY_PROT')
                     . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
@@ -186,5 +187,28 @@ class InstallUpgradeLogic {
             $appid = (string)$appid;
         }
         return $appid;
+    }
+
+    /**
+     * Function check_docker_env_vars
+     *
+     * @throws Exception
+     */
+    private function check_docker_env_vars() {
+        $mandatoryvariables =  [
+            'EDUSHARING_REPOSITORY_PROT',
+            'EDUSHARING_REPOSITORY_HOST',
+            'EDUSHARING_REPOSITORY_USERNAME',
+            'EDUSHARING_REPOSITORY_PASSWORD'
+        ];
+        $missingvariables = [];
+        foreach ($mandatoryvariables as $mandatoryvariable) {
+            if (empty(getenv($mandatoryvariable))) {
+                $missingvariables[] = $mandatoryvariable;
+            }
+        }
+        if (! empty($missingvariables)) {
+            throw new Exception("Missing environment variables for docker deployment: " . implode(', ', $missingvariables));
+        }
     }
 }

@@ -29,6 +29,7 @@ use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\MissingRightsException;
 use EduSharingApiClient\NodeDeletedException;
+use EduSharingApiClient\SecuredNode;
 use EduSharingApiClient\UrlHandling;
 use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
@@ -505,5 +506,54 @@ class EduSharingService {
      */
     public function get_preview_image(Usage $usage): CurlResult {
         return $this->nodehelper->getPreview($usage);
+    }
+
+    /**
+     * Function get_secured_node
+     *
+     * @param string $nodeid
+     * @return SecuredNode
+     * @throws Exception
+     */
+    public function get_secured_node(string $nodeid): SecuredNode {
+        return $this->nodehelper->getSecuredNode(
+            ticket: $this->get_ticket(),
+            nodeId: $nodeid,
+            repoId: $this->utils->get_config_entry('application_homerepid')
+        );
+    }
+
+    /**
+     * Function get_rendering_2_url
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function get_rendering_2_url(): string {
+        $about = $this->nodehelper->base->getAbout();
+        if (isset ($about['renderingService2']['url'])) {
+            return $about['renderingService2']['url'];
+        }
+        throw new Exception('Rendering Service 2 is not configured');
+    }
+
+    /**
+     * Function has_rendering_2
+     *
+     * @return bool
+     */
+    public function has_rendering_2(): bool {
+        global $SESSION;
+        if (isset($SESSION->filter_edusharing_rendering2)) {
+            return (bool)$SESSION->filter_edusharing_rendering2;
+        }
+        try {
+            $this->get_rendering_2_url();
+            $SESSION->filter_edusharing_rendering2 = true;
+            return true;
+        } catch (Exception) {
+            $SESSION->filter_edusharing_rendering2 = false;
+            return false;
+        }
     }
 }

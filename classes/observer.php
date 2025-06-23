@@ -232,7 +232,7 @@ class mod_edusharing_observer {
         $service = new EduSharingService();
         foreach ($eduobjects as $object) {
             try {
-                $service->delete_instance($object['id']);
+                $service->delete_instance($object->id);
             } catch (Exception $exception) {
                 debugging($exception->getMessage());
             }

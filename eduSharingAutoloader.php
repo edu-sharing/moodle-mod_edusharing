@@ -44,6 +44,7 @@ $mapping = [
     'EduSharingApiClient\Usage'                      => __DIR__ . '/apiClient/src/EduSharing/Usage.php',
     'EduSharingApiClient\UsageDeletedException'      => __DIR__ . '/apiClient/src/EduSharing/UsageDeletedException.php',
     'EduSharingApiClient\MissingRightsException'     => __DIR__ . '/apiClient/src/EduSharing/MissingRightsException.php',
+    'EduSharingApiClient\SecuredNode'                => __DIR__ . '/apiClient/src/EduSharing/SecuredNode.php',
 ];
 
 spl_autoload_register(function ($class) use ($mapping) {
