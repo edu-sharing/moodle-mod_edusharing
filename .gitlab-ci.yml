@@ -1,7 +1,7 @@
-image: moodlehq/moodle-php-apache:8.3
+image: moodlehq/moodle-php-apache:8.4
 
 services:
-  - mysql:8.3.0
+  - mysql:9.3.0
   - name: selenium/standalone-chrome:4
     alias: selenium-standalone-chrome
 
@@ -9,7 +9,7 @@ variables:
   DB: "mysqli"
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  MOODLE_BRANCH: "MOODLE_405_STABLE"
+  MOODLE_BRANCH: "MOODLE_500_STABLE"
   # Only needed, when your project is within a group/subgroup of "moodle".
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
