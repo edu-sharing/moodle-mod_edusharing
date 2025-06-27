@@ -27,6 +27,8 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\MetadataLogic;
 use mod_edusharing\UtilityFunctions;
 
+// Require_login is not needed here.
+// phpcs:disable moodle.Files.RequireLogin.Missing
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
