@@ -113,12 +113,12 @@ class MetadataLogic {
             $this->appid = !empty($this->utils->get_config_entry('application_appid'))
                 ? $this->utils->get_config_entry('application_appid') : uniqid('moodle_');
         }
-        $repoid     = $this->utils->get_config_entry('repository_appid');
         $privatekey = $this->utils->get_config_entry('application_private_key');
         $publickey  = $this->utils->get_config_entry('application_public_key');
         foreach ($entries as $entry) {
             $this->utils->set_config_entry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
+        $repoid     = $this->utils->get_config_entry('repository_appid');
         if (empty ($host)) {
             if (!empty($_SERVER['SERVER_ADDR'])) {
                 $host = $_SERVER['SERVER_ADDR'];
