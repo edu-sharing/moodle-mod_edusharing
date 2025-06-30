@@ -33,7 +33,6 @@ $capabilities = [
         'archetypes'   => [
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
-            'admin'          => CAP_ALLOW,
             'teacher'        => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
@@ -45,7 +44,6 @@ $capabilities = [
             'coursecreator' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
-            'admin'          => CAP_ALLOW,
             'teacher'        => CAP_ALLOW,
         ],
     ],

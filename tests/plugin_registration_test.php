@@ -65,11 +65,11 @@ final class plugin_registration_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 0, [])));
+            ->willReturn(new CurlResult('{"isAdmin": true}', 0, []));
         $servicemock->expects($this->once())
             ->method('register_plugin')
             ->with($repourl, $this->anything(), $this->anything(), $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"content": "expectedContent"}', 0, [])));
+            ->willReturn(new CurlResult('{"content": "expectedContent"}', 0, []));
         $registrationlogic = new PluginRegistration($servicemock);
         $result = $registrationlogic->register_plugin($repourl, $user, $password, $data);
         $this->assertArrayHasKey('content', $result);
@@ -99,7 +99,7 @@ final class plugin_registration_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 3, [])));
+            ->willReturn(new CurlResult('{"isAdmin": true}', 3, []));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('API connection error');
@@ -130,7 +130,7 @@ final class plugin_registration_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"isAdmin": false}', 0, [])));
+            ->willReturn(new CurlResult('{"isAdmin": false}', 0, []));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('Given user / password was not accepted as admin');
@@ -160,11 +160,11 @@ final class plugin_registration_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"isAdmin": true}', 0, [])));
+            ->willReturn(new CurlResult('{"isAdmin": true}', 0, []));
         $servicemock->expects($this->once())
             ->method('register_plugin')
             ->with($repourl, $this->anything(), $this->anything(), $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"content": "expectedContent"}', 1, [])));
+            ->willReturn(new CurlResult('{"content": "expectedContent"}', 1, []));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(EduSharingUserException::class);
         $this->expectExceptionMessage('API connection error');
@@ -194,7 +194,7 @@ final class plugin_registration_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('validate_session')
             ->with($repourl, $user . ':' . $password)
-            ->will($this->returnValue(new CurlResult('{"isAdmin: false}', 0, [])));
+            ->willReturn(new CurlResult('{"isAdmin: false}', 0, []));
         $registrationlogic = new PluginRegistration($servicemock);
         $this->expectException(JsonException::class);
         $registrationlogic->register_plugin($repourl, $user, $password, $data);

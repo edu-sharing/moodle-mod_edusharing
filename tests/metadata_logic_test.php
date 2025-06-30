@@ -74,7 +74,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $logic = new MetadataLogic($servicemock, $utils);
         $logic->import_metadata($metadataurl);
         $this->assertEquals('http', $fakeconfig->get('repository_clientprotocol'));
@@ -123,7 +123,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $logic = new MetadataLogic($servicemock, $utils);
         $logic->import_metadata($metadataurl);
         $this->assertTrue(is_string($fakeconfig->get('application_appid')), 'application_appid was not set');
@@ -160,7 +160,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $utils = new UtilityFunctions($fakeconfig);
         $logic = new MetadataLogic($servicemock, $utils);
         $logic->import_metadata($metadataurl);
@@ -192,7 +192,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $utils      = new UtilityFunctions($fakeconfig);
         $logic      = new MetadataLogic($servicemock, $utils);
@@ -226,7 +226,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'application_appid' => 'testId',
@@ -262,7 +262,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'application_appid' => 'testId',
@@ -299,7 +299,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'application_appid' => 'testId',
@@ -336,7 +336,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'application_appid' => 'testId',
@@ -374,7 +374,7 @@ final class metadata_logic_test extends advanced_testcase {
         $servicemock->expects($this->once())
             ->method('import_metadata')
             ->with($metadataurl)
-            ->will($this->returnValue(new CurlResult($metadataxml, 0, [])));
+            ->willReturn(new CurlResult($metadataxml, 0, []));
         $fakeconfig = new FakeConfig();
         $fakeconfig->set_entries([
             'application_appid' => 'testId',
