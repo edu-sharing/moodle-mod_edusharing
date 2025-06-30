@@ -390,6 +390,9 @@ class UtilityFunctions {
             if (empty($internalurl)) {
                 $internalurl = $this->appconfig->get('application_cc_gui_url');
             }
+            if (empty($internalurl)) {
+                return '';
+            }
             return rtrim($internalurl, '/');
         } catch (Exception $exception) {
             debugging($exception->getMessage());
