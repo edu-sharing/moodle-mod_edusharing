@@ -86,7 +86,7 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_get_repository_throws_exception_if_url_is_malformed(): void {
         $utils = new UtilityFunctions();
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $utils->get_repository_id_from_url('http://test.com:-80/hallo/');
     }
 
