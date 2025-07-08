@@ -45,7 +45,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/lib
 function edusharing_supports(string $feature): int|bool {
     return match ($feature) {
         FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
-        FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2 => true,
+        FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2, FEATURE_CAN_DISPLAY => true,
         default => false,
     };
 }
