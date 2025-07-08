@@ -43,10 +43,14 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/lib
  * @return int|bool True if module supports feature, false if not, null if doesn't know
  */
 function edusharing_supports(string $feature): int|bool {
+    if (defined('FEATURE_CAN_DISPLAY') && $feature === FEATURE_CAN_DISPLAY) {
+        return true;
+    }
+
     return match ($feature) {
-        FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
-        FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2, FEATURE_CAN_DISPLAY => true,
-        default => false,
+            FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
+            FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2 => true,
+            default => false,
     };
 }
 
