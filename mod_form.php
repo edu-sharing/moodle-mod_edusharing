@@ -80,10 +80,12 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 $repobase = $utils->get_config_entry('application_cc_gui_url');
                 $reposearch = trim($repobase, '/') . '/components/search?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
                 if ($utils->get_config_entry('enable_repo_target_chooser')) {
-                    $repoworkspace = trim($repobase, '/') . '/components/workspace/files?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
-                    $repocollections = trim($repobase, '/') . '/components/collections?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
+                    $repoworkspace = trim($repobase, '/') .
+                        '/components/workspace/files?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
+                    $repocollections = trim($repobase, '/') .
+                        '/components/collections?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
                     // phpcs:disable -- just messy html and js.
-                    $buttonGroupHtml = '
+                    $buttongrouphtml = '
                         <div class="btn-group" role="group" aria-label="Repository options">
                             <button id="edu_search_button" type="button" class="btn btn-secondary" onclick="' . $this->get_on_repo_click($reposearch) . '">' . get_string('repoSearch', 'edusharing') . '</button>
                             <button id="edu_workspace_button" type="button" class="btn btn-secondary" onclick="' . $this->get_on_repo_click($repoworkspace) . '">' . get_string('repoWorkspace', 'edusharing') . '</button>
@@ -91,7 +93,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
                         </div>
                     ';
                     // phpcs:enable
-                    $this->_form->addElement('static', 'repo_buttons', '', $buttonGroupHtml);
+                    $this->_form->addElement('static', 'repo_buttons', '', $buttongrouphtml);
                 } else {
                     $searchbutton = $this->_form->addElement('button', 'searchbutton',
                         get_string('searchrec', Constants::EDUSHARING_MODULE_NAME,
@@ -144,6 +146,12 @@ class mod_edusharing_mod_form extends moodleform_mod {
         $this->_form->closeHeaderBefore('buttonar');
     }
 
+    /**
+     * Function get_on_repo_click
+     *
+     * @param String $url
+     * @return String
+     */
     private function get_on_repo_click(String $url): String {
         // phpcs:disable -- just messy html and js.
         return "
