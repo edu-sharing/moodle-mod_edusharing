@@ -56,7 +56,8 @@ $string['object_title'] = 'Objet choisi';
 $string['edusharing:wysiwygvisibility'] = 'Insertion, modification et suppression d\`objets edu-sharing dans les éditeurs WYSIWYG';
 
 $string['object_url_fieldset'] = '{$a} Objet';
-$string['object_title_help'] = 'Veuillez sélectionner un objet avec le bouton ci-dessous...';
+$string['object_title_help'] = 'Veuillez sélectionner un objet avec le bouton ci-dessous.';
+$string['object_title_help_chooser'] = 'Veuillez sélectionner un objet avec un des boutons ci-dessous.';
 
 $string['object_version_fieldset'] = 'Versionnement des objets';
 $string['object_version'] = 'Montre ...';
@@ -134,6 +135,8 @@ $string['appiconDescr'] = 'L\' appIcon remplace le symbole du edu-sharing. Aussi
 $string['info_textDescr'] = 'Le texte d\'aide lors de l\'intégration du module edu-sharing.';
 $string['atto_hintDescr'] = 'Le texte d\'aide du popup edu-sharing Atto';
 $string['repo_targetDescr'] = 'Définit la page d\'accueil du repository.';
+$string['enable_repo_target_chooser'] = 'Page d\'accueil sélectionnable par l\'utilisateur';
+$string['enable_repo_target_chooser_help'] = 'Si cette option est activée, l\'utilisateur peut sélectionner dans l\'interface graphique quelle page d\'accueil doit être affichée dans le repository.';
 $string['repoSearch'] = 'Recherche';
 $string['repoCollection'] = 'Collections';
 $string['repoWorkspace'] = 'Mes fichiers';

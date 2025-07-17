@@ -54,7 +54,9 @@ $string['object_url_fieldset'] = '{$a} Learning-object';
 $string['object_url'] = 'Object';
 $string['object_url_help'] = 'Please use the buttons below to select an object from repository. Its object-ID will be inserted here automatically.';
 $string['object_title'] = 'Selected object';
-$string['object_title_help'] = 'Please use the button below to select an object...';
+$string['object_title_help'] = 'Please use the button below to select an object.';
+$string['object_title_help_chooser'] = 'Please use one of the buttons below to select an object.';
+
 $string['edusharing:addinstance'] = 'Add instance.';
 
 $string['object_version_fieldset'] = 'Object-versioning';
@@ -132,6 +134,8 @@ $string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including th
 $string['info_textDescr'] = 'The helptext for adding the edu-sharing module.';
 $string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
 $string['repo_targetDescr'] = 'Configure the startpage in the repository';
+$string['enable_repo_target_chooser'] = 'Start page selectable by user';
+$string['enable_repo_target_chooser_help'] = 'If this option is enabled, the user can select in the GUI which entry page should be displayed in the repository.';
 $string['repoSearch'] = 'Search';
 $string['repoCollection'] = 'Collections';
 $string['repoWorkspace'] = 'My Files';

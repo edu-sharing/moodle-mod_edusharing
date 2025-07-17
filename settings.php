@@ -155,6 +155,13 @@ if ($ADMIN->fulltree) {
     $repotargetsetting = new admin_setting_configselect('edusharing/repo_target', 'repo_target',
         get_string('repo_targetDescr', 'edusharing'), 'search', $repotargetoptions);
     $settings->add($repotargetsetting);
+    $settings->add(
+        new admin_setting_configcheckbox('edusharing/enable_repo_target_chooser',
+            new lang_string('enable_repo_target_chooser', 'edusharing'),
+            new lang_string('enable_repo_target_chooser_help', 'edusharing'),
+            '0'
+        )
+    );
     $settings->add(new admin_setting_heading('edusharing/save',
         get_string('save', 'edusharing'), ''));
 }
