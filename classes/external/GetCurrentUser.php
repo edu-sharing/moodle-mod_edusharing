@@ -25,13 +25,28 @@ use core_external\external_function_parameters;
 
 defined('MOODLE_INTERNAL') || die();
 
-class GetCurrentUser extends external_api
-{
+/**
+ * class GetCurrentUser
+ *
+ * @author Marian Ziegler <integrations@edu-sharing.net>
+ * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class GetCurrentUser extends external_api {
+
+    /**
+     * Function execute_parameters
+     *
+     * @return external_function_parameters
+     */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([]);
     }
 
     /**
+     * Function execute
+     *
      * @throws \invalid_parameter_exception
      */
     public static function execute(): array {
@@ -48,6 +63,11 @@ class GetCurrentUser extends external_api
         ];
     }
 
+    /**
+     * Function execute_returns
+     *
+     * @return external_single_structure
+     */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'id' => new external_value(PARAM_INT, 'User ID'),

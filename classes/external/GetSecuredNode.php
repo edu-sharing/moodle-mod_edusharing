@@ -76,7 +76,7 @@ class GetSecuredNode extends external_api {
             'jwt' => new external_value(PARAM_TEXT, 'the jwt for the rendering service 2'),
             'renderingBaseUrl' => new external_value(PARAM_TEXT, 'the rendering 2 base url'),
             'previewUrl' => new external_value(PARAM_TEXT, 'the preview url'),
-            'customWidth' => new external_value(PARAM_TEXT, 'the custom width')
+            'customWidth' => new external_value(PARAM_TEXT, 'the custom width'),
         ]);
     }
 
@@ -93,14 +93,14 @@ class GetSecuredNode extends external_api {
         $service = new EduSharingService();
         $securednode = $service->get_secured_node($structure['nodeId'], $structure['resourceId']);
         $renderingurl = $service->get_rendering_2_url();
-        $test = $service->getCustomWidth($securednode->node);
+        $test = $service->get_custom_width($securednode->node);
         return [
             'securedNode' => $securednode->securedNode,
             'signature' => $securednode->signature,
             'jwt' => $securednode->jwt,
             'renderingBaseUrl' => $renderingurl,
             'previewUrl' => $securednode->previewUrl,
-            'customWidth' => $test
+            'customWidth' => $test,
         ];
     }
 }

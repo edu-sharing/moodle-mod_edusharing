@@ -512,21 +512,21 @@ class EduSharingService {
      * Function get_secured_node
      *
      * @param string $nodeid
-     * @param string $resourceId
+     * @param string $resourceid
      *
      * @return SecuredNode
      * @throws JsonException
      * @throws dml_exception
      * @throws Exception
      */
-    public function get_secured_node(string $nodeid, string $resourceId): SecuredNode {
+    public function get_secured_node(string $nodeid, string $resourceid): SecuredNode {
         global $CFG;
-        $securednode =  $this->nodehelper->getSecuredNode(
+        $securednode = $this->nodehelper->getSecuredNode(
             ticket: $this->get_ticket(),
             nodeId: $nodeid,
             repoId: $this->utils->get_config_entry('application_homerepid'),
         );
-        $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceId;
+        $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceid;
         return $securednode;
     }
 
@@ -564,7 +564,13 @@ class EduSharingService {
         }
     }
 
-    function getCustomWidth(array $node): string {
+    /**
+     * Function get_custom_width
+     *
+     * @param array $node
+     * @return string
+     */
+    public function get_custom_width(array $node): string {
         if (strtolower($node['remote']['repository']['repositoryType'] ?? '') === 'youtube') {
             return 'none';
         }
@@ -572,7 +578,7 @@ class EduSharingService {
         if (str_contains($url, 'youtu.be') || str_contains($url, 'youtube.com/watch?')) {
             return 'none';
         }
-        $pdfMimetypes = [
+        $pdfmimetypes = [
             'application/pdf',
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -585,9 +591,9 @@ class EduSharingService {
             "application/vnd.oasis.opendocument.spreadsheet",
             "application/rtf",
             "application/vnd.oasis.opendocument.text-template",
-            "text/plain"
+            "text/plain",
         ];
-        if (in_array($node['mimetype'] ?? '', $pdfMimetypes)) {
+        if (in_array($node['mimetype'] ?? '', $pdfmimetypes)) {
             return '100%';
         }
         return '';

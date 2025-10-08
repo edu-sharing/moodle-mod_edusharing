@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
+
 /**
  * Redirect to login page setting session parameter.
  *
@@ -43,5 +45,5 @@ try {
     $SESSION->redirect_to_edusharing = true;
     redirect(new moodle_url('/login/index.php'));
 } catch (Exception $exception) {
-    //do nothing
+    mtrace('Error: ' . $exception->getMessage());
 }
