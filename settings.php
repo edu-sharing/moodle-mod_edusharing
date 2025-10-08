@@ -117,6 +117,13 @@ if ($ADMIN->fulltree) {
         new lang_string('auth_suffix', 'edusharing'),
          new lang_string('auth_suffix_help', 'edusharing'),
         '', PARAM_TEXT, 50));
+    $settings->add(
+        new admin_setting_configcheckbox('edusharing/use_as_idp',
+            new lang_string('use_as_idp', 'edusharing'),
+            new lang_string('use_as_idp_help', 'edusharing'),
+            '0'
+        )
+    );
     $settings->add(new admin_setting_heading('edusharing/guest', get_string('guestProperties', 'edusharing'), ''));
     $settings->add(new admin_setting_configcheckbox('edusharing/edu_guest_option', 'guest_option', '', ''));
     $settings->add(new admin_setting_configcheckbox('edusharing/wlo_guest_option', 'wlo_guest_option', '', ''));

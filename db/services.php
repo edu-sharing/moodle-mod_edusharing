@@ -70,4 +70,15 @@ $functions = [
             MOODLE_OFFICIAL_MOBILE_SERVICE,
         ],
     ],
+    'mod_edusharing_get_current_user' => [
+        'classname'   => 'mod_edusharing\external\GetCurrentUser',
+        'methodname'  => 'execute',
+        'description' => 'Get current user information',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+        'services'    => [
+            MOODLE_OFFICIAL_MOBILE_SERVICE,
+        ],
+    ],
 ];

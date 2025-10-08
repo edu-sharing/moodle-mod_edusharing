@@ -195,7 +195,7 @@ class EduSharingService {
      * @throws UsageDeletedException
      */
     public function get_redirect_url(Usage $usage, ?string $userid = null, string $mode = 'content'): string {
-        return $this->nodehelper->getRedirectUrl($mode, $usage, [], $userid);
+        return $this->nodehelper->getRedirectUrl($mode, $usage, [], $userid, $this->has_rendering_2());
     }
 
     /**
@@ -512,15 +512,22 @@ class EduSharingService {
      * Function get_secured_node
      *
      * @param string $nodeid
+     * @param string $resourceId
+     *
      * @return SecuredNode
+     * @throws JsonException
+     * @throws dml_exception
      * @throws Exception
      */
-    public function get_secured_node(string $nodeid): SecuredNode {
-        return $this->nodehelper->getSecuredNode(
+    public function get_secured_node(string $nodeid, string $resourceId): SecuredNode {
+        global $CFG;
+        $securednode =  $this->nodehelper->getSecuredNode(
             ticket: $this->get_ticket(),
             nodeId: $nodeid,
-            repoId: $this->utils->get_config_entry('application_homerepid')
+            repoId: $this->utils->get_config_entry('application_homerepid'),
         );
+        $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceId;
+        return $securednode;
     }
 
     /**
@@ -555,5 +562,34 @@ class EduSharingService {
             $SESSION->filter_edusharing_rendering2 = false;
             return false;
         }
+    }
+
+    function getCustomWidth(array $node): string {
+        if (strtolower($node['remote']['repository']['repositoryType'] ?? '') === 'youtube') {
+            return 'none';
+        }
+        $url = $node['properties']['ccm:wwwurl'][0] ?? '';
+        if (str_contains($url, 'youtu.be') || str_contains($url, 'youtube.com/watch?')) {
+            return 'none';
+        }
+        $pdfMimetypes = [
+            'application/pdf',
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.presentation",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "application/rtf",
+            "application/vnd.oasis.opendocument.text-template",
+            "text/plain"
+        ];
+        if (in_array($node['mimetype'] ?? '', $pdfMimetypes)) {
+            return '100%';
+        }
+        return '';
     }
 }

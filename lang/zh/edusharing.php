@@ -137,8 +137,6 @@ $string['emptyForDefault'] = 'empty for default';
 $string['convey_global_groups_yes'] = 'Convey cohorts';
 $string['convey_global_groups_no'] = 'Do not convey cohorts';
 
-$string['soaprequired'] = 'The PHP extension soap must be activated.';
-
 $string['error_missing_authwsdl'] = 'No "authenticationwebservice_wsdl" configured.';
 $string['error_authservice_not_reachable'] = 'not reachable. Cannot utilize edu-sharing network.';
 $string['error_invalid_ticket'] = 'Invalid ticket. Cannot utilize edu-sharing network.';

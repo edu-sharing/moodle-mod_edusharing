@@ -155,9 +155,8 @@ $string['obfuscate_auth_param'] = 'Pseudonymisierung der Nutzer ID';
 $string['obfuscate_auth_param_help'] = 'Ist diese Option aktiviert, werden die Moodle-Nutzer gegenüber dem Edu-Sharing Repo pseudonymisiert.';
 $string['require_login_for_metadata'] = 'Login für Metadatenabfrage nötig';
 $string['require_login_for_metadata_help'] = 'Ist diese Option aktiviert, ist ein Login nötig, um die App-Metadaten abzufragen';
-
-
-$string['soaprequired'] = 'Die PHP-Erweiterung soap muss aktiviert sein.';
+$string['use_as_idp'] = 'Moodle als IDP für Edu-Sharing verwenden';
+$string['use_as_idp_help'] = 'Ist diese Funktion aktiviert, kann Moodle zum Login bei Edu-Sharing verwendet werden.';
 
 $string['error_missing_authwsdl'] = 'Parameter "authenticationwebservice_wsdl" wurde nicht konfiguriert.';
 $string['error_authservice_not_reachable'] = 'ist nicht erreichbar.';

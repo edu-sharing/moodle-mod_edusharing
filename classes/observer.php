@@ -287,8 +287,19 @@ class mod_edusharing_observer {
      */
     public static function user_loggedin(\core\event\user_loggedin $event) {
         global $SESSION, $USER;
-        $SESSION->edusharing_sso = [];
         $utils = new UtilityFunctions();
+        try {
+            if ($utils->get_config_entry('use_as_idp') === '1' && isset($SESSION->redirect_to_edusharing)) {
+                unset($SESSION->redirect_to_edusharing);
+                $service = new EduSharingService();
+                $ticket  = $service->get_ticket();
+                $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/') . '/components/login?ticket=' . $ticket;
+                redirect(new moodle_url($repourl));
+            }
+        } catch (Exception $exception) {
+            debugging($exception->getMessage());
+        }
+        $SESSION->edusharing_sso = [];
         try {
             if ($utils->get_config_entry('obfuscate_auth_param') !== '1') {
                 return;

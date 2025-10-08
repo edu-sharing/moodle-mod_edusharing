@@ -5,24 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.2.0] - 2025-09-25
+
+### Fixed
+
+- Redirect url now works if RS2 is used
+
+### Added
+
+- Option to use Moodle as an IDP for the attached Edu-Sharing repository
+- Logic for handling Rendering Service 2 nodes
+- Web service to get the current user for Rendering Service 2
+
+### Removed
+
+- Outdated language strings
+
 ## [10.1.0] - 2025-07-23
 
-## Added
+### Added
 
 - Optional setting for repository target chooser (default: off)
 - Button group for repository targets (landing pages)
 
 ## [10.0.0] - 2025-07-14
 
-## Added
+### Added
 
 - Compatibility with ES-Repository versions >=10
 
-## Fixed
+### Fixed
 
 - Bug in metadata import logic which led to missing repository app ids in moodle config
 
-## Changed
+### Changed
 
 - Bumped the PHP version in the CI pipeline to 8.4
 - Bumped the MYSQL version in the CI pipeline to 9.3.0
