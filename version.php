@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 $plugin->component    = 'mod_edusharing';
-$plugin->version      = 2025092507;
+$plugin->version      = 2025100800;
 $plugin->requires     = 2022112809;
 $plugin->maturity     = MATURITY_STABLE;
 $plugin->cron         = 0;
