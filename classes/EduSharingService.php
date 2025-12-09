@@ -513,18 +513,18 @@ class EduSharingService {
      *
      * @param string $nodeid
      * @param string $resourceid
-     *
+     * @param string $version
      * @return SecuredNode
      * @throws JsonException
      * @throws dml_exception
-     * @throws Exception
      */
-    public function get_secured_node(string $nodeid, string $resourceid): SecuredNode {
+    public function get_secured_node(string $nodeid, string $resourceid, string $version): SecuredNode {
         global $CFG;
         $securednode = $this->nodehelper->getSecuredNode(
             ticket: $this->get_ticket(),
             nodeId: $nodeid,
             repoId: $this->utils->get_config_entry('application_homerepid'),
+            version: $version
         );
         $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceid;
         return $securednode;

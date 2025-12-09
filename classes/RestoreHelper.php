@@ -103,7 +103,7 @@ class RestoreHelper {
             try {
                 $module = $DB->get_record($cm->name, ['id' => $cm->instance], '*', MUST_EXIST);
             } catch (Exception $exception) {
-                debugging($exception->getMessage());
+                mtrace($exception->getMessage());
                 continue;
             }
             if (!empty($module->intro)) {

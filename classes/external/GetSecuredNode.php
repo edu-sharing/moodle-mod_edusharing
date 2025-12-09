@@ -58,6 +58,7 @@ class GetSecuredNode extends external_api {
         $structure = new external_single_structure([
             'nodeId' => new external_value(PARAM_TEXT, 'node id'),
             'resourceId' => new external_value(PARAM_TEXT, 'resource id'),
+            'version' => new external_value(PARAM_TEXT, 'version', VALUE_DEFAULT, '-1'),
         ]);
         return new external_function_parameters(['eduSecuredNodeStructure' => $structure]);
     }
@@ -91,7 +92,7 @@ class GetSecuredNode extends external_api {
      */
     public static function execute(array $structure): array {
         $service = new EduSharingService();
-        $securednode = $service->get_secured_node($structure['nodeId'], $structure['resourceId']);
+        $securednode = $service->get_secured_node($structure['nodeId'], $structure['resourceId'], $structure['version']);
         $renderingurl = $service->get_rendering_2_url();
         $test = $service->get_custom_width($securednode->node);
         return [

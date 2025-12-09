@@ -16,6 +16,9 @@
 
 declare(strict_types=1);
 
+global $CFG;
+require_once($CFG->dirroot . '/user/profile/lib.php');
+
 use mod_edusharing\EduSharingService;
 use mod_edusharing\RestoreHelper;
 use mod_edusharing\UtilityFunctions;
@@ -286,10 +289,24 @@ class mod_edusharing_observer {
      * @param \core\event\user_loggedin $event
      */
     public static function user_loggedin(\core\event\user_loggedin $event) {
-        global $SESSION, $USER;
+        global $SESSION, $USER, $DB;
         $utils = new UtilityFunctions();
         try {
-            if ($utils->get_config_entry('use_as_idp') === '1' && isset($SESSION->redirect_to_edusharing)) {
+            profile_load_custom_fields($USER);
+            $profilefieldset = (isset($USER->profile['eduAccess']) && $USER->profile['eduAccess'] == 1);
+            try {
+                $cohort = $DB->get_record('cohort', ['idnumber' => 'edu_access'], '*', MUST_EXIST);
+                $userisincohort = $DB->record_exists('cohort_members', [
+                    'cohortid' => $cohort->id,
+                    'userid' => $USER->id
+                ]);
+            } catch (Exception) {
+                $userisincohort = false;
+            }
+            if ($utils->get_config_entry('use_as_idp') === '1'
+                && isset($SESSION->redirect_to_edusharing)
+                && ($userisincohort || $profilefieldset))
+            {
                 unset($SESSION->redirect_to_edusharing);
                 $service = new EduSharingService();
                 $ticket  = $service->get_ticket();

@@ -48,6 +48,7 @@ function xmldb_edusharing_install(): void {
     require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     $logic = new InstallUpgradeLogic();
     try {
+        error_log("running es install");
         $logic->parse_config_data();
         $appid = $logic->discern_app_id();
         $data  = $logic->get_config_data();

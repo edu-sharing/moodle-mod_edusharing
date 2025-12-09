@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.2.1] - 2025-12-09
+
+### Added
+
+- Options to enable/disable the use of the plugin as IDP via cohort and user settings
+
+### Fixed
+
+- API call for secured node (Rendering Service 2) now includes a version parameter
+- Observer method called after course restore now longer throws a fatal error if called outside the plugin context
+
 ## [10.2.0] - 2025-10-08
 
 ### Fixed

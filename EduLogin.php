@@ -23,10 +23,12 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-global $SESSION, $CFG;
-
 require_once(dirname(__FILE__) . '/../../config.php');
+
+global $SESSION, $CFG, $USER, $DB;
+
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
@@ -37,6 +39,20 @@ try {
         redirect(new moodle_url('/login/index.php'));
     }
     if (isloggedin()) {
+        profile_load_custom_fields($USER);
+        $profilefieldset = (isset($USER->profile['eduAccess']) && $USER->profile['eduAccess'] == 1);
+        try {
+            $cohort = $DB->get_record('cohort', ['idnumber' => 'edu_access'], '*', MUST_EXIST);
+            $userisincohort = $DB->record_exists('cohort_members', [
+                'cohortid' => $cohort->id,
+                'userid' => $USER->id
+            ]);
+        } catch (Exception) {
+            $userisincohort = false;
+        }
+        if (!$userisincohort && !$profilefieldset) {
+            redirect(new moodle_url('/login/index.php'));
+        }
         $service = new EduSharingService();
         $ticket  = $service->get_ticket();
         $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/') . '/components/login?ticket=' . $ticket;
