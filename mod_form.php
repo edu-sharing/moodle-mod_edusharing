@@ -202,8 +202,8 @@ class mod_edusharing_mod_form extends moodleform_mod {
     /**
      * Function get_on_repo_click
      *
-     * @param String $url
-     * @return String
+     * @param string $url
+     * @return string
      */
     private function get_on_repo_click(string $url): string {
         // phpcs:disable -- just messy html and js.
