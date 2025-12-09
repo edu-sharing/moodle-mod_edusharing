@@ -98,13 +98,13 @@ class MetadataLogic {
             $message = $result->info['message'] ?? 'unknown';
             debugging('cURL Error: ' . $message);
             $this->reloadform = true;
-            throw new EduSharingUserException($message, 0, null,
-                '<p style="background: #FF8170">cURL Error: ' . $message . '<br></p>');
+            $htmlmessage = '<p style="background: #FF8170">cURL Error: ' . $message . '<br></p>';
+            throw new EduSharingUserException(message: $message, htmlmessage: $htmlmessage);
         }
         if (!$xml->loadXML($result->content)) {
             $this->reloadform = true;
-            throw new EduSharingUserException('xml error', 0, null,
-                '<p style="background: #FF8170">could not load ' . $metadataurl . ' please check url <br></p>');
+            $htmlmessage = '<p style="background: #FF8170">could not load ' . $metadataurl . ' please check url <br></p>';
+            throw new EduSharingUserException(message: 'xml error', htmlmessage: $htmlmessage);
         }
         $xml->preserveWhiteSpace = false;
         $xml->formatOutput       = true;
@@ -119,7 +119,7 @@ class MetadataLogic {
             $this->utils->set_config_entry('repository_' . $entry->getAttribute('key'), $entry->nodeValue);
         }
         $repoid     = $this->utils->get_config_entry('repository_appid');
-        if (empty ($host)) {
+        if (empty($host)) {
             if (!empty($_SERVER['SERVER_ADDR'])) {
                 $host = $_SERVER['SERVER_ADDR'];
             } else if (!empty($_SERVER['SERVER_NAME'])) {
@@ -136,7 +136,8 @@ class MetadataLogic {
         $this->utils->set_config_entry('application_type', 'LMS');
         $this->utils->set_config_entry('application_homerepid', $repoid);
         $this->utils->set_config_entry(
-            'application_cc_gui_url', $clientprotocol . '://' . $repodomain . ':' . $clientport . '/edu-sharing/'
+            'application_cc_gui_url',
+            $clientprotocol . '://' . $repodomain . ':' . $clientport . '/edu-sharing/'
         );
         if ($this->hostaliases !== null) {
             $this->utils->set_config_entry('application_host_aliases', $this->hostaliases);
@@ -151,8 +152,8 @@ class MetadataLogic {
             $this->utils->set_config_entry('application_public_key', $keypair['publicKey']);
         }
         if (empty($this->utils->get_config_entry('application_private_key'))) {
-            throw new EduSharingUserException('ssl keypair generation error', 0, null,
-                '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>');
+            $htmlmessage = '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>';
+            throw new EduSharingUserException(message: 'ssl keypair generation error', htmlmessage: $htmlmessage);
         }
         $this->utils->set_config_entry('application_blowfishkey', 'thetestkey');
         $this->utils->set_config_entry('application_blowfishiv', 'initvect');

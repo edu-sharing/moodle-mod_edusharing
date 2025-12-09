@@ -65,9 +65,11 @@ try {
     $ts          = round(microtime(true) * 1000);
     $redirecturl .= '&ts=' . $ts;
     $data        = get_config('edusharing', 'application_appid') . $ts . $utils->get_object_id_from_url($edusharing->object_url);
-    $basehelper  = new EduSharingHelperBase(get_config('edusharing', 'application_cc_gui_url'),
-        get_config('edusharing', 'application_private_key'),
-        get_config('edusharing', 'application_appid'));
+    $basehelper  = new EduSharingHelperBase(
+        baseUrl: get_config('edusharing', 'application_cc_gui_url'),
+        privateKey: get_config('edusharing', 'application_private_key'),
+        appId: get_config('edusharing', 'application_appid')
+    );
     $redirecturl .= '&sig=' . urlencode($basehelper->sign($data));
     $redirecturl .= '&signed=' . urlencode($data);
     $backaction  = '&closeOnBack=true';

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace mod_edusharing;
 
@@ -37,7 +37,7 @@ class InstallUpgradeLogic {
     /**
      * @var MetadataLogic|null
      */
-    private ?MetadataLogic      $metadatalogic     = null;
+    private ?MetadataLogic $metadatalogic = null;
     /**
      * @var string
      */
@@ -95,7 +95,8 @@ class InstallUpgradeLogic {
      */
     public function perform(bool $isinstall = true): void {
         global $CFG;
-        if (in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
+        if (
+            in_array(null, [$this->metadatalogic, $this->registrationlogic, $this->configdata], true)
             || empty($this->configdata['repoAdmin']) || empty($this->configdata['repoAdminPassword'])
         ) {
             return;

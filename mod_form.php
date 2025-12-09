@@ -54,8 +54,12 @@ class mod_edusharing_mod_form extends moodleform_mod {
             // Adding the "general" fieldset, where all the common settings are shown.
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             // Adding the standard "name" field.
-            $this->_form->addElement('text', 'name',
-                get_string('edusharingname', Constants::EDUSHARING_MODULE_NAME), ['size' => '64']);
+            $this->_form->addElement(
+                'text',
+                'name',
+                get_string('edusharingname', Constants::EDUSHARING_MODULE_NAME),
+                ['size' => '64']
+            );
             $this->_form->setType('name', PARAM_TEXT);
             $this->_form->addRule('name', null, 'required', null, 'client');
             $this->_form->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -65,14 +69,27 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 $objecttitlehelp = $utils->get_config_entry('enable_repo_target_chooser') ?
                     get_string('object_title_help_chooser', Constants::EDUSHARING_MODULE_NAME) :
                     get_string('object_title_help', Constants::EDUSHARING_MODULE_NAME);
-                $this->_form->addElement('header', 'object_url_fieldset',
-                    get_string('object_url_fieldset', Constants::EDUSHARING_MODULE_NAME,
-                        get_config('edusharing', 'application_appname')));
-                $this->_form->addElement('static', 'object_title',
+                $this->_form->addElement(
+                    'header',
+                    'object_url_fieldset',
+                    get_string(
+                        'object_url_fieldset',
+                        Constants::EDUSHARING_MODULE_NAME,
+                        get_config('edusharing', 'application_appname')
+                    )
+                );
+                $this->_form->addElement(
+                    'static',
+                    'object_title',
                     get_string('object_title', Constants::EDUSHARING_MODULE_NAME),
-                    $objecttitlehelp);
-                $this->_form->addElement('text', 'object_url',
-                    get_string('object_url', Constants::EDUSHARING_MODULE_NAME), ['readonly' => 'true']);
+                    $objecttitlehelp
+                );
+                $this->_form->addElement(
+                    'text',
+                    'object_url',
+                    get_string('object_url', Constants::EDUSHARING_MODULE_NAME),
+                    ['readonly' => 'true']
+                );
                 $this->_form->setType('object_url', PARAM_RAW_TRIMMED);
                 $this->_form->addRule('object_url', null, 'required', null, 'client');
                 $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -95,40 +112,76 @@ class mod_edusharing_mod_form extends moodleform_mod {
                     // phpcs:enable
                     $this->_form->addElement('static', 'repo_buttons', '', $buttongrouphtml);
                 } else {
-                    $searchbutton = $this->_form->addElement('button', 'searchbutton',
-                        get_string('searchrec', Constants::EDUSHARING_MODULE_NAME,
-                            get_config('edusharing', 'application_appname')));
+                    $searchbutton = $this->_form->addElement(
+                        'button',
+                        'searchbutton',
+                        get_string(
+                            'searchrec',
+                            Constants::EDUSHARING_MODULE_NAME,
+                            get_config('edusharing', 'application_appname')
+                        )
+                    );
 
                     $searchbutton->updateAttributes(
                         [
-                            'title' => get_string('uploadrec', Constants::EDUSHARING_MODULE_NAME,
-                                get_config('edusharing', 'application_appname')),
+                            'title' => get_string(
+                                'uploadrec',
+                                Constants::EDUSHARING_MODULE_NAME,
+                                get_config('edusharing', 'application_appname')
+                            ),
                             'onclick' => $this->get_on_repo_click($reposearch),
                         ]
                     );
                 }
-                $this->_form->addElement('header', 'version_fieldset',
-                    get_string('object_version_fieldset', Constants::EDUSHARING_MODULE_NAME));
+                $this->_form->addElement(
+                    'header',
+                    'version_fieldset',
+                    get_string('object_version_fieldset', Constants::EDUSHARING_MODULE_NAME)
+                );
                 $radiogroup   = [];
-                $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
-                    get_string('object_version_use_latest', Constants::EDUSHARING_MODULE_NAME), 0, []);
-                $radiogroup[] = $this->_form->createElement('radio', 'object_version', '',
-                    get_string('object_version_use_exact', Constants::EDUSHARING_MODULE_NAME), 1, []);
-                $this->_form->addGroup($radiogroup, 'object_version',
-                    get_string('object_version', Constants::EDUSHARING_MODULE_NAME), [' '], false);
+                $radiogroup[] = $this->_form->createElement(
+                    'radio',
+                    'object_version',
+                    '',
+                    get_string('object_version_use_latest', Constants::EDUSHARING_MODULE_NAME),
+                    0,
+                    []
+                );
+                $radiogroup[] = $this->_form->createElement(
+                    'radio',
+                    'object_version',
+                    '',
+                    get_string('object_version_use_exact', Constants::EDUSHARING_MODULE_NAME),
+                    1,
+                    []
+                );
+                $this->_form->addGroup(
+                    $radiogroup,
+                    'object_version',
+                    get_string('object_version', Constants::EDUSHARING_MODULE_NAME),
+                    [' '],
+                    false
+                );
                 $this->_form->setDefault('object_version', 0);
                 $this->_form->addHelpButton('object_version', 'object_version', Constants::EDUSHARING_MODULE_NAME);
             }
             // Display-section.
-            $this->_form->addElement('header', 'object_display_fieldset',
-                get_string('object_display_fieldset', Constants::EDUSHARING_MODULE_NAME));
+            $this->_form->addElement(
+                'header',
+                'object_display_fieldset',
+                get_string('object_display_fieldset', Constants::EDUSHARING_MODULE_NAME)
+            );
             $windowoptions =
                 [
                     0 => get_string('pagewindow', Constants::EDUSHARING_MODULE_NAME),
                     1 => get_string('newwindow', Constants::EDUSHARING_MODULE_NAME),
                 ];
-            $this->_form->addElement('select', 'popup_window',
-                get_string('display', Constants::EDUSHARING_MODULE_NAME), $windowoptions);
+            $this->_form->addElement(
+                'select',
+                'popup_window',
+                get_string('display', Constants::EDUSHARING_MODULE_NAME),
+                $windowoptions
+            );
             $this->_form->setDefault('popup_window', !empty($CFG->resource_popup));
             // Add standard elements, common to all modules.
             $this->standard_coursemodule_elements();
@@ -152,7 +205,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
      * @param String $url
      * @return String
      */
-    private function get_on_repo_click(String $url): String {
+    private function get_on_repo_click(string $url): string {
         // phpcs:disable -- just messy html and js.
         return "
         if (typeof window.openRepo !== 'function') {

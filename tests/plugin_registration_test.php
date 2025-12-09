@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // Namespace does not match PSR. But Moodle likes it this way.
 namespace mod_edusharing;

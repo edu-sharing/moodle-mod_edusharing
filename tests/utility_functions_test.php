@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // Namespace does not match PSR. But Moodle likes it this way.
 namespace mod_edusharing;
@@ -24,6 +24,7 @@ use cached_cm_info;
 use core\moodle_database_for_testing;
 use dml_exception;
 use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use stdClass;
 use testUtils\FakeConfig;
 use testUtils\TestStringGenerator;
@@ -36,6 +37,7 @@ use testUtils\TestStringGenerator;
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\mod_edusharing\UtilityFunctions::class)]
 final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok
@@ -53,7 +55,7 @@ final class utility_functions_test extends advanced_testcase {
      * @return void
      */
     public function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed(): void {
-        $handler = function($errno, $errstr) {
+        $handler = function ($errno, $errstr) {
             $this->assertEquals(E_USER_WARNING, $errno);
             $this->assertEquals('error_get_object_id_from_url', $errstr);
         };
@@ -199,7 +201,6 @@ final class utility_functions_test extends advanced_testcase {
             ->getMock();
         $dbmock->expects($this->never())->method('get_record');
         $dbmock->expects($this->never())->method('update_record');
-
     }
 
     /**
@@ -227,7 +228,7 @@ final class utility_functions_test extends advanced_testcase {
                 $this->equalTo('*'),
                 $this->equalTo(MUST_EXIST)
             )
-            ->willReturnCallback(function($table, $conditions, $fields, $mustexist) use (&$getcount, $edusharing1, $edusharing2) {
+            ->willReturnCallback(function ($table, $conditions, $fields, $mustexist) use (&$getcount, $edusharing1, $edusharing2) {
                 $getcount++;
                 if ($getcount === 1) {
                     return $edusharing1;
@@ -249,7 +250,7 @@ final class utility_functions_test extends advanced_testcase {
             ->method('update_record')
             ->with(
                 $this->equalTo('edusharing'),
-                $this->callback(function($data) use (&$updatecount, $edusharing3, $edusharing4) {
+                $this->callback(function ($data) use (&$updatecount, $edusharing3, $edusharing4) {
                     $updatecount++;
                     if ($updatecount === 1) {
                         return $data == $edusharing3;
@@ -293,7 +294,7 @@ final class utility_functions_test extends advanced_testcase {
                 $this->equalTo('*'),
                 $this->equalTo(MUST_EXIST)
             )
-            ->willReturnCallback(function($table, $conditions, $fields, $mustexist) use (&$getcount, $edusharing1, $edusharing2) {
+            ->willReturnCallback(function ($table, $conditions, $fields, $mustexist) use (&$getcount, $edusharing1, $edusharing2) {
                 $getcount++;
                 if ($getcount === 1) {
                     return $edusharing1;
@@ -312,7 +313,7 @@ final class utility_functions_test extends advanced_testcase {
             ->method('update_record')
             ->with(
                 $this->equalTo('edusharing'),
-                $this->callback(function($data) use (&$updatecount, $edusharing3, $edusharing4) {
+                $this->callback(function ($data) use (&$updatecount, $edusharing3, $edusharing4) {
                     $updatecount++;
                     if ($updatecount === 1) {
                         return $data == $edusharing3;
@@ -393,7 +394,7 @@ final class utility_functions_test extends advanced_testcase {
                     return $param === MUST_EXIST;
                 })
             )
-            ->willReturnCallback(function() use (&$getcount, $returnone, $returntwo) {
+            ->willReturnCallback(function () use (&$getcount, $returnone, $returntwo) {
                 if ($getcount === 1) {
                     return $returnone;
                 } else if ($getcount === 2) {

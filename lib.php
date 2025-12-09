@@ -128,7 +128,7 @@ function edusharing_delete_instance($id): bool {
  * @return stdClass
  */
 function edusharing_user_outline($course, $user, $mod, $edusharing) {
-    $return       = new stdClass;
+    $return       = new stdClass();
     $return->time = time();
     $return->info = 'edusharing_user_outline() - edu-sharing activity outline.';
 

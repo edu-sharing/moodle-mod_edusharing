@@ -27,6 +27,7 @@ use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\UrlHandling;
+use PHPUnit\Framework\Attributes\CoversClass;
 use SimpleXMLElement;
 use testUtils\FakeConfig;
 
@@ -42,6 +43,7 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\mod_edusharing\MetadataLogic::class)]
 final class metadata_logic_test extends advanced_testcase {
     /**
      * Function test_if_import_metadata_sets_all_config_entries_on_success
@@ -77,8 +79,10 @@ final class metadata_logic_test extends advanced_testcase {
         $logic = new MetadataLogic($servicemock, $utils);
         $logic->import_metadata($metadataurl);
         $this->assertEquals('http', $fakeconfig->get('repository_clientprotocol'));
-        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp',
-            $fakeconfig->get('repository_authenticationwebservice'));
+        $this->assertEquals(
+            expected: 'http://test.de/edu-sharing/services/authbyapp',
+            actual: $fakeconfig->get('repository_authenticationwebservice')
+        );
         $this->assertEquals('http://test.de/edu-sharing/services/usage2', $fakeconfig->get('repository_usagewebservice'));
         $this->assertEquals('publicKeyTest', $fakeconfig->get('repository_public_key'));
         $this->assertEquals('http://test.de/esrender/application/esmain/index.php', $fakeconfig->get('repository_contenturl'));
@@ -86,8 +90,10 @@ final class metadata_logic_test extends advanced_testcase {
         $this->assertEquals('8100', $fakeconfig->get('repository_clientport'));
         $this->assertEquals('8080', $fakeconfig->get('repository_port'));
         $this->assertEquals('test.de', $fakeconfig->get('repository_domain'));
-        $this->assertEquals('http://test.de/edu-sharing/services/authbyapp?wsdl',
-            $fakeconfig->get('repository_authenticationwebservice_wsdl'));
+        $this->assertEquals(
+            expected: 'http://test.de/edu-sharing/services/authbyapp?wsdl',
+            actual: $fakeconfig->get('repository_authenticationwebservice_wsdl')
+        );
         $this->assertEquals('REPOSITORY', $fakeconfig->get('repository_type'));
         $this->assertEquals('enterprise-docker-maven-fixes-8-0', $fakeconfig->get('repository_appid'));
         $this->assertEquals('http:/test.de/edu-sharing/services/usage2?wsdl', $fakeconfig->get('repository_usagewebservice_wsdl'));
@@ -126,8 +132,10 @@ final class metadata_logic_test extends advanced_testcase {
         $logic = new MetadataLogic($servicemock, $utils);
         $logic->import_metadata($metadataurl);
         $this->assertTrue(is_string($fakeconfig->get('application_appid')), 'application_appid was not set');
-        $this->assertTrue(str_contains($fakeconfig->get('application_appid'), 'moodle_'),
-            'application_appid does not contain moodle prefix');
+        $this->assertTrue(
+            condition: str_contains($fakeconfig->get('application_appid'), 'moodle_'),
+            message: 'application_appid does not contain moodle prefix'
+        );
     }
 
     /**

@@ -61,7 +61,7 @@ class EduSharingService {
     /**
      * @var UtilityFunctions|null
      */
-    private ?UtilityFunctions     $utils;
+    private ?UtilityFunctions $utils;
 
     /**
      * EduSharingService constructor
@@ -144,7 +144,8 @@ class EduSharingService {
      * @throws Exception
      */
     public function get_usage_id(stdClass $usagedata): string {
-        $usageid = $this->nodehelper->getUsageIdByParameters($usagedata->ticket,
+        $usageid = $this->nodehelper->getUsageIdByParameters(
+            $usagedata->ticket,
             $usagedata->nodeId,
             $usagedata->containerId,
             $usagedata->resourceId
@@ -538,7 +539,7 @@ class EduSharingService {
      */
     public function get_rendering_2_url(): string {
         $about = $this->nodehelper->base->getAbout();
-        if (isset ($about['renderingService2']['url'])) {
+        if (isset($about['renderingService2']['url'])) {
             return $about['renderingService2']['url'];
         }
         throw new Exception('Rendering Service 2 is not configured');

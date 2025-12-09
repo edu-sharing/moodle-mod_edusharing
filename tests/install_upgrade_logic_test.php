@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // Namespace does not match PSR. But Moodle likes it this way.
 namespace mod_edusharing;
@@ -28,6 +28,7 @@ use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\UrlHandling;
 use Exception;
 use JsonException;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class InstallUpgradeLogicTest
@@ -36,10 +37,9 @@ use JsonException;
  * @package mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \mod_edusharing\InstallUpgradeLogic
  */
+#[CoversClass(\mod_edusharing\InstallUpgradeLogic::class)]
 final class install_upgrade_logic_test extends advanced_testcase {
-
     /**
      * Function test_parse_config_data_throws_exception_if_file_not_found
      *

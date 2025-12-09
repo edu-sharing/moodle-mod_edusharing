@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
-
 /**
  * Redirect to login page setting session parameter.
  *
@@ -23,6 +21,9 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
+
 require_once(dirname(__FILE__) . '/../../config.php');
 
 global $SESSION, $CFG, $USER, $DB;
@@ -45,7 +46,7 @@ try {
             $cohort = $DB->get_record('cohort', ['idnumber' => 'edu_access'], '*', MUST_EXIST);
             $userisincohort = $DB->record_exists('cohort_members', [
                 'cohortid' => $cohort->id,
-                'userid' => $USER->id
+                'userid' => $USER->id,
             ]);
         } catch (Exception) {
             $userisincohort = false;

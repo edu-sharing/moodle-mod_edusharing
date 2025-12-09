@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/backup_edusharing_s
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_edusharing_activity_task extends backup_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -59,6 +58,7 @@ class backup_edusharing_activity_task extends backup_activity_task {
 
         $base = preg_quote($CFG->wwwroot, "/");
 
+        // phpcs:disable
         // Link to the list of edusharing.
         $search = "/(".$base."\/mod\/edusharing\/index.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@EDUSHARINGINDEX*$2@$', $content);
@@ -66,5 +66,6 @@ class backup_edusharing_activity_task extends backup_activity_task {
         // Link to edusharing view by moduleid.
         $search = "/(".$base."\/mod\/edusharing\/view.php\?id\=)([0-9]+)/";
         return preg_replace($search, '$@EDUSHARINGVIEWBYID*$2@$', $content);
+        // phpcs:enable
     }
 }

@@ -24,7 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_edusharing_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Function define_structure
      *
@@ -57,6 +56,5 @@ class backup_edusharing_activity_structure_step extends backup_activity_structur
 
         // Return the root element (choice), wrapped into standard activity structure.
         return $this->prepare_activity_structure($edusharing);
-
     }
 }

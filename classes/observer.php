@@ -16,6 +16,7 @@
 
 declare(strict_types=1);
 
+require_once(dirname(__FILE__, 4) . '/config.php');
 global $CFG;
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
@@ -298,15 +299,16 @@ class mod_edusharing_observer {
                 $cohort = $DB->get_record('cohort', ['idnumber' => 'edu_access'], '*', MUST_EXIST);
                 $userisincohort = $DB->record_exists('cohort_members', [
                     'cohortid' => $cohort->id,
-                    'userid' => $USER->id
+                    'userid' => $USER->id,
                 ]);
             } catch (Exception) {
                 $userisincohort = false;
             }
-            if ($utils->get_config_entry('use_as_idp') === '1'
+            if (
+                $utils->get_config_entry('use_as_idp') === '1'
                 && isset($SESSION->redirect_to_edusharing)
-                && ($userisincohort || $profilefieldset))
-            {
+                && ($userisincohort || $profilefieldset)
+            ) {
                 unset($SESSION->redirect_to_edusharing);
                 $service = new EduSharingService();
                 $ticket  = $service->get_ticket();

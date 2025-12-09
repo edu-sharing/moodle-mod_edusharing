@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/lib/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class GetSecuredNode extends external_api {
-
     /**
      * Function execute_parameters
      *

@@ -35,7 +35,6 @@ require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/restore_edusharing_
  * class restore_edusharing_activity_task
  */
 class restore_edusharing_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -106,9 +105,21 @@ class restore_edusharing_activity_task extends restore_activity_task {
         $rules = [];
 
         // Fix old wrong uses (missing extension).
-        $rules[] = new restore_log_rule('edusharing', 'view all', 'index?id={course}', null,
-            null, null, 'index.php?id={course}');
-        $rules[] = new restore_log_rule('edusharing', 'view all', 'index.php?id={course}', null);
+        $rules[] = new restore_log_rule(
+            'edusharing',
+            'view all',
+            'index?id={course}',
+            null,
+            null,
+            null,
+            'index.php?id={course}'
+        );
+        $rules[] = new restore_log_rule(
+            'edusharing',
+            'view all',
+            'index.php?id={course}',
+            null
+        );
 
         return $rules;
     }

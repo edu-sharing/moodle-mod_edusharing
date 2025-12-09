@@ -28,4 +28,3 @@ $defaults = [
     '_use_config_plugins'  => true,
     'nodeName'  => '',
 ];
-

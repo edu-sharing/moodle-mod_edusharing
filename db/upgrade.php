@@ -42,7 +42,7 @@ use mod_edusharing\UtilityFunctions;
  * @param int $oldversion
  * @return bool
  */
-function xmldb_edusharing_upgrade($oldversion=0): bool {
+function xmldb_edusharing_upgrade($oldversion = 0): bool {
     global $CFG, $DB;
     $dbmanager = $DB->get_manager();
     $result    = true;
@@ -61,7 +61,7 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
-        $homeconf = dirname(__FILE__).'/../conf/esmain/homeApplication.properties.xml';
+        $homeconf = dirname(__FILE__) . '/../conf/esmain/homeApplication.properties.xml';
         if (file_exists($homeconf)) {
             $app = new DOMDocument();
             $app->load($homeconf);
@@ -76,8 +76,8 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             set_config('appProperties', json_encode($homeappproperties), 'edusharing');
         }
 
-        $repoconf = dirname(__FILE__).'/../conf/esmain/'.
-                    'app-'. $homeappproperties['homerepid'] .'.properties.xml';
+        $repoconf = dirname(__FILE__) . '/../conf/esmain/' .
+                    'app-' . $homeappproperties['homerepid'] . '.properties.xml';
         if (file_exists($repoconf)) {
             $app = new DOMDocument();
             $app->load($repoconf);
@@ -92,16 +92,18 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
                 'authbyapp',
                 $repoproperties['authenticationwebservice']
             );
-            $repoproperties['authenticationwebservice_wsdl'] = str_replace('authentication',
-                'authbyapp',
-                $repoproperties['authenticationwebservice_wsdl']
+            $repoproperties['authenticationwebservice_wsdl'] = str_replace(
+                search: 'authentication',
+                replace: 'authbyapp',
+                subject: $repoproperties['authenticationwebservice_wsdl']
             );
             if (mb_substr($repoproperties['usagewebservice'], -1) != '2') {
                 $repoproperties['usagewebservice'] = $repoproperties['usagewebservice'] . '2';
             }
-            $repoproperties['usagewebservice_wsdl'] = str_replace('usage?wsdl',
-                'usage2?wsdl',
-                $repoproperties['usagewebservice_wsdl']
+            $repoproperties['usagewebservice_wsdl'] = str_replace(
+                search: 'usage?wsdl',
+                replace: 'usage2?wsdl',
+                subject: $repoproperties['usagewebservice_wsdl']
             );
             $repoproperties['contenturl'] = $repoproperties['clientprotocol'] . '://' . $repoproperties['domain'] . ':' .
                                             $repoproperties['clientport'] . '/edu-sharing/renderingproxy';
@@ -109,14 +111,13 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
             set_config('repProperties', json_encode($repoproperties), 'edusharing');
         }
         try {
-            include(dirname(__FILE__).'/../conf/cs_conf.php');
+            include(dirname(__FILE__) . '/../conf/cs_conf.php');
             set_config('EDU_AUTH_KEY', EDU_AUTH_KEY, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_USERID', EDU_AUTH_PARAM_NAME_USERID, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_LASTNAME', EDU_AUTH_PARAM_NAME_LASTNAME, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_FIRSTNAME', EDU_AUTH_PARAM_NAME_FIRSTNAME, 'edusharing');
             set_config('EDU_AUTH_PARAM_NAME_EMAIL', EDU_AUTH_PARAM_NAME_EMAIL, 'edusharing');
             upgrade_mod_savepoint(true, 2016011401, 'edusharing');
-
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_WARNING);
         }
@@ -124,7 +125,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
 
     if ($result) {
         if ($oldversion < 2016120901) {
-
             $appproperties = get_config('edusharing', 'appProperties');
             if (!empty($appproperties)) {
                 foreach (json_decode($appproperties, true) as $key => $value) {
@@ -148,7 +148,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         }
 
         if ($oldversion < 2019062110) {
-
             try {
                 $xmldbtable = new xmldb_table('edusharing');
                 $xmldbfield = new xmldb_field(
@@ -169,7 +168,6 @@ function xmldb_edusharing_upgrade($oldversion=0): bool {
         }
 
         if ($oldversion < 2019062401) {
-
             try {
                 $xmldbtable = new xmldb_table('edusharing');
                 $xmldbfield = new xmldb_field(

@@ -62,13 +62,22 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/application_homerepid', 'homerepid', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('edusharing/application_host_aliases', 'host_aliases', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('edusharing/application_cc_gui_url', 'cc_gui_url', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/application_docker_network_url',
-        'docker_network_url', '', '', PARAM_TEXT, 50));
     $settings->add(
-        new admin_setting_configcheckbox('edusharing/require_login_for_metadata',
-            new lang_string('require_login_for_metadata', 'edusharing'),
-            new lang_string('require_login_for_metadata_help', 'edusharing'),
-            '0'
+        new admin_setting_configtext(
+            name: 'edusharing/application_docker_network_url',
+            visiblename: 'docker_network_url',
+            description: '',
+            defaultsetting: '',
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/require_login_for_metadata',
+            visiblename: new lang_string('require_login_for_metadata', 'edusharing'),
+            description: new lang_string('require_login_for_metadata_help', 'edusharing'),
+            defaultsetting: '0'
         )
     );
     $settings->add(new admin_setting_configtextarea('edusharing/application_private_key', 'private_key', '', '', PARAM_TEXT, 50));
@@ -84,44 +93,116 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('edusharing/repository_host', 'host', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('edusharing/repository_version', 'version', '', '5.1', PARAM_TEXT, 50));
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_KEY', 'EDU_AUTH_KEY',
-        '', 'username', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_PARAM_NAME_USERID',
-        'PARAM_NAME_USERID', '', 'userid', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_PARAM_NAME_LASTNAME',
-        'PARAM_NAME_LASTNAME', '', 'lastname', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_PARAM_NAME_FIRSTNAME',
-        'PARAM_NAME_FIRSTNAME', '', 'firstname', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_PARAM_NAME_EMAIL',
-        'PARAM_NAME_EMAIL', '', 'email', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_AFFILIATION',
-        'AFFILIATION', '', $CFG->siteidentifier, PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/EDU_AUTH_AFFILIATION_NAME',
-        'AFFILIATION_NAME', '', $CFG->siteidentifier, PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configcheckbox('edusharing/EDU_AUTH_CONVEYGLOBALGROUPS', 'CONVEYGLOBALGROUPS', '', ''));
     $settings->add(
-        new admin_setting_configcheckbox('edusharing/send_additional_auth',
-            new lang_string('send_additional_auth', 'edusharing'),
-            new lang_string('send_additional_auth_help', 'edusharing'),
-            '1'
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_KEY',
+            visiblename: 'EDU_AUTH_KEY',
+            description: '',
+            defaultsetting: 'username',
+            paramtype: PARAM_TEXT,
+            size: 50
         )
     );
     $settings->add(
-        new admin_setting_configcheckbox('edusharing/obfuscate_auth_param',
-            new lang_string('obfuscate_auth_param', 'edusharing'),
-            new lang_string('obfuscate_auth_param_help', 'edusharing'),
-            '0'
+        new admin_setting_configtext(
+            name:'edusharing/EDU_AUTH_PARAM_NAME_USERID',
+            visiblename: 'PARAM_NAME_USERID',
+            description: '',
+            defaultsetting: 'userid',
+            paramtype: PARAM_TEXT,
+            size: 50
         )
     );
-    $settings->add(new admin_setting_configtext('edusharing/auth_suffix',
-        new lang_string('auth_suffix', 'edusharing'),
-         new lang_string('auth_suffix_help', 'edusharing'),
-        '', PARAM_TEXT, 50));
     $settings->add(
-        new admin_setting_configcheckbox('edusharing/use_as_idp',
-            new lang_string('use_as_idp', 'edusharing'),
-            new lang_string('use_as_idp_help', 'edusharing'),
-            '0'
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_PARAM_NAME_LASTNAME',
+            visiblename: 'PARAM_NAME_LASTNAME',
+            description: '',
+            defaultsetting: 'lastname',
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_PARAM_NAME_FIRSTNAME',
+            visiblename: 'PARAM_NAME_FIRSTNAME',
+            description: '',
+            defaultsetting: 'firstname',
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_PARAM_NAME_EMAIL',
+            visiblename: 'PARAM_NAME_EMAIL',
+            description: '',
+            defaultsetting: 'email',
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_AFFILIATION',
+            visiblename: 'AFFILIATION',
+            description: '',
+            defaultsetting: $CFG->siteidentifier,
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            name: 'edusharing/EDU_AUTH_AFFILIATION_NAME',
+            visiblename: 'AFFILIATION_NAME',
+            description: '',
+            defaultsetting: $CFG->siteidentifier,
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/EDU_AUTH_CONVEYGLOBALGROUPS',
+            visiblename: 'CONVEYGLOBALGROUPS',
+            description: '',
+            defaultsetting: ''
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/send_additional_auth',
+            visiblename: new lang_string('send_additional_auth', 'edusharing'),
+            description: new lang_string('send_additional_auth_help', 'edusharing'),
+            defaultsetting: '1'
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/obfuscate_auth_param',
+            visiblename: new lang_string('obfuscate_auth_param', 'edusharing'),
+            description: new lang_string('obfuscate_auth_param_help', 'edusharing'),
+            defaultsetting: '0'
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            name:'edusharing/auth_suffix',
+            visiblename: new lang_string('auth_suffix', 'edusharing'),
+            description: new lang_string('auth_suffix_help', 'edusharing'),
+            defaultsetting: '',
+            paramtype: PARAM_TEXT,
+            size: 50
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/use_as_idp',
+            visiblename: new lang_string('use_as_idp', 'edusharing'),
+            description: new lang_string('use_as_idp_help', 'edusharing'),
+            defaultsetting: '0'
         )
     );
     $settings->add(new admin_setting_heading('edusharing/guest', get_string('guestProperties', 'edusharing'), ''));
@@ -129,29 +210,49 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('edusharing/wlo_guest_option', 'wlo_guest_option', '', ''));
     $settings->add(new admin_setting_configtext('edusharing/edu_guest_guest_id', 'guest_id', '', 'esguest', PARAM_TEXT, 50));
     // UI settings.
-    $settings->add(new admin_setting_heading('edusharing/branding',
-        get_string('brandingSettings', 'edusharing'),
-        get_string('brandingInfo', 'edusharing')));
+    $settings->add(
+        new admin_setting_heading(
+            name: 'edusharing/branding',
+            heading: get_string('brandingSettings', 'edusharing'),
+            information: get_string('brandingInfo', 'edusharing')
+        )
+    );
     $namesetting = new admin_setting_configtext('edusharing/application_appname', 'appname', '', 'edu-sharing', PARAM_TEXT, 50);
     $namesetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($namesetting);
     $typesetting = new admin_setting_configtext('edusharing/module_type', 'type', '', 'Objekt', PARAM_TEXT, 50);
     $typesetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($typesetting);
-    $imgsetting = new admin_setting_configstoredfile('edusharing/appicon', 'appicon',
-        get_string('appiconDescr', 'edusharing'), 'appicon');
+    $imgsetting = new admin_setting_configstoredfile(
+        name: 'edusharing/appicon',
+        visiblename: 'appicon',
+        description: get_string('appiconDescr', 'edusharing'),
+        filearea: 'appicon'
+    );
     $imgsetting->set_updatedcallback('edusharing_update_settings_images');
     $settings->add($imgsetting);
-    $infosetting = new admin_setting_configtextarea('edusharing/info_text', 'info_text',
-        get_string('info_textDescr', 'edusharing'), 'Hallo');
+    $infosetting = new admin_setting_configtextarea(
+        name: 'edusharing/info_text',
+        visiblename: 'info_text',
+        description: get_string('info_textDescr', 'edusharing'),
+        defaultsetting: ''
+    );
     $infosetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($infosetting);
-    $hintsetting = new admin_setting_configtextarea('edusharing/atto_hint', 'atto_hint',
-        get_string('atto_hintDescr', 'edusharing'), '');
+    $hintsetting = new admin_setting_configtextarea(
+        name: 'edusharing/atto_hint',
+        visiblename: 'atto_hint',
+        description: get_string('atto_hintDescr', 'edusharing'),
+        defaultsetting: ''
+    );
     $hintsetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($hintsetting);
-    $hintsetting = new admin_setting_configtextarea('edusharing/atto_hint', 'atto_hint',
-        get_string('atto_hintDescr', 'edusharing'), '');
+    $hintsetting = new admin_setting_configtextarea(
+        name: 'edusharing/atto_hint',
+        visiblename: 'atto_hint',
+        description: get_string('atto_hintDescr', 'edusharing'),
+        defaultsetting: ''
+    );
     $hintsetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($hintsetting);
     $repotargetoptions = [
@@ -159,16 +260,27 @@ if ($ADMIN->fulltree) {
         'collections' => get_string('repoCollection', 'edusharing'),
         'workspace'   => get_string('repoWorkspace', 'edusharing'),
     ];
-    $repotargetsetting = new admin_setting_configselect('edusharing/repo_target', 'repo_target',
-        get_string('repo_targetDescr', 'edusharing'), 'search', $repotargetoptions);
+    $repotargetsetting = new admin_setting_configselect(
+        name: 'edusharing/repo_target',
+        visiblename: 'repo_target',
+        description: get_string('repo_targetDescr', 'edusharing'),
+        defaultsetting: 'search',
+        choices: $repotargetoptions
+    );
     $settings->add($repotargetsetting);
     $settings->add(
-        new admin_setting_configcheckbox('edusharing/enable_repo_target_chooser',
-            new lang_string('enable_repo_target_chooser', 'edusharing'),
-            new lang_string('enable_repo_target_chooser_help', 'edusharing'),
-            '0'
+        new admin_setting_configcheckbox(
+            name: 'edusharing/enable_repo_target_chooser',
+            visiblename: new lang_string('enable_repo_target_chooser', 'edusharing'),
+            description: new lang_string('enable_repo_target_chooser_help', 'edusharing'),
+            defaultsetting: '0'
         )
     );
-    $settings->add(new admin_setting_heading('edusharing/save',
-        get_string('save', 'edusharing'), ''));
+    $settings->add(
+        new admin_setting_heading(
+            name: 'edusharing/save',
+            heading: get_string('save', 'edusharing'),
+            information: ''
+        )
+    );
 }

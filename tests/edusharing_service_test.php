@@ -33,6 +33,7 @@ use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
 use Exception;
 use JsonException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use stdClass;
 use testUtils\FakeConfig;
 
@@ -43,10 +44,9 @@ use testUtils\FakeConfig;
  * @package mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \mod_edusharing\EduSharingService
  */
+#[CoversClass(\mod_edusharing\EduSharingService::class)]
 final class edusharing_service_test extends \advanced_testcase {
-
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new
      *
@@ -291,8 +291,13 @@ final class edusharing_service_test extends \advanced_testcase {
      * @throws dml_exception
      */
     public function test_if_get_node_calls_node_helper_method_with_proper_params(): void {
-        $usage          = new Usage('nodeIdTest', 'nodeVersionTest',
-            'containerIdTest', 'resourceIdTest', 'usageIdTest');
+        $usage          = new Usage(
+            nodeId: 'nodeIdTest',
+            nodeVersion: 'nodeVersionTest',
+            containerId: 'containerIdTest',
+            resourceId: 'resourceIdTest',
+            usageId: 'usageIdTest'
+        );
         $basehelper     = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig     = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper     = new EduSharingAuthHelper($basehelper);
@@ -789,9 +794,10 @@ final class edusharing_service_test extends \advanced_testcase {
         global $_SERVER;
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $basehelper                 = new EduSharingHelperBase(
-            'www.url.de',
-            'pkey123',
-            'appid123');
+            baseUrl:'www.url.de',
+            privateKey: 'pkey123',
+            appId: 'appid123'
+        );
         $curloptions                = [
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
