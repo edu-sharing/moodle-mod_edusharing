@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - API call for secured node (Rendering Service 2) now includes a version parameter
 - Observer method called after course restore now longer throws a fatal error if called outside the plugin context
+- Fixed code style and doc blocks to conform with updated moodle guidelines
 
 ## [10.2.0] - 2025-10-08
 
