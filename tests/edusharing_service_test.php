@@ -50,8 +50,8 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new
      *
+     * @covers \mod_edusharing\EduSharingService::get_ticket
      * @return void
-     *
      * @throws Exception
      */
     public function test_if_get_ticket_returns_existing_ticket_if_cached_ticket_is_new(): void {
@@ -74,8 +74,8 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_ticket_returns_existing_ticket_if_auth_info_is_ok
      *
+     * @covers \mod_edusharing\EduSharingService::get_ticket
      * @return void
-     *
      * @throws dml_exception
      * @throws Exception
      */
@@ -102,6 +102,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_getT_ticket_returns_ticket_from_auth_helper_if_no_cached_ticket_exists
      *
+     * @covers \mod_edusharing\EduSharingService::get_ticket
      * @return void
      * @throws dml_exception
      */
@@ -136,6 +137,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_ticket_returns_ticket_from_auth_helper_if_ticket_is_too_old_and_auth_info_call_fails
      *
+     * @covers \mod_edusharing\EduSharingService::get_ticket
      * @return void
      * @throws dml_exception
      */
@@ -173,6 +175,10 @@ final class edusharing_service_test extends \advanced_testcase {
 
     /**
      * Function test_if_create_usage_calls_node_helper_method_with_correct_params
+     *
+     * @covers \mod_edusharing\EduSharingService::create_usage
+     * @return void
+     * @throws dml_exception
      */
     public function test_if_create_usage_calls_node_helper_method_with_correct_params(): void {
         $usageobject              = new stdClass();
@@ -203,6 +209,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_usage_id_calls_node_helper_method_with_correct_params_and_returns_result
      *
+     * @covers \mod_edusharing\EduSharingService::get_usage_id
      * @return void
      * @throws dml_exception
      */
@@ -231,6 +238,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_usage_id_throws_exception_if_node_helper_method_returns_null
      *
+     * @covers \mod_edusharing\EduSharingService::get_usage_id
      * @return void
      * @throws dml_exception
      */
@@ -260,6 +268,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_delete_usage_calls_node_helper_method_with_proper_params
      *
+     * @covers \mod_edusharing\EduSharingService::delete_usage
      * @return void
      * @throws dml_exception
      */
@@ -284,6 +293,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_get_node_calls_node_helper_method_with_proper_params
      *
+     * @covers \mod_edusharing\EduSharingService::get_node
      * @return void
      * @throws JsonException
      * @throws NodeDeletedException
@@ -315,11 +325,13 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params
      *
+     * @covers \mod_edusharing\EduSharingService::update_instance
      * @return void
      */
     public function test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
         $eduobject->object_url         = 'inputUrl';
@@ -381,11 +393,13 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_update_instance_resets_data_and_returns_false_on_update_error
      *
+     * @covers \mod_edusharing\EduSharingService::update_instance
      * @return void
      */
     public function test_if_update_instance_resets_data_and_returns_false_on_update_error(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
         $eduobject->object_url         = 'inputUrl';
@@ -447,11 +461,13 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters
      *
+     * @covers \mod_edusharing\EduSharingService::add_instance
      * @return void
      */
     public function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
         $eduobject->object_url              = 'inputUrl';
@@ -512,11 +528,13 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_add_instance_returns_false_and_resets_data_on_creation_failure
      *
+     * @covers \mod_edusharing\EduSharingService::add_instance
      * @return void
      */
     public function test_if_add_instance_returns_false_and_resets_data_on_creation_failure(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
         $eduobject->object_url              = 'inputUrl';
@@ -579,6 +597,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_delete_usage_throwsexception_if_provided_object_has_no_usage_id
      *
+     * @covers \mod_edusharing\EduSharingService::delete_usage
      * @return void
      * @throws dml_exception
      */
@@ -603,12 +622,14 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_delete_instance_calls_database_with_proper_params
      *
+     * @covers \mod_edusharing\EduSharingService::delete_instance
      * @return void
      * @throws dml_exception
      */
     public function test_if_delete_instance_calls_database_with_proper_params(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $dbrecord             = new stdClass();
         $dbrecord->id         = 'edusharingId123';
         $dbrecord->object_url = 'test.de';
@@ -654,6 +675,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_import_metadata_calls_curl_with_the_correct_params
      *
+     * @covers \mod_edusharing\EduSharingService::import_metadata
      * @return void
      * @throws dml_exception
      */
@@ -689,6 +711,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_validate_session_calls_curl_with_the_correct_params
      *
+     * @covers \mod_edusharing\EduSharingService::validate_session
      * @return void
      * @throws dml_exception
      */
@@ -722,6 +745,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_register_plugin_calls_curl_with_the_correct_options
      *
+     * @covers \mod_edusharing\EduSharingService::register_plugin
      * @return void
      * @throws dml_exception
      */
@@ -764,6 +788,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_if_sign_calls_base_helper_method_with_correct_params_and_returns_its_returned_value
      *
+     * @covers \mod_edusharing\EduSharingService::sign
      * @return void
      * @throws dml_exception
      */
@@ -786,6 +811,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_get_render_html_calls_curl_handler_with_correct_params_and_returns_content_on_success
      *
+     * @covers \mod_edusharing\EduSharingService::get_render_html
      * @return void
      * @throws dml_exception
      */
@@ -824,6 +850,7 @@ final class edusharing_service_test extends \advanced_testcase {
     /**
      * Function test_get_render_html_returns_error_message_if_curl_result_has_error
      *
+     * @covers \mod_edusharing\EduSharingService::get_render_html
      * @return void
      * @throws dml_exception
      */

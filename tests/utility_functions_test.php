@@ -42,6 +42,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_object_id_from_url
      * @return void
      */
     public function test_if_get_object_id_from_url_returns_proper_path_if_url_is_ok(): void {
@@ -52,6 +53,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_object_id_from_url
      * @return void
      */
     public function test_if_get_object_id_from_url_triggers_warning_if_url_is_malformed(): void {
@@ -68,6 +70,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_repository_id_from_url_returns_host_if_url_is_ok
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_repository_id_from_url
      * @return void
      * @throws Exception
      */
@@ -79,6 +82,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_repository_throws_exception_if_url_is_malformed
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws Exception
      */
@@ -91,6 +95,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_auth_key_returns_user_id_if_sso_is_active
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws dml_exception
      */
@@ -111,6 +116,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_get_auth_key_returns_guest_id_if_guest_option_is_active
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws dml_exception
      */
@@ -131,6 +137,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_get_auth_key_returns_configured_auth_key_if_set
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws dml_exception
      */
@@ -151,6 +158,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_get_auth_key_returns_auth_key_in_profile_if_all_previous_are_not_met
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws dml_exception
      */
@@ -171,6 +179,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_get_auth_key_returns_user_name_as_last_resort
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_auth_key
      * @return void
      * @throws dml_exception
      */
@@ -191,11 +200,13 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_set_moodle_ids_in_edusharing_entries_does_not_set_anything_if_no_matches
      *
+     * @covers \mod_edusharing\UtilityFunctions::set_moodle_ids_in_edusharing_entries
      * @return void
      */
     public function test_if_set_moodle_ids_in_edusharing_entries_does_not_set_anything_if_no_matches(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -206,12 +217,14 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_set_moodle_ids_in_edusharing_entries_sets_found_resource_ids_to_db
      *
+     * @covers \mod_edusharing\UtilityFunctions::set_moodle_ids_in_edusharing_entries
      * @return void
      * @throws dml_exception
      */
     public function test_if_set_moodle_ids_in_edusharing_entries_sets_found_resource_ids_to_db(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -272,12 +285,14 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_set_module_in_db_only_sets_section_id_if_no_module_id_provided
      *
+     * @covers \mod_edusharing\UtilityFunctions::set_moodle_ids_in_edusharing_entries
      * @return void
      * @throws dml_exception
      */
     public function test_if_set_module_in_db_only_sets_section_id_if_no_module_id_provided(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -335,12 +350,14 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found
      *
+     * @covers \mod_edusharing\UtilityFunctions::set_moodle_ids_in_edusharing_entries
      * @return void
      * @throws dml_exception
      */
     public function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['set_field'])
@@ -354,11 +371,13 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_course_module_info
      * @return void
      */
     public function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $this->resetAfterTest();
         $utils                   = new UtilityFunctions();
         $module                  = new stdClass();
@@ -412,11 +431,13 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_if_get_course_module_info_returns_false_if_no_record_found
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_course_module_info
      * @return void
      */
     public function test_if_get_course_module_info_returns_false_if_no_record_found(): void {
+        global $CFG;
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/lib/dml/tests/dml_test.php');
         $utils = new UtilityFunctions();
         $this->resetAfterTest();
         $module           = new stdClass();
@@ -437,6 +458,7 @@ final class utility_functions_test extends advanced_testcase {
     /**
      * Function test_get_inline_object_matches_returns_only_atto_matches_from_input
      *
+     * @covers \mod_edusharing\UtilityFunctions::get_inline_object_matches
      * @return void
      */
     public function test_get_inline_object_matches_returns_only_atto_matches_from_input(): void {

@@ -16,6 +16,8 @@
 
 declare(strict_types=1);
 
+// phpcs:disable moodle.Files.RequireLogin.Missing
+
 require_once(dirname(__FILE__, 4) . '/config.php');
 global $CFG;
 require_once($CFG->dirroot . '/user/profile/lib.php');
