@@ -5,20 +5,23 @@ body {
     margin: 0;
 }
 
-a, a:hover, a:visited, a:active {
+a,
+a:hover,
+a:visited,
+a:active {
     text-decoration: none;
     font-weight: bold;
     color: #00a0d2;
 }
-h3{
+h3 {
     display: inline;
 }
 
-p{
+p {
     line-height: 2;
 }
 
-input{
+input {
     padding: 12px 24px;
     padding-left: 6px;
     margin-right: 12px;
@@ -26,7 +29,7 @@ input{
     background: #fff;
 }
 
-.btn{
+.btn {
     display: inline-block;
     margin: 12px 4px;
     padding: 12px 24px;
@@ -42,11 +45,12 @@ input{
     transition: background-color .3s;
 }
 
-.btn:hover, .btn:focus {
+.btn:hover,
+.btn:focus {
     background-color: #183f5c;
 }
 
-.h5p-header{
+.h5p-header {
     width: 100%;
     display: flex;
     align-content: baseline;
@@ -61,11 +65,11 @@ input{
     box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
 }
 
-.h5p-header h1{
+.h5p-header h1 {
     padding-left: 40px;
 }
 
-.menu{
+.menu {
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -76,24 +80,24 @@ input{
     border-radius: 2px;
 }
 
-ul{
+ul {
     padding-inline-start: 0;
 }
 
-.menu li{
+.menu li {
     margin-left: 20px;
 }
 
-.menu li a{
+.menu li a {
     color: #ddd;
     transition: ease-in-out 0.5s;
 }
 
-.menu li a:hover{
+.menu li a:hover {
     color: #00a0d2;
 }
 
-.wrap{
+.wrap {
     width: 90%;
     margin: 0 auto;
     background: white;
@@ -102,19 +106,19 @@ ul{
     box-shadow: 2px 2px 8px rgba(0, 0, 0, .15);
 }
 
-.edu_error{
+.edu_error {
     display: block;
     background: lightcoral;
     padding: 12px 24px;
 }
 
-.edu_success{
+.edu_success {
     display: block;
     background: lightgreen;
     padding: 12px 24px;
 }
 
-select{
+select {
     text-align: right;
     padding: 10px 20px;
     margin-right: 6px;
@@ -122,59 +126,59 @@ select{
     border-radius: 2px;
 }
 
-input[type="text"]{
+input[type="text"] {
     width: 40%;
     min-width: 400px;
 }
 
-.edu_metadata{
+.edu_metadata {
     background: #f5f5f5;
     padding: 8px;
     border: 1px solid #bbb;
 }
 
-.edu_metadata p{
+.edu_metadata p {
     padding: 4px 15px;
 }
-.edu_example{
+.edu_example {
     font-size: 14px;
     color: #aaa;
 }
 
-.edu_example a{
+.edu_example a {
     color: #00a0d2;
 }
 
-.edu_endpoint{
+.edu_endpoint {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
 }
 
-.edu_export{
+.edu_export {
     font-style: italic;
     color: #555;
     background: #e8e8e8;
     padding: 2px 8px;
 }
 
-.repo-reg{
+.repo-reg {
     margin-top: 40px;
     padding-top: 40px;
     border-top: 4px dotted #bbb;
 }
 
-.repo_input{
+.repo_input {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
 }
 
-.repo_input_name{
+.repo_input_name {
     min-width: 250px;
 }
 
-.repo_input .short_input{
+.repo_input .short_input {
     min-width: 50px;
     max-width: 194px;
 }
