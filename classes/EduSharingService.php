@@ -396,7 +396,7 @@ class EduSharingService {
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'],
+            CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'] ?? '',
         ];
         return $this->authhelper->base->handleCurlRequest($url, $curloptions);
     }

@@ -125,7 +125,7 @@ class InstallUpgradeLogic {
             debugging($exception->getMessage());
             return;
         }
-        if (! isset($registrationresult['appid'])) {
+        if (! isset($registrationresult['appid']) && ! isset($result['id'])) {
             debugging('Automatic plugin registration could not be performed.');
         }
     }
@@ -180,7 +180,7 @@ class InstallUpgradeLogic {
             $appid = false;
         }
         if ($appid === false) {
-            $appid = $this->get_config_data()['moodleAppId_optional'];
+            $appid = $this->get_config_data()['moodleAppId_optional'] ?? '';
             if (empty($appid)) {
                 $appid = uniqid('moodle_');
             }
