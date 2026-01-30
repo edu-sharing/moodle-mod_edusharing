@@ -32,26 +32,17 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_edusharing\EduSharingService;
+use mod_edusharing\IdpHelper;
 use mod_edusharing\UtilityFunctions;
 
 try {
     $utils = new UtilityFunctions();
+    $idphelper = new IdpHelper();
     if ($utils->get_config_entry('use_as_idp') !== '1') {
         redirect(new moodle_url('/login/index.php'));
     }
     if (isloggedin()) {
-        profile_load_custom_fields($USER);
-        $profilefieldset = (isset($USER->profile['eduAccess']) && $USER->profile['eduAccess'] == 1);
-        try {
-            $cohort = $DB->get_record('cohort', ['idnumber' => 'edu_access'], '*', MUST_EXIST);
-            $userisincohort = $DB->record_exists('cohort_members', [
-                'cohortid' => $cohort->id,
-                'userid' => $USER->id,
-            ]);
-        } catch (Exception) {
-            $userisincohort = false;
-        }
-        if (!$userisincohort && !$profilefieldset) {
+        if (! $idphelper->check_edu_access()) {
             redirect(new moodle_url('/login/index.php'));
         }
         $service = new EduSharingService();
