@@ -24,7 +24,7 @@
 
 use mod_edusharing\event\course_module_instance_list_viewed;
 
-require_once(dirname(__FILE__, 3) . '/config.php');
+require_once(dirname(__FILE__) . '/../../../config.php');
 require_once(dirname(__FILE__) . '/lib.php');
 
 global $DB, $PAGE, $OUTPUT;
