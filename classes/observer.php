@@ -89,7 +89,7 @@ class mod_edusharing_observer {
         }
         if ($isduplication) {
             $createdusages = [];
-            $matches = $utils->get_inline_object_matches($text);
+            $matches = $utils->get_inline_object_matches($text)['rendermatches'];
             $transaction = $DB->start_delegated_transaction();
             try {
                 $service = new EduSharingService(null, null, $utils);

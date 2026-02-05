@@ -444,7 +444,7 @@ final class utility_functions_test extends advanced_testcase {
         require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/TestStringGenerator.php');
         $text   = TestStringGenerator::getattoteststring();
         $utils  = new UtilityFunctions();
-        $result = $utils->get_inline_object_matches($text);
+        $result = $utils->get_inline_object_matches($text)['rendermatches'];
         $this->assertTrue(count($result) === 4);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '</a>'))) === 2);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '<img'))) === 2);

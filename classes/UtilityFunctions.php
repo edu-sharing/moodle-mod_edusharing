@@ -210,7 +210,7 @@ class UtilityFunctions {
      */
     public function set_moodle_ids_in_edusharing_entries(string $text, int $sectionid, int $moduleid = 0): void {
         global $DB;
-        $esmatches = $this->get_inline_object_matches($text);
+        $esmatches = $this->get_inline_object_matches($text)['rendermatches'];
         foreach ($esmatches as $match) {
             $resourceid = $this->get_resource_id_from_match($match);
             $edusharing = $DB->get_record('edusharing', ['id' => $resourceid], '*', MUST_EXIST);
@@ -346,13 +346,20 @@ class UtilityFunctions {
         $dom->loadHTML($contenttype . $inputtext, LIBXML_NOERROR);
         $allelements = $dom->getElementsByTagName("*");
         $matches = [];
+        $widgetmatches = [];
         foreach ($allelements as $item) {
             $classes = $item->attributes->getNamedItem('class')->nodeValue ?? '';
             if (str_contains($classes, 'edusharing_atto')) {
                 $matches[] = $dom->saveHTML($item);
             }
+            if (str_contains($classes, 'edusharing-widget-placeholder')) {
+                $widgetmatches[] = $dom->saveHTML($item);
+            }
         }
-        return $matches;
+        return [
+            'rendermatches' => $matches,
+            'widgetmatches' => $widgetmatches
+        ];
     }
 
     /**

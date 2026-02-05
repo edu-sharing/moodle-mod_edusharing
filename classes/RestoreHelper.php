@@ -138,7 +138,7 @@ class RestoreHelper {
             }
         }
 
-        return $this->utils->get_inline_object_matches($text);
+        return $this->utils->get_inline_object_matches($text)['rendermatches'];
     }
 
     /**
