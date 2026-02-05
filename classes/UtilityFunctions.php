@@ -358,7 +358,7 @@ class UtilityFunctions {
         }
         return [
             'rendermatches' => $matches,
-            'widgetmatches' => $widgetmatches
+            'widgetmatches' => $widgetmatches,
         ];
     }
 
