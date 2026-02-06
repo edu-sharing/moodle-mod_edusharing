@@ -53,7 +53,8 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
      * @return void
      */
     protected function process_edusharing($data) {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
 
         $data = (object)$data;
         try {
