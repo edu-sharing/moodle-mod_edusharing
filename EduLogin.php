@@ -23,6 +23,7 @@
  */
 
 // phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
+// phpcs:disable moodle.Files.RequireLogin.Missing
 
 require_once(dirname(__FILE__) . '/../../config.php');
 
