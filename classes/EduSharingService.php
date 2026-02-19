@@ -20,6 +20,7 @@ namespace mod_edusharing;
 
 use coding_exception;
 use dml_exception;
+use EduSharingApiClient\AppAuthException;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
 use EduSharingApiClient\DisplayMode;
@@ -226,6 +227,29 @@ class EduSharingService {
             ];
         }
         return $this->authhelper->getTicketForUser($this->utils->get_auth_key(), $additionalfields);
+    }
+
+    /**
+     * Function get_ticket_for_user
+     *
+     * Get authentication ticket for a specific user
+     *
+     * @param stdClass $user
+     * @return string
+     * @throws dml_exception
+     * @throws AppAuthException
+     */
+    public function get_ticket_for_user(stdClass $user): string {
+        if ($this->utils->get_config_entry('send_additional_auth') === '1') {
+            $additionalfields = [
+                'firstName' => $user->firstname,
+                'lastName'  => $user->lastname,
+                'email'     => $user->email,
+            ];
+        } else {
+            $additionalfields = null;
+        }
+        return $this->authhelper->getTicketForUser($this->utils->get_auth_key($user), $additionalfields);
     }
 
     /**

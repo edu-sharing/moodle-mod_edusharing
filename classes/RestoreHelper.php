@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace mod_edusharing;
 
 use coding_exception;
+use core_user;
 use dml_exception;
 use DOMDocument;
 use EduSharingApiClient\MissingRightsException;
@@ -226,18 +227,25 @@ class RestoreHelper {
      *
      * @param stdClass $data
      * @param int $newitemid
+     * @param int|null $userid
      * @return Usage|null
      * @throws \JsonException
      * @throws Exception
      * @throws MissingRightsException
      */
-    public function add_usage(stdClass $data, int $newitemid): ?Usage {
+    public function add_usage(stdClass $data, int $newitemid, ?int $userid = null): ?Usage {
         $usagedata              = new stdClass();
         $usagedata->containerId = $data->course;
         $usagedata->resourceId  = $newitemid;
         $utils                  = new UtilityFunctions();
         $usagedata->nodeId      = $utils->get_object_id_from_url($data->object_url);
         $usagedata->nodeVersion = $data->object_version;
+        if ($userid !== null) {
+            $user = core_user::get_user($userid);
+            profile_load_custom_fields($user);
+            $ticket = $this->service->get_ticket_for_user($user);
+            $usagedata->ticket = $ticket;
+        }
         return $this->service->create_usage($usagedata);
     }
 }

@@ -152,33 +152,39 @@ class UtilityFunctions {
      *
      * @throws dml_exception
      */
-    public function get_auth_key(): string {
+    public function get_auth_key(?stdClass $targetuser = null): string {
         global $USER, $SESSION;
-
-        // Set by external sso script.
-        if (!empty($SESSION->edusharing_sso) && $this->get_config_entry('obfuscate_auth_param') === '1') {
-            return $SESSION->edusharing_sso[$this->get_config_entry('EDU_AUTH_PARAM_NAME_USERID')];
+        if ($targetuser === null) {
+            $user = $USER;
+        } else {
+            $user = $targetuser;
         }
-        $guestoption = $this->get_config_entry('edu_guest_option');
-        if (!empty($guestoption)) {
-            $guestid = $this->get_config_entry('edu_guest_guest_id');
+        // Set by external sso script.
+        if ($targetuser === null) {
+            if (!empty($SESSION->edusharing_sso) && $this->get_config_entry('obfuscate_auth_param') === '1') {
+                return $SESSION->edusharing_sso[$this->get_config_entry('EDU_AUTH_PARAM_NAME_USERID')];
+            }
+            $guestoption = $this->get_config_entry('edu_guest_option');
+            if (!empty($guestoption)) {
+                $guestid = $this->get_config_entry('edu_guest_guest_id');
 
-            return !empty($guestid) ? $guestid : 'esguest';
+                return !empty($guestid) ? $guestid : 'esguest';
+            }
         }
         $eduauthkey = $this->get_config_entry('EDU_AUTH_KEY');
         if ($eduauthkey == 'id') {
-            return $USER->id;
+            return $user->id;
         }
         if ($eduauthkey == 'idnumber') {
-            return $USER->idnumber;
+            return $user->idnumber;
         }
         if ($eduauthkey == 'email') {
-            return $USER->email;
+            return $user->email;
         }
-        if (isset($USER->profile[$eduauthkey])) {
-            return $USER->profile[$eduauthkey];
+        if (isset($user->profile[$eduauthkey])) {
+            return $user->profile[$eduauthkey];
         }
-        return $USER->username . $this->get_config_entry('auth_suffix');
+        return $user->username . $this->get_config_entry('auth_suffix');
     }
 
     /**
