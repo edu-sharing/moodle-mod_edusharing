@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.3.0] - 2026-02-20
+
+### Added
+
+- Capability to detect embedded EduSharing widgets in editor markup.
+
+### Fixed
+
+- Asynchronous course restoration and duplication now uses the triggering user instead of the admin for authentication against Edu-Sharing.
+
 ## [10.2.3] - 2026-01-30
 
 ### Changed
