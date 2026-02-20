@@ -150,6 +150,8 @@ class UtilityFunctions {
     /**
      * Function get_auth_key
      *
+     * @param stdClass|null $targetuser
+     * @return string
      * @throws dml_exception
      */
     public function get_auth_key(?stdClass $targetuser = null): string {

@@ -275,11 +275,12 @@ class mod_edusharing_observer {
      * @param \core\event\course_restored $event
      */
     public static function course_restored(\core\event\course_restored $event) {
+        $userid = empty($event->userid) ? null : $event->userid;
         $eventdata = $event->get_data();
         $courseid  = $eventdata['courseid'];
         try {
             $helper = new RestoreHelper(new EduSharingService());
-            $helper->convert_inline_options($courseid);
+            $helper->convert_inline_options(courseid: $courseid, userid: $userid);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
         }

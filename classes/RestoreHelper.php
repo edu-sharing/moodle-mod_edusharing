@@ -70,20 +70,21 @@ class RestoreHelper {
      * Function convert_inline_options
      *
      * @param int $courseid
+     * @param int|null $userid
      * @return void
      *
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function convert_inline_options($courseid): void {
+    public function convert_inline_options(int $courseid, ?int $userid = null): void {
         global $DB;
         $sections = $DB->get_records('course_sections', ['course' => $courseid]);
         foreach ($sections as $section) {
             $esmatches = $this->get_inline_objects($section->summary ?? '');
             if (!empty($esmatches)) {
                 foreach ($esmatches as $match) {
-                    $section->summary = str_replace($match, $this->convert_object($match, $courseid), $section->summary);
+                    $section->summary = str_replace($match, $this->convert_object($match, $courseid, $userid), $section->summary);
                     $DB->update_record('course_sections', $section);
                 }
             }
@@ -97,7 +98,7 @@ class RestoreHelper {
                 $esmatches = $this->get_inline_objects($cm->content);
                 if (!empty($esmatches)) {
                     foreach ($esmatches as $match) {
-                        $cm->set_content(str_replace($match, $this->convert_object($match, $courseid), $cm->content));
+                        $cm->set_content(str_replace($match, $this->convert_object($match, $courseid, $userid), $cm->content));
                     }
                 }
             }
@@ -111,13 +112,13 @@ class RestoreHelper {
                 $esmatches = $this->get_inline_objects($module->intro);
                 if (!empty($esmatches)) {
                     foreach ($esmatches as $match) {
-                        $module->intro = str_replace($match, $this->convert_object($match, $courseid), $module->intro);
+                        $module->intro = str_replace($match, $this->convert_object($match, $courseid, $userid), $module->intro);
                     }
                 }
             }
             $DB->update_record($cm->name, $module);
         }
-        rebuild_course_cache((int)$courseid, true);
+        rebuild_course_cache($courseid, true);
     }
 
     /**
@@ -147,12 +148,12 @@ class RestoreHelper {
      *
      * @param mixed $object
      * @param mixed $courseid
+     * @param int|null $userid
      * @return mixed
      * @throws coding_exception
      * @throws dml_exception
-     * @throws Exception
      */
-    private function convert_object($object, $courseid): string {
+    private function convert_object($object, $courseid, ?int $userid): string {
         global $DB;
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
@@ -194,7 +195,7 @@ class RestoreHelper {
         $id                         = $DB->insert_record('edusharing', $edusharing);
         if ($id !== false) {
             try {
-                $usage = $this->add_usage($edusharing, $id);
+                $usage = $this->add_usage($edusharing, $id, $userid);
             } catch (MissingRightsException $missingrightsexception) {
                 unset($missingrightsexception);
                 return get_string('error_missing_rights_on_restore', 'edusharing') . ': ' . ($params['nodeId'] ?? 'blank nodeId');
