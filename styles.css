@@ -9,3 +9,9 @@
 #fitem_id_edu_edit_mode {
     display: none;
 }
+
+#edusharing_view_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -25,6 +25,7 @@ use context_system;
 use dml_exception;
 use DOMDocument;
 use Exception;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -145,6 +146,38 @@ class UtilityFunctions {
         $url .= '&u=' . rawurlencode(base64_encode($this->encrypt_with_repo_key($this->get_auth_key())));
 
         return $url;
+    }
+
+    /**
+     * Function get_redirect_url
+     *
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     * @throws Exception
+     */
+    public function get_redirect_url_from_request(): string {
+        global $DB, $CFG;
+        $service = new EduSharingService();
+        $edusharing = $DB->get_record(
+            Constants::EDUSHARING_TABLE,
+            ['id' => optional_param('resourceId', null, PARAM_INT)],
+            '*',
+            MUST_EXIST
+        );
+        $redirecturl = $this->get_redirect_url($edusharing);
+        $ts          = round(microtime(true) * 1000);
+        $redirecturl .= '&ts=' . $ts;
+        $data        = $this->get_config_entry('application_appid')
+            . $ts . $this->get_object_id_from_url($edusharing->object_url);
+        $redirecturl .= '&sig=' . urlencode($service->sign($data));
+        $redirecturl .= '&signed=' . urlencode($data);
+        $redirecturl .= '&backLink='
+            . urlencode($CFG->wwwroot . '/course/view.php?id='
+                . optional_param('containerId', null, PARAM_TEXT));
+        $ticket = $service->get_ticket();
+        $redirecturl .= '&ticket=' . urlencode(base64_encode($this->encrypt_with_repo_key($ticket)));
+        return $redirecturl;
     }
 
     /**

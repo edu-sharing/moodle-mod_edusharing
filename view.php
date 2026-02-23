@@ -53,14 +53,37 @@ try {
     }
     $PAGE->set_url('/mod/edusharing/view.php?id=' . $vid);
     require_login($course, true, $cm);
+    $edusharingservice = new EduSharingService();
+    $utils = new UtilityFunctions();
+    if ($edusharingservice->has_rendering_2()) {
+        global $edusharingwcloaded, $OUTPUT;
+        $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
+        if (!$edusharingwcloaded) {
+            $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
+            $edusharingwcloaded = true;
+        }
+        $PAGE->requires->js_call_amd('mod_edusharing/renderer', 'init', [$repourl]);
+
+        $templatedata = [
+            'nodeId' => $utils->get_object_id_from_url($edusharing->object_url),
+            'containerId' => $courseid,
+            'version' => $edusharing->object_version,
+            'usage' => $edusharing->usage_id,
+            'resourceId' => $edusharing->id
+        ];
+
+        echo $OUTPUT->header();
+        echo $OUTPUT->render_from_template('mod_edusharing/content', $templatedata);
+        echo $OUTPUT->footer();
+        return;
+    }
+
     try {
-        $edusharingservice = new EduSharingService();
         $ticket            = $edusharingservice->get_ticket();
     } catch (Exception $exception) {
         trigger_error($exception->getMessage(), E_USER_WARNING);
         exit();
     }
-    $utils       = new UtilityFunctions();
     $redirecturl = $utils->get_redirect_url($edusharing);
     $ts          = round(microtime(true) * 1000);
     $redirecturl .= '&ts=' . $ts;
