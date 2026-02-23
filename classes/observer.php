@@ -275,7 +275,7 @@ class mod_edusharing_observer {
      * @param \core\event\course_restored $event
      */
     public static function course_restored(\core\event\course_restored $event) {
-        $userid = empty($event->userid) ? null : $event->userid;
+        $userid = empty($event->userid) ? null : (int)$event->userid;
         $eventdata = $event->get_data();
         $courseid  = $eventdata['courseid'];
         try {
