@@ -280,7 +280,7 @@ class mod_edusharing_observer {
         $courseid  = $eventdata['courseid'];
         try {
             $helper = new RestoreHelper(new EduSharingService());
-            $helper->convert_inline_options(courseid: (int)$courseid, userid: (int)$userid);
+            $helper->convert_inline_options(courseid: (int)$courseid, userid: $userid);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
         }
