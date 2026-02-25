@@ -133,7 +133,6 @@ $string['brandingSettings'] = 'UI Einstellungen';
 $string['brandingInfo'] = 'Passe das Aussehen vom edu-sharing Plugin an.';
 $string['appiconDescr'] = 'Das "appIcon" ersetzt das edu-sharing Icon. Auch beim Atto-Editor.<br>(Quadratisches Seitenverhältnis)';
 $string['info_textDescr'] = 'Der Hilfstext beim einbinden des edu-sharing Moduls.';
-$string['atto_hintDescr'] = 'Der Hilfstext beim edu-sharing Atto Popup.';
 $string['repo_targetDescr'] = 'Legt die Einstiegsseite beim Repositorium fest.';
 $string['enable_repo_target_chooser'] = 'Einstiegsseite vom Nutzer auswählbar.';
 $string['enable_repo_target_chooser_help'] = 'Ist diese Option aktiviert, so kann der Nutzer in der GUI auswählen, welche Einstiegsseite im Repositorium angezeigt werden soll.';

@@ -133,7 +133,6 @@ $string['brandingSettings'] = 'Paramètres de l\'interface utilisateur';
 $string['brandingInfo'] = 'Personnaliser l\'apparence du plugin edu-sharing.';
 $string['appiconDescr'] = 'L\' appIcon remplace le symbole du edu-sharing. Aussi pour l\'éditeur Atto.<br>(Rapport d\'aspect carré)';
 $string['info_textDescr'] = 'Le texte d\'aide lors de l\'intégration du module edu-sharing.';
-$string['atto_hintDescr'] = 'Le texte d\'aide du popup edu-sharing Atto';
 $string['repo_targetDescr'] = 'Définit la page d\'accueil du repository.';
 $string['enable_repo_target_chooser'] = 'Page d\'accueil sélectionnable par l\'utilisateur';
 $string['enable_repo_target_chooser_help'] = 'Si cette option est activée, l\'utilisateur peut sélectionner dans l\'interface graphique quelle page d\'accueil doit être affichée dans le repository.';

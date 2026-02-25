@@ -181,8 +181,13 @@ class EduSharingService {
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      */
-    public function get_node(Usage $usage, ?array $renderingparams = null, ?string $userid = null): array {
-        return $this->nodehelper->getNodeByUsage($usage, DisplayMode::INLINE, $renderingparams, $userid);
+    public function get_node(Usage $usage, ?array $renderingparams = null, ?string $userid = null, bool $rendering2 = false): array {
+        return $this->nodehelper->getNodeByUsage(
+            usage: $usage,
+            renderingParams: $renderingparams,
+            userId: $userid,
+            rendering2: $rendering2
+        );
     }
 
     /**
@@ -272,8 +277,14 @@ class EduSharingService {
         $usagedata->nodeId      = $this->utils->get_object_id_from_url($edusharing->object_url);
         $usagedata->containerId = $edusharing->course;
         $usagedata->resourceId  = $edusharing->id;
-        $usagedata->usageId    = empty($edusharing->usage_id) ? $this->get_usage_id($usagedata) : $edusharing->usage_id;
+        $usagedata->usageId     = empty($edusharing->usage_id) ? $this->get_usage_id($usagedata) : $edusharing->usage_id;
         $this->delete_usage($usagedata);
+        $attemptids = $DB->get_fieldset_select('edusharing_attempts', 'id', 'edusharingid = ?', [$id]);
+        if ($attemptids) {
+            $DB->delete_records_list('edusharing_attempts', 'id', $attemptids);
+        }
+        edusharing_grade_item_delete($edusharing);
+
         $DB->delete_records('edusharing', ['id' => $edusharing->id]);
     }
 

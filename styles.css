@@ -14,4 +14,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .edu-sharing-render:has(.module-H5P) {
+        width: 90%;
+
+        .module-H5P {
+            aspect-ratio: 16 / 9;
+        }
+    }
+
+    .edu-sharing-render:has(.module-IMAGE) {
+        width: 40%;
+    }
+
+    .edu-sharing-render:has(.module-VIDEO) {
+        width: 60%;
+    }
+
+    .edu-sharing-render:has(.module-PDF) {
+        width: 80%;
+    }
 }

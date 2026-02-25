@@ -132,7 +132,6 @@ $string['brandingSettings'] = 'UI settings';
 $string['brandingInfo'] = 'Change the look & feel of the edu-sharing plugin.';
 $string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
 $string['info_textDescr'] = 'The helptext for adding the edu-sharing module.';
-$string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
 $string['repo_targetDescr'] = 'Configure the startpage in the repository';
 $string['enable_repo_target_chooser'] = 'Start page selectable by user';
 $string['enable_repo_target_chooser_help'] = 'If this option is enabled, the user can select in the GUI which entry page should be displayed in the repository.';

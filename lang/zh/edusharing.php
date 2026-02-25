@@ -124,7 +124,6 @@ $string['brandingSettings'] = 'UI settings';
 $string['brandingInfo'] = 'Change the look & feel of the edu-sharing plugin.';
 $string['appiconDescr'] = 'This icon replaces the edu-sharing icon (including the atto-button).';
 $string['info_textDescr'] = 'The helptext for adding the edu-sharing module.';
-$string['atto_hintDescr'] = 'The helptext for the edus-haring atto-popup.';
 $string['repo_targetDescr'] = 'Configure the startpage in the repository';
 $string['repoSearch'] = 'Search';
 $string['repoCollection'] = 'Collections';

@@ -25,8 +25,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_edusharing\Constants;
+use EduSharingApiClient\Usage;
 use mod_edusharing\EduSharingService;
+use mod_edusharing\grading\Grader;
+use mod_edusharing\Constants;
 use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,10 +49,28 @@ class mod_edusharing_mod_form extends moodleform_mod {
      * @see lib/moodleform::definition()
      */
     public function definition(): void {
+
+
+        global $PAGE;
         try {
-            $edusharingservice = new EduSharingService();
-            $utils             = new UtilityFunctions();
-            $ticket            = $edusharingservice->get_ticket();
+            $service = new EduSharingService();
+            $utils = new UtilityFunctions();
+            $hasgradingfeature = $service->has_rendering_2();
+            $currentedusharing = $this->current;
+            $mediatype = '';
+            if (!empty($currentedusharing)) {
+                $usage = new Usage(
+                    nodeId: $utils->get_object_id_from_url($currentedusharing->object_url),
+                    nodeVersion: $currentedusharing->object_version,
+                    containerId: $currentedusharing->course,
+                    resourceId: $currentedusharing->id,
+                    usageId: $currentedusharing->usage_id
+                );
+                $node = $service->get_node(usage: $usage, rendering2: true);
+                $mediatype = $node['node']['mediatype'] ?? '';
+            }
+            $repobase = $utils->get_config_entry('application_cc_gui_url');
+            $PAGE->requires->js_call_amd('mod_edusharing/modform', 'init', [trim($repobase, '/'), $mediatype, $hasgradingfeature]);
             // Adding the "general" fieldset, where all the common settings are shown.
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             // Adding the standard "name" field.
@@ -94,19 +114,13 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 $this->_form->addRule('object_url', null, 'required', null, 'client');
                 $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
                 $this->_form->addHelpButton('object_url', 'object_url', Constants::EDUSHARING_MODULE_NAME);
-                $repobase = $utils->get_config_entry('application_cc_gui_url');
-                $reposearch = trim($repobase, '/') . '/components/search?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
                 if ($utils->get_config_entry('enable_repo_target_chooser')) {
-                    $repoworkspace = trim($repobase, '/') .
-                        '/components/workspace/files?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
-                    $repocollections = trim($repobase, '/') .
-                        '/components/collections?applyDirectories=false&reurl=WINDOW&ticket=' . $ticket;
                     // phpcs:disable -- just messy html and js.
                     $buttongrouphtml = '
                         <div class="btn-group" role="group" aria-label="Repository options">
-                            <button id="edu_search_button" type="button" class="btn btn-secondary" onclick="' . $this->get_on_repo_click($reposearch) . '">' . get_string('repoSearch', 'edusharing') . '</button>
-                            <button id="edu_workspace_button" type="button" class="btn btn-secondary" onclick="' . $this->get_on_repo_click($repoworkspace) . '">' . get_string('repoWorkspace', 'edusharing') . '</button>
-                            <button id="edu_collections_button" type="button" class="btn btn-secondary" onclick="' . $this->get_on_repo_click($repocollections) . '">' . get_string('repoCollection', 'edusharing') . '</button>
+                            <button id="edu_search_button" type="button" class="btn btn-secondary">' . get_string('repoSearch', 'edusharing') . '</button>
+                            <button id="edu_workspace_button" type="button" class="btn btn-secondary">' . get_string('repoWorkspace', 'edusharing') . '</button>
+                            <button id="edu_collections_button" type="button" class="btn btn-secondary">' . get_string('repoCollection', 'edusharing') . '</button>
                         </div>
                     ';
                     // phpcs:enable
@@ -114,23 +128,12 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 } else {
                     $searchbutton = $this->_form->addElement(
                         'button',
-                        'searchbutton',
+                        'edu_search_button',
                         get_string(
                             'searchrec',
                             Constants::EDUSHARING_MODULE_NAME,
                             get_config('edusharing', 'application_appname')
                         )
-                    );
-
-                    $searchbutton->updateAttributes(
-                        [
-                            'title' => get_string(
-                                'uploadrec',
-                                Constants::EDUSHARING_MODULE_NAME,
-                                get_config('edusharing', 'application_appname')
-                            ),
-                            'onclick' => $this->get_on_repo_click($reposearch),
-                        ]
                     );
                 }
                 $this->_form->addElement(
@@ -165,6 +168,15 @@ class mod_edusharing_mod_form extends moodleform_mod {
                 $this->_form->setDefault('object_version', 0);
                 $this->_form->addHelpButton('object_version', 'object_version', Constants::EDUSHARING_MODULE_NAME);
             }
+            // Add standard grading elements.
+            $this->standard_grading_coursemodule_elements();
+            // Grade method
+            $options = Grader::get_grading_methods();
+            $this->_form->addElement('select', 'grade_method', get_string('grade_grademethod', 'mod_h5pactivity'), $options);
+            $this->_form->setType('grade_method', PARAM_INT);
+            $this->_form->disabledIf('grade_method', 'grade[modgrade_type]', 'neq', 'point');
+            $this->_form->addHelpButton('grade_method', 'grade_grademethod', 'mod_h5pactivity');
+
             // Display-section.
             $this->_form->addElement(
                 'header',
@@ -197,55 +209,5 @@ class mod_edusharing_mod_form extends moodleform_mod {
         $this->_form->addGroup($buttons, 'buttonar', '', [' '], false);
         $this->_form->setType('buttonar', PARAM_RAW);
         $this->_form->closeHeaderBefore('buttonar');
-    }
-
-    /**
-     * Function get_on_repo_click
-     *
-     * @param string $url
-     * @return string
-     */
-    private function get_on_repo_click(string $url): string {
-        // phpcs:disable -- just messy html and js.
-        return "
-        if (typeof window.openRepo !== 'function') {
-            window.openRepo = function(url) {
-                window.addEventListener('message', function handleRepo(event) {
-                    if (event.data.event == 'APPLY_NODE') {
-                        const node = event.data.data;
-                        window.console.log(node);
-                        window.win.close();
-                        window.document.getElementById('id_object_url').value = node.objectUrl;
-                        let title = node.title;
-                        if(!title){
-                            title = node.properties['cm:name'];
-                        }
-                        let version = -1;
-                        let versionArray = node.properties['cclom:version'];
-                        if (versionArray !== undefined) {
-                            version = node.properties['cclom:version'][0];
-                            window.document.getElementById('id_object_version_1').value = version;
-                        }
-                        let aspects = node.aspects;
-                        if (aspects.includes('ccm:published') || aspects.includes('ccm:collection_io_reference') || version === -1) {
-                            window.document.getElementById('id_object_version_0').checked = true;
-                            window.document.getElementById('id_object_version_1').closest('label').hidden = true;
-                        } else {
-                            window.document.getElementById('id_object_version_1').closest('label').hidden = false;
-                        }
-                        window.document.getElementById('fitem_id_object_title')
-                            .getElementsByClassName('form-control-static')[0].innerHTML = title;
-                        if(window.document.getElementById('id_name').value === ''){
-                            window.document.getElementById('id_name').value = title;
-                        }
-                        window.removeEventListener('message', handleRepo, false );
-                    }
-                }, false);
-                window.win = window.open(url);
-            };
-        }
-        openRepo('" . $url . "');
-    ";
-        // phpcs:enable
     }
 }

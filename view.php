@@ -57,12 +57,14 @@ try {
     $utils = new UtilityFunctions();
     if ($edusharingservice->has_rendering_2()) {
         global $edusharingwcloaded, $OUTPUT;
+        $context = context_module::instance($cm->id);
+        $contextid = $context->id;
         $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/');
         if (!$edusharingwcloaded) {
             $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
             $edusharingwcloaded = true;
         }
-        $PAGE->requires->js_call_amd('mod_edusharing/renderer', 'init', [$repourl]);
+        $PAGE->requires->js_call_amd('mod_edusharing/renderer', 'init', [$repourl, $contextid]);
 
         $templatedata = [
             'nodeId' => $utils->get_object_id_from_url($edusharing->object_url),
@@ -71,6 +73,9 @@ try {
             'usage' => $edusharing->usage_id,
             'resourceId' => $edusharing->id
         ];
+
+        $completion = new completion_info($course);
+        $completion->set_module_viewed($cm);
 
         echo $OUTPUT->header();
         echo $OUTPUT->render_from_template('mod_edusharing/content', $templatedata);
@@ -104,6 +109,8 @@ try {
     }
     $redirecturl .= $backaction;
     $redirecturl .= '&ticket=' . urlencode(base64_encode($utils->encrypt_with_repo_key($ticket)));
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm);
     redirect($redirecturl);
 } catch (Exception $exception) {
     debugging($exception->getMessage());

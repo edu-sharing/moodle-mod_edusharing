@@ -14,3 +14,8 @@ export const sendXapiStatement = args => fetchMany([{
     methodname: 'core_xapi_statement_post',
     args: args
 }])[0];
+
+export const getTicket = args => fetchMany([{
+    methodname: 'mod_edusharing_get_ticket',
+    args: args
+}])[0];

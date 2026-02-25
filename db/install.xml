@@ -138,6 +138,26 @@
                     SEQUENCE="false"
                     COMMENT="Force download of object-instance?"
                     PREVIOUS="object_version"
+                    NEXT="grade"/>
+                <FIELD
+                    NAME="grade"
+                    TYPE="int"
+                    LENGTH="10"
+                    NOTNULL="false"
+                    DEFAULT="0"
+                    SEQUENCE="false"
+                    COMMENT="Grade field for gradebook functionality"
+                    PREVIOUS="force_download"
+                    NEXT="grade_method"/>
+                <FIELD
+                    NAME="grade_method"
+                    SEQUENCE="false"
+                    TYPE="int"
+                    LENGTH="4"
+                    NOTNULL="true"
+                    DEFAULT="0"
+                    COMMENT="Method used to calculate the grade (see class Grader)"
+                    PREVIOUS="grade"
                     NEXT="popup_window" />
                 <FIELD
                     NAME="popup_window"
@@ -148,7 +168,7 @@
                     DEFAULT="0"
                     SEQUENCE="false"
                     COMMENT="Display object-instance in popup-window?"
-                    PREVIOUS="force_download"
+                    PREVIOUS="grade_method"
                     NEXT="show_course_blocks" />
                 <FIELD
                     NAME="show_course_blocks"
@@ -205,7 +225,6 @@
                     COMMENT="Show tool-bar in new window?"
                     PREVIOUS="show_location_bar"
                     NEXT="show_status_bar" />
-
                 <FIELD
                     NAME="show_status_bar"
                     TYPE="int"
@@ -285,6 +304,31 @@
             </INDEXES>
             
         </TABLE>
-
+        <TABLE NAME="edusharing_attempts" COMMENT="Users attempts inside ES activities">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="edusharingid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ES activity ID"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Attempt user ID"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="attempt" TYPE="int" LENGTH="6" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Attempt number"/>
+                <FIELD NAME="rawscore" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="maxscore" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="scaled" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Number 0..1 that reflects the performance of the learner"/>
+                <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Number of second inverted in that attempt (provided by the statement)"/>
+                <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking completion result."/>
+                <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking success result."/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk_edusharingid" TYPE="foreign" FIELDS="edusharingid" REFTABLE="edusharing" REFFIELDS="id"/>
+                <KEY NAME="uq_activityuserattempt" TYPE="unique" FIELDS="edusharingid, userid, attempt" COMMENT="Ensure a user cannot repeat the same attempt on the same activity"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
+                <INDEX NAME="edusharingid-timecreated" UNIQUE="false" FIELDS="edusharingid, timecreated"/>
+                <INDEX NAME="edusharingid-userid" UNIQUE="false" FIELDS="edusharingid, userid"/>
+            </INDEXES>
+        </TABLE>
     </TABLES>
 </XMLDB>

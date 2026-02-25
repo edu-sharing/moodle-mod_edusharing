@@ -30,6 +30,7 @@
  */
 
 use mod_edusharing\EduSharingService;
+use mod_edusharing\grading\Grader;
 use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -48,8 +49,10 @@ function edusharing_supports(string $feature): int|bool {
     }
 
     return match ($feature) {
+            FEATURE_COMPLETION_TRACKS_VIEWS, FEATURE_GRADE_HAS_GRADE,
+            FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION,
+            FEATURE_BACKUP_MOODLE2 => true,
             FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_RESOURCE,
-            FEATURE_MOD_INTRO, FEATURE_SHOW_DESCRIPTION, FEATURE_BACKUP_MOODLE2 => true,
             default => false,
     };
 }
@@ -64,9 +67,14 @@ function edusharing_supports(string $feature): int|bool {
  * @return int|bool The id of the newly inserted edusharing record
  */
 function edusharing_add_instance(stdClass $edusharing): int|bool {
+    global $DB;
     $service = new EduSharingService();
     try {
         $id = $service->add_instance($edusharing);
+        $cmid = $edusharing->coursemodule;
+        $DB->set_field('course_modules', 'instance', $edusharing->id, ['id' => $cmid]);
+        $edusharing->cmid = $cmid;
+        edusharing_grade_item_update($edusharing);
     } catch (Exception $exception) {
         debugging('Instance creation failed: ' . $exception->getMessage());
         return false;
@@ -85,13 +93,23 @@ function edusharing_add_instance(stdClass $edusharing): int|bool {
  * @return boolean Success/Fail
  */
 function edusharing_update_instance(stdClass $edusharing): bool {
+    global $DB;
     $service = new EduSharingService();
     try {
+        $previousentry = $DB->get_record('edusharing', ['id' => $edusharing->id]);
+        $gradingmethodchange = $previousentry->grade_method != $edusharing->grade_method;
         $service->update_instance($edusharing);
+        $edusharing->cmid = $edusharing->coursemodule;
+        if ($gradingmethodchange) {
+            edusharing_update_grades($edusharing);
+        } else {
+            edusharing_grade_item_update($edusharing);
+        }
     } catch (Exception $exception) {
         debugging('Instance update failed: ' . $exception->getMessage());
         return false;
     }
+
     return true;
 }
 
@@ -297,4 +315,55 @@ function edusharing_update_settings_images(string $settingname) {
 function edusharing_update_settings_name() {
     // Reset language cache.
     get_string_manager()->reset_caches();
+}
+
+/**
+ * Update mod_edusharing grades in the gradebook.
+ *
+ * Needed by {@link grade_update_mod_grades()}.
+ *
+ * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
+ * @param array|null $grades
+ * @return int
+ * @throws coding_exception
+ */
+function edusharing_grade_item_update(stdClass $moduleinstance, ?array $grades = null): int {
+    global $DB;
+    $idnumber = $moduleinstance->idnumber ?? '';
+    $cmid = $moduleinstance->cmid;
+    $cmidnumber = $DB->get_field('course_modules', 'idnumber', ['id' => $cmid]) ?? '';
+    $moduleinstance->cmidnumber = $cmidnumber;
+    $grader = new Grader($moduleinstance, $idnumber);
+    return $grader->grade_item_update($grades);
+}
+
+/**
+ * Delete grade item for given mod_edusharing instance.
+ *
+ * @param stdClass $moduleinstance Instance object.
+ * @return int|null Returns GRADE_UPDATE_OK, GRADE_UPDATE_FAILED, GRADE_UPDATE_MULTIPLE or GRADE_UPDATE_ITEM_LOCKED
+ */
+function edusharing_grade_item_delete(stdClass $moduleinstance): ?int {
+    $idnumber = $moduleinstance->idnumber ?? '';
+    $grader = new Grader($moduleinstance, $idnumber);
+    return $grader->grade_item_delete();
+}
+
+/**
+ * Update mod_edusharing grades in the gradebook.
+ *
+ * Needed by {@link grade_update_mod_grades()}.
+ *
+ * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
+ * @param int $userid Update grade of specific user only, 0 means all participants.
+ * @throws coding_exception
+ */
+function edusharing_update_grades(stdClass $moduleinstance, int $userid = 0): void {
+    global $DB;
+    $idnumber = $moduleinstance->idnumber ?? '';
+    $cmid = $moduleinstance->cmid;
+    $cmidnumber = $DB->get_field('course_modules', 'idnumber', ['id' => $cmid]) ?? '';
+    $moduleinstance->cmidnumber = $cmidnumber;
+    $grader = new Grader($moduleinstance, $idnumber);
+    $grader->update_grades($userid);
 }

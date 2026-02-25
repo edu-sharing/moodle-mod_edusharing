@@ -239,22 +239,6 @@ if ($ADMIN->fulltree) {
     );
     $infosetting->set_updatedcallback('edusharing_update_settings_name');
     $settings->add($infosetting);
-    $hintsetting = new admin_setting_configtextarea(
-        name: 'edusharing/atto_hint',
-        visiblename: 'atto_hint',
-        description: get_string('atto_hintDescr', 'edusharing'),
-        defaultsetting: ''
-    );
-    $hintsetting->set_updatedcallback('edusharing_update_settings_name');
-    $settings->add($hintsetting);
-    $hintsetting = new admin_setting_configtextarea(
-        name: 'edusharing/atto_hint',
-        visiblename: 'atto_hint',
-        description: get_string('atto_hintDescr', 'edusharing'),
-        defaultsetting: ''
-    );
-    $hintsetting->set_updatedcallback('edusharing_update_settings_name');
-    $settings->add($hintsetting);
     $repotargetoptions = [
         'search'      => get_string('repoSearch', 'edusharing'),
         'collections' => get_string('repoCollection', 'edusharing'),

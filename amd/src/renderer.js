@@ -1,18 +1,26 @@
 import Config from 'core/config';
 import {getCurrentUser, getSecuredNode, sendXapiStatement} from "./repository";
 
-export const init = async(repoUrl) => {
+export const init = async(repoUrl, contextId) => {
     const element = document.getElementById('edusharing_view');
     window.addEventListener('message', async(e) => {
         if (!e.data || e.data.type !== 'H5P_XAPI') {
             return;
         }
+        const statement = e.data.statement;
         const moodleUser = await getCurrentUser().catch(error => {
             window.console.error(error);
         });
-        const statement = e.data.statement;
-        statement.object.id = window.location.href;
         statement.actor.mbox = `mailto:${moodleUser.email}`;
+        const originalId = statement?.object?.id;
+        const originalUrl = new URL(originalId, window.location.href);
+        const subContentId = originalUrl.searchParams.get('subContentId');
+        const customUrl = new URL(`${Config.wwwroot}/mod/edusharing/xapi`);
+        customUrl.searchParams.set('id', String(contextId));
+        if (subContentId) {
+            customUrl.searchParams.set('subContentId', subContentId);
+        }
+        statement.object.id = customUrl.toString();
         const ajaxParams = {
             component: 'mod_edusharing',
             requestjson: JSON.stringify(statement)
