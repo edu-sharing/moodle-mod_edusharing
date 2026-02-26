@@ -26,9 +26,9 @@ use EduSharingApiClient\Usage;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
-global $DB;
-
 require_once(dirname(__FILE__, 3) . '/config.php');
+
+global $DB;
 
 try {
     require_login();
