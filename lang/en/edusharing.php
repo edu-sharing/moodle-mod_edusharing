@@ -174,3 +174,4 @@ $string['error_encrypt_with_repo_public'] = 'Cannot encrypt data.';
 $string['error_missing_rights_on_restore'] = 'This Edu-Sharing object is missing due to insufficient user rights during course restoration.';
 $string['error_unexpected_on_restore'] = 'This Edu-Sharing object is missing due to an unexpected error having occurred during restoration';
 $string['error_parsing_on_restore'] = 'This Edu-Sharing object is missing due to a parsing error having occurred during restoration';
+$string['error_invalid_config'] = 'EduSharing is not fully configured (no ticket could be fetched). Repository selection is currently unavailable. Please check the plugin configuration.';

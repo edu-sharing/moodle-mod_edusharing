@@ -30,7 +30,7 @@ use mod_edusharing\MetadataLogic;
 use mod_edusharing\PluginRegistrationFrontend;
 use mod_edusharing\UtilityFunctions;
 
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
@@ -96,6 +96,7 @@ if (!empty($metadataurl)) {
         debugging('General error importing metatada from repo: ' . $exception->getMessage());
         echo '<p style="background: #FF8170">Unexpected error - please try again later<br></p>';
     }
+
     if (isset($service) && $service->reloadform) {
         echo MetaDataFrontend::get_meta_data_form();
     }
@@ -111,6 +112,5 @@ $repoform = MetaDataFrontend::get_repo_form();
 if ($repoform !== null) {
     echo $repoform;
 }
-
 echo '</div></body></html>';
 exit();

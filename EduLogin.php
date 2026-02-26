@@ -24,7 +24,7 @@
 
 // phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
 
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
 
 global $SESSION, $CFG, $USER, $DB;
 

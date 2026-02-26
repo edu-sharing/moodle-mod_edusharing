@@ -174,3 +174,4 @@ $string['error_encrypt_with_repo_public'] = 'Les données n\'ont pas pu être ch
 $string['error_missing_rights_on_restore'] = 'Cet objet Edu-Sharing est manquant suite à un manque de droits d\'utilisateur lors de la restauration du cours.';
 $string['error_unexpected_on_restore'] = 'Cet élément Edu-Sharing est manquant en raison d\'une erreur inattendue de restauration de cours.';
 $string['error_parsing_on_restore'] = 'Cet objet Edu-Sharing est absent de la récupération du cours en raison d\'un objet non analysable.';
+$string['error_invalid_config'] = 'EduSharing n\'est pas entièrement configuré (aucun ticket n’a pu être récupéré). La sélection depuis le dépôt n’est actuellement pas disponible. Veuillez vérifier la configuration du plugin.';

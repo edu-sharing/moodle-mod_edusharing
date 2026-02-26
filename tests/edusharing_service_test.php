@@ -319,7 +319,8 @@ final class edusharing_service_test extends \advanced_testcase {
      */
     public function test_if_update_instance_calls_db_methods_and_calls_creation_method_with_proper_params(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
         $eduobject->object_url         = 'inputUrl';
@@ -385,7 +386,8 @@ final class edusharing_service_test extends \advanced_testcase {
      */
     public function test_if_update_instance_resets_data_and_returns_false_on_update_error(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $currenttime                   = time();
         $eduobject                     = new stdClass();
         $eduobject->object_url         = 'inputUrl';
@@ -451,7 +453,8 @@ final class edusharing_service_test extends \advanced_testcase {
      */
     public function test_if_add_instance_calls_db_functions_and_service_method_with_correct_parameters(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
         $eduobject->object_url              = 'inputUrl';
@@ -516,7 +519,8 @@ final class edusharing_service_test extends \advanced_testcase {
      */
     public function test_if_add_instance_returns_false_and_resets_data_on_creation_failure(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $currenttime                        = time();
         $eduobject                          = new stdClass();
         $eduobject->object_url              = 'inputUrl';
@@ -608,7 +612,8 @@ final class edusharing_service_test extends \advanced_testcase {
      */
     public function test_if_delete_instance_calls_database_with_proper_params(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $dbrecord             = new stdClass();
         $dbrecord->id         = 'edusharingId123';
         $dbrecord->object_url = 'test.de';

@@ -44,6 +44,7 @@ use mod_edusharing\UtilityFunctions;
  */
 function xmldb_edusharing_upgrade($oldversion = 0): bool {
     global $CFG, $DB;
+    require_once($CFG->libdir . '/ddllib.php');
     $dbmanager = $DB->get_manager();
     $result    = true;
     if ($oldversion < 2016011401) {

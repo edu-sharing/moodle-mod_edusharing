@@ -25,6 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\notification;
 use mod_edusharing\Constants;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
@@ -47,10 +48,26 @@ class mod_edusharing_mod_form extends moodleform_mod {
      * @see lib/moodleform::definition()
      */
     public function definition(): void {
+        global $OUTPUT;
         try {
             $edusharingservice = new EduSharingService();
-            $utils             = new UtilityFunctions();
-            $ticket            = $edusharingservice->get_ticket();
+            $utils = new UtilityFunctions();
+            $message = '';
+            try {
+                $ticket = $edusharingservice->get_ticket();
+            } catch (Exception $exception) {
+                $message = $exception->getMessage();
+                $ticket = '';
+            }
+            if (empty($ticket)) {
+                $this->_form->addElement(
+                    'html',
+                    $OUTPUT->notification(
+                        get_string('error_invalid_config', Constants::EDUSHARING_MODULE_NAME) . '<br><br>' . $message,
+                        notification::NOTIFY_ERROR
+                    )
+                );
+            }
             // Adding the "general" fieldset, where all the common settings are shown.
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             // Adding the standard "name" field.

@@ -27,7 +27,10 @@ defined('MOODLE_INTERNAL') || die();
 use mod_edusharing\EduSharingService;
 use mod_edusharing\RestoreHelper;
 
+global $CFG;
+
 require_once(dirname(__FILE__) . '/../../lib.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 /**
  * class restore_edusharing_activity_structure_step

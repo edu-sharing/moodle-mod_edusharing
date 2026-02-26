@@ -38,6 +38,7 @@ class PluginRegistrationFrontend {
      * @return string
      */
     public static function register_plugin(string $repourl, string $login, string $pwd): string {
+        global $CFG;
         $return            = '';
         $errormessage      =
             '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: ' . $repourl . '</h3>';
@@ -51,10 +52,12 @@ class PluginRegistrationFrontend {
             $exceptionmessage = $exception instanceof EduSharingUserException
                 ? $exception->getMessage() : 'Unexpected error';
             $return .= $errormessage . '<p class="edu_error">' . $exceptionmessage . '</p>';
+            $return .= '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
+
             return $return;
         }
         if (isset($result['id']) || isset($result['appid'])) {
-            return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: ' . $repourl . '</h3>';
+            return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: ' . $repourl . '</h3>' .  '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
         }
         $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">' . $result['message'] . '</p>' : '';
         $return .= '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
@@ -71,6 +74,7 @@ class PluginRegistrationFrontend {
             </p>';
         // phpcs:enable
 
+        $return .= '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
         return $return;
     }
 }
