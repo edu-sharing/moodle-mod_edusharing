@@ -52,18 +52,24 @@ class PluginRegistrationFrontend {
             $exceptionmessage = $exception instanceof EduSharingUserException
                 ? $exception->getMessage() : 'Unexpected error';
             $return .= $errormessage . '<p class="edu_error">' . $exceptionmessage . '</p>';
-            $return .= '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
+            $return .= '<a href="' . $CFG->wwwroot
+                . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
 
             return $return;
         }
         if (isset($result['id']) || isset($result['appid'])) {
-            return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: ' . $repourl . '</h3>' .  '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
+            return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '
+                . $repourl . '</h3>'
+                . '<a href="' . $CFG->wwwroot
+                . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
         }
-        $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">' . $result['message'] . '</p>' : '';
+        $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">' . $result['message']
+            . '</p>' : '';
         $return .= '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
         // phpcs:disable -- just messy html.
         $return .= '<p class="edu_metadata"> To register the Moodle-PlugIn manually got to the
-            <a href="' . $repourl . '" target="_blank"> Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
+            <a href="' . $repourl
+            . '" target="_blank"> Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
             Only the system administrator may use this tool.<br>
             Enter the URL of the Moodle you want to connect. The URL should look like this:  
             „[Moodle-install-directory]/mod/edusharing/metadata.php".<br>
@@ -74,7 +80,8 @@ class PluginRegistrationFrontend {
             </p>';
         // phpcs:enable
 
-        $return .= '<a href="' . $CFG->wwwroot . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
+        $return .= '<a href="' . $CFG->wwwroot
+            . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
         return $return;
     }
 }
