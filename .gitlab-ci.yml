@@ -9,7 +9,7 @@ variables:
   DB: "mysqli"
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  MOODLE_BRANCH: "MOODLE_500_STABLE"
+  MOODLE_BRANCH: "MOODLE_501_STABLE"
   # Only needed, when your project is within a group/subgroup of "moodle".
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
@@ -42,8 +42,8 @@ test:
     # Install Moodle (omit the --moodle argument if not needed)
     - moodle-plugin-ci install --moodle=$MOODLE_DIR --db-host=mysql --no-init -vvv
     - cd $MOODLE_DIR
-    - php admin/tool/phpunit/cli/init.php
-    - cd mod/edusharing/apiClient
+    - php public/admin/tool/phpunit/cli/init.php
+    - cd public/mod/edusharing/apiClient
     - git clone https://github.com/edu-sharing/php-auth-plugin.git
     - cp -a php-auth-plugin/src/. ./src
 
