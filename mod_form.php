@@ -75,7 +75,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $hasgradingfeature = $edusharingservice->has_rendering_2();
             $currentedusharing = $this->current;
             $mediatype = '';
-            if (!empty($currentedusharing)) {
+            if (!empty($currentedusharing) && isset($currentedusharing->object_url)) {
                 $usage = new Usage(
                     nodeId: $utils->get_object_id_from_url($currentedusharing->object_url),
                     nodeVersion: $currentedusharing->object_version,
@@ -83,7 +83,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
                     resourceId: $currentedusharing->id,
                     usageId: $currentedusharing->usage_id
                 );
-                $node = $service->get_node(usage: $usage, rendering2: true);
+                $node = $edusharingservice->get_node(usage: $usage, rendering2: true);
                 $mediatype = $node['node']['mediatype'] ?? '';
             }
             $repobase = $utils->get_config_entry('application_cc_gui_url');
