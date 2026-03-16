@@ -69,16 +69,6 @@ export const renderObject = async(element, repoUrl) => {
     } else {
         wrapper.style.width = width ? (width + "px") : '';
     }
-    const moodleUser = await getCurrentUser().catch(error => {
-        window.console.error(error);
-    });
-
-    const eduUser = {
-        authorityName: moodleUser.username,
-        firstName: moodleUser.firstname,
-        surName: moodleUser.lastname,
-        userEMail: moodleUser.email
-    };
     const serviceWorkerPhp = `${Config.wwwroot}/mod/edusharing/getServiceWorker.php`;
     if ('serviceWorker' in navigator) {
         await navigator.serviceWorker.register(serviceWorkerPhp, {
@@ -93,7 +83,6 @@ export const renderObject = async(element, repoUrl) => {
     renderComponent.signature = response.signature;
     renderComponent.jwt = response.jwt;
     renderComponent.render_url = response.renderingBaseUrl;
-    renderComponent.encoded_user = btoa(JSON.stringify(eduUser));
     renderComponent.service_worker_url = serviceWorkerPhp;
     renderComponent.activate_service_worker = false;
     renderComponent.assets_url = repoUrl + '/web-components/rendering-service-amd/assets';
