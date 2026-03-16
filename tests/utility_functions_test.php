@@ -195,7 +195,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_set_moodle_ids_in_edusharing_entries_does_not_set_anything_if_no_matches(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -211,7 +212,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_set_moodle_ids_in_edusharing_entries_sets_found_resource_ids_to_db(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -277,7 +279,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_set_module_in_db_only_sets_section_id_if_no_module_id_provided(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -340,7 +343,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_set_module_in_db_does_not_set_anything_to_db_if_no_matches_found(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $utils  = new UtilityFunctions();
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['set_field'])
@@ -358,7 +362,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_get_course_module_info_returns_proper_info_if_data_found_in_db(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $this->resetAfterTest();
         $utils                   = new UtilityFunctions();
         $module                  = new stdClass();
@@ -416,7 +421,8 @@ final class utility_functions_test extends advanced_testcase {
      */
     public function test_if_get_course_module_info_returns_false_if_no_record_found(): void {
         $this->resetAfterTest();
-        require_once('lib/dml/tests/dml_test.php');
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
         $utils = new UtilityFunctions();
         $this->resetAfterTest();
         $module           = new stdClass();

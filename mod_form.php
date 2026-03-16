@@ -26,9 +26,10 @@
  */
 
 use EduSharingApiClient\Usage;
+use core\output\notification;
+use mod_edusharing\Constants;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\grading\Grader;
-use mod_edusharing\Constants;
 use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -51,11 +52,27 @@ class mod_edusharing_mod_form extends moodleform_mod {
     public function definition(): void {
 
 
-        global $PAGE;
+        global $PAGE, $OUTPUT;
         try {
-            $service = new EduSharingService();
+            $edusharingservice = new EduSharingService();
             $utils = new UtilityFunctions();
-            $hasgradingfeature = $service->has_rendering_2();
+            $message = '';
+            try {
+                $ticket = $edusharingservice->get_ticket();
+            } catch (Exception $exception) {
+                $message = $exception->getMessage();
+                $ticket = '';
+            }
+            if (empty($ticket)) {
+                $this->_form->addElement(
+                    'html',
+                    $OUTPUT->notification(
+                        get_string('error_invalid_config', Constants::EDUSHARING_MODULE_NAME) . '<br><br>' . $message,
+                        notification::NOTIFY_ERROR
+                    )
+                );
+            }
+            $hasgradingfeature = $edusharingservice->has_rendering_2();
             $currentedusharing = $this->current;
             $mediatype = '';
             if (!empty($currentedusharing)) {

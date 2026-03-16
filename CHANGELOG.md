@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.3.2] - 2026-02-26
+
+### Added
+
+- Compatibility with Moodle 5.1
+- Back button in plugin registration and metadata import forms
+
+### Fixed
+
+- Missing ticket check now leads to a proper error message instead of a cryptic error message
+
 ## [10.3.1] - 2026-02-23
 
 ### Fixed

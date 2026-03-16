@@ -26,7 +26,7 @@ use EduSharingApiClient\Usage;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
 
 global $DB;
 

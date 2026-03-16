@@ -28,9 +28,9 @@ use mod_edusharing\EduSharingService;
 use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__, 3) . '/config.php');
+global $CFG, $PAGE, $DB;
 require_once(dirname(__FILE__) . '/lib.php');
 
-global $CFG, $PAGE, $DB;
 
 try {
     $id = optional_param('id', 0, PARAM_INT); // Course_module ID or.

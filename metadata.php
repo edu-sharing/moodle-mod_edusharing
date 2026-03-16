@@ -30,7 +30,9 @@ use mod_edusharing\UtilityFunctions;
 // Require_login is not needed here.
 // phpcs:disable moodle.Files.RequireLogin.Missing
 
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
+
+global $CFG;
 
 $service = new EduSharingService();
 $utils = new UtilityFunctions();
