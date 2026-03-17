@@ -228,6 +228,73 @@ function xmldb_edusharing_upgrade($oldversion = 0): bool {
                 trigger_error($exception->getMessage(), E_USER_WARNING);
             }
         }
+
+        if ($oldversion < 2026031603) {
+            try {
+                $table = new xmldb_table('edusharing_attempts');
+
+                $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+                $table->add_field('edusharingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                $table->add_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+                $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                $table->add_field('attempt', XMLDB_TYPE_INTEGER, '6', null, XMLDB_NOTNULL, null, '1');
+                $table->add_field('rawscore', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+                $table->add_field('maxscore', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+                $table->add_field('scaled', XMLDB_TYPE_NUMBER, '10', '5', XMLDB_NOTNULL, null, '0');
+                $table->add_field('duration', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+                $table->add_field('completion', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+                $table->add_field('success', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+
+                $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+                $table->add_key('fk_edusharingid', XMLDB_KEY_FOREIGN, ['edusharingid'], 'edusharing', ['id']);
+                $table->add_key('uq_activityuserattempt', XMLDB_KEY_UNIQUE, ['edusharingid', 'userid', 'attempt']);
+
+                $table->add_index('timecreated', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+                $table->add_index('edusharingid_timecreated', XMLDB_INDEX_NOTUNIQUE, ['edusharingid', 'timecreated']);
+                $table->add_index('edusharingid_userid', XMLDB_INDEX_NOTUNIQUE, ['edusharingid', 'userid']);
+
+                if (!$dbmanager->table_exists($table)) {
+                    $dbmanager->create_table($table);
+                }
+
+                $maintable = new xmldb_table('edusharing');
+
+                $gradefield = new xmldb_field(
+                    'grade',
+                    XMLDB_TYPE_INTEGER,
+                    '10',
+                    null,
+                    null,
+                    null,
+                    '0',
+                    'force_download'
+                );
+
+                if (!$dbmanager->field_exists($maintable, $gradefield)) {
+                    $dbmanager->add_field($maintable, $gradefield);
+                }
+
+                $grademethodfield = new xmldb_field(
+                    'grade_method',
+                    XMLDB_TYPE_INTEGER,
+                    '4',
+                    null,
+                    XMLDB_NOTNULL,
+                    null,
+                    '0',
+                    'grade'
+                );
+
+                if (!$dbmanager->field_exists($maintable, $grademethodfield)) {
+                    $dbmanager->add_field($maintable, $grademethodfield);
+                }
+
+                upgrade_mod_savepoint(true, 2026031603, 'edusharing');
+            } catch (Exception $exception) {
+                trigger_error($exception->getMessage(), E_USER_WARNING);
+            }
+        }
     }
 
     $logic = new InstallUpgradeLogic();
