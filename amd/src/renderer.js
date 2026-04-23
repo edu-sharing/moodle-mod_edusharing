@@ -61,9 +61,6 @@ export const renderObject = async(element, repoUrl) => {
         window.console.error(error);
     });
 
-    window.console.log("Response from secured");
-    window.console.log(response);
-
     const customWidth = response.customWidth;
     if (customWidth) {
         if (customWidth !== 'none') {

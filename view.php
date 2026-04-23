@@ -104,9 +104,6 @@ try {
     if (empty($edusharing->popup_window)) {
         $backaction = '&backLink=' . urlencode($CFG->wwwroot . '/course/view.php?id=' . $courseid);
     }
-    if (!empty($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'modedit.php')) {
-        $backaction = '&backLink=' . urlencode($_SERVER['HTTP_REFERER']);
-    }
     $redirecturl .= $backaction;
     $redirecturl .= '&ticket=' . urlencode(base64_encode($utils->encrypt_with_repo_key($ticket)));
     $completion = new completion_info($course);

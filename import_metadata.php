@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 
 try {
     require_login();
+    require_sesskey();
 } catch (Exception $exception) {
     echo $exception->getMessage();
     unset($exception);
@@ -59,21 +60,23 @@ if (!is_siteadmin()) {
     exit();
 }
 
-
-if (isset($_POST['repoReg'])) {
-    if (!empty($_POST['appId'])) {
-        set_config('application_appid', $_POST['appId'], 'edusharing');
-    }
-    if (!empty($_POST['host_aliases'])) {
-        set_config('application_host_aliases', $_POST['host_aliases'], 'edusharing');
-    }
-    echo PluginRegistrationFrontend::register_plugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
-    exit();
-}
-
 $filename = '';
 try {
-    $metadataurl = optional_param('mdataurl', '', PARAM_NOTAGS);
+    $reporeg = optional_param('repoReg', '', PARAM_RAW);
+    if (!empty($reporeg)) {
+        $appid = optional_param('appId', '', PARAM_TEXT);
+        if (!empty($appid)) {
+            set_config('application_appid', $appid, 'edusharing');
+        }
+        $hostaliases = optional_param('host_aliases', '', PARAM_TEXT);
+        if (!empty($hostaliases)) {
+            set_config('application_host_aliases', $hostaliases, 'edusharing');
+        }
+        echo PluginRegistrationFrontend::register_plugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
+        exit();
+    }
+
+    $metadataurl = optional_param('mdataurl', '', PARAM_URL);
 } catch (Exception $exception) {
     // This exception is stupid.
     unset($exception);

@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_edusharing\external;
 
+use context_course;
 use core_external\external_api;
 use Exception;
 use external_single_structure;
@@ -93,14 +94,13 @@ class GetSecuredNode extends external_api {
         $service = new EduSharingService();
         $securednode = $service->get_secured_node($structure['nodeId'], $structure['resourceId'], $structure['version']);
         $renderingurl = $service->get_rendering_2_url();
-        $test = $service->get_custom_width($securednode->node);
         return [
             'securedNode' => $securednode->securedNode,
             'signature' => $securednode->signature,
             'jwt' => $securednode->jwt,
             'renderingBaseUrl' => $renderingurl,
             'previewUrl' => $securednode->previewUrl,
-            'customWidth' => $test,
+            'customWidth' => $service->get_custom_width($securednode->node),
         ];
     }
 }

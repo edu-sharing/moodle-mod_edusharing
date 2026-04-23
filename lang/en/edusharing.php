@@ -154,6 +154,8 @@ $string['obfuscate_auth_param'] = 'User ID pseudonymization';
 $string['obfuscate_auth_param_help'] = 'If activated, Moodle users will be pseudonymized in the Edu-Sharing repository';
 $string['require_login_for_metadata'] = 'Login required for metadata';
 $string['require_login_for_metadata_help'] = 'If activated, app metadata can only be queried after login';
+$string['allow_registration_over_http'] = 'Repository-Registration over HTTP allowed';
+$string['allow_registration_over_http_help'] = 'With this option, repository registration can be performed over insecure HTTP. It should only be used for development and testing purposes.';
 $string['use_as_idp'] = 'Use Moodle as IDP for Edu-Sharing';
 $string['use_as_idp_help'] = 'If activated, Moodle can be used as an IDP for Edu-Sharing login.';
 

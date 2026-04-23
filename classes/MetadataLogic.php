@@ -103,7 +103,7 @@ class MetadataLogic {
         }
         if (!$xml->loadXML($result->content)) {
             $this->reloadform = true;
-            $htmlmessage = '<p style="background: #FF8170">could not load ' . $metadataurl . ' please check url <br></p>';
+            $htmlmessage = '<p style="background: #FF8170">could not load ' . s($metadataurl) . ' please check url <br></p>';
             throw new EduSharingUserException(message: 'xml error', htmlmessage: $htmlmessage);
         }
         $xml->preserveWhiteSpace = false;
@@ -155,8 +155,6 @@ class MetadataLogic {
             $htmlmessage = '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>';
             throw new EduSharingUserException(message: 'ssl keypair generation error', htmlmessage: $htmlmessage);
         }
-        $this->utils->set_config_entry('application_blowfishkey', 'thetestkey');
-        $this->utils->set_config_entry('application_blowfishiv', 'initvect');
         $this->utils->set_config_entry('EDU_AUTH_KEY', 'username');
         $this->utils->set_config_entry('EDU_AUTH_PARAM_NAME_USERID', 'userid');
         $this->utils->set_config_entry('EDU_AUTH_PARAM_NAME_LASTNAME', 'lastname');

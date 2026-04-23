@@ -97,6 +97,7 @@ class AddInstance extends external_api {
      * @throws Exception
      */
     public static function execute(array $edustructure): array {
+        error_log("Add instance");
         $context = context_course::instance($edustructure['courseId']);
         require_capability('mod/edusharing:wysiwygvisibility', $context);
         $edusharing                 = new stdClass();

@@ -31,9 +31,9 @@ require_once(dirname(__FILE__, 3) . '/config.php');
 global $DB;
 
 try {
-    require_login();
     $resourceid = optional_param('resourceId', 0, PARAM_INT);
     $edusharing = $DB->get_record('edusharing', ['id' => $resourceid], '*', MUST_EXIST);
+    require_login($edusharing->course);
     $utils      = new UtilityFunctions();
     $service    = new EduSharingService();
     $usage      = new Usage(
@@ -43,9 +43,10 @@ try {
         (string)$edusharing->id,
         (string)$edusharing->usage_id
     );
-    $curlresult = $service->get_preview_image($usage);
+    $curlresult = $service->get_preview_image($usage, $utils->get_auth_key());
 } catch (Exception $exception) {
-    echo 'Error occurred: ' . $exception->getMessage();
+    echo 'Unexpected error - please try again later';
+    debugging($exception->getMessage());
     exit();
 }
 

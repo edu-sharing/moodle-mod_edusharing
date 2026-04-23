@@ -294,6 +294,7 @@ class EduSharingService {
      * @param stdClass $edusharing
      * @param int|null $updatetime
      * @return bool|int
+     * @throws coding_exception
      */
     public function add_instance(stdClass $edusharing, ?int $updatetime = null): bool|int {
         global $DB;
@@ -304,8 +305,9 @@ class EduSharingService {
         // You may have to add extra stuff in here.
         $this->post_process_edusharing_object($edusharing, $updatetime);
 
-        if (isset($_POST['object_version']) && $_POST['object_version'] != '0') {
-            $edusharing->object_version = $_POST['object_version'];
+        $version = optional_param('object_version', '0', PARAM_TEXT);
+        if ($version != '0') {
+            $edusharing->object_version = $version;
         }
         // Use simple version handling for atto plugin or legacy code.
         if (isset($edusharing->editor_atto)) {
@@ -423,16 +425,19 @@ class EduSharingService {
      *
      * @param string $url
      * @return CurlResult
+     * @throws dml_exception
      */
     public function import_metadata(string $url): CurlResult {
         $curloptions = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'] ?? '',
         ];
+        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
+            $curloptions[CURLOPT_SSL_VERIFYPEER] = false;
+            $curloptions[CURLOPT_SSL_VERIFYHOST] = false;
+        }
         return $this->authhelper->base->handleCurlRequest($url, $curloptions);
     }
 
@@ -496,16 +501,19 @@ class EduSharingService {
      *
      * @param string $url
      * @return string
+     * @throws dml_exception
      */
     public function get_render_html(string $url): string {
         $curloptions = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'],
         ];
+        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
+            $curloptions[CURLOPT_SSL_VERIFYPEER] = false;
+            $curloptions[CURLOPT_SSL_VERIFYHOST] = false;
+        }
         $result      = $this->authhelper->base->handleCurlRequest($url, $curloptions);
         if ($result->error !== 0) {
             try {
@@ -538,10 +546,11 @@ class EduSharingService {
      * Function get_preview_image
      *
      * @param Usage $usage
+     * @param string $userid
      * @return CurlResult
      */
-    public function get_preview_image(Usage $usage): CurlResult {
-        return $this->nodehelper->getPreview($usage);
+    public function get_preview_image(Usage $usage, string $userid): CurlResult {
+        return $this->nodehelper->getPreview(usage: $usage, userid: $userid);
     }
 
     /**

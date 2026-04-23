@@ -40,13 +40,16 @@ class PluginRegistrationFrontend {
     public static function register_plugin(string $repourl, string $login, string $pwd): string {
         global $CFG;
         $return            = '';
-        $errormessage      =
-            '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: ' . $repourl . '</h3>';
+
         $service           = new EduSharingService();
         $registrationlogic = new PluginRegistration($service);
         $metadatalogic     = new MetadataLogic($service);
         $data              = $metadatalogic->create_xml_metadata();
         try {
+            $safeRepourl       = clean_param($repourl, PARAM_URL);
+            $safeRepourlText   = s($safeRepourl);
+            $errormessage      =
+                '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: ' . $safeRepourlText . '</h3>';
             $result = $registrationlogic->register_plugin($repourl, $login, $pwd, $data);
         } catch (Exception $exception) {
             $exceptionmessage = $exception instanceof EduSharingUserException

@@ -1,4 +1,5 @@
 import {getTicket} from "./repository";
+import {validateOrigin} from "./utils";
 
 export const init = async(repoUrl, mediatype, hasRendering2) => {
     const gradeForm = document.getElementById('id_modstandardgrade');
@@ -14,7 +15,7 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
     if (typeof window.openRepo !== 'function') {
         window.openRepo = function(url) {
             window.addEventListener('message', function handleRepo(event) {
-                if (event.data.event === 'APPLY_NODE') {
+                if (event.data.event === 'APPLY_NODE' && validateOrigin(event.origin, repoUrl)) {
                     const node = event.data.data;
                     const isH5p = node.mediatype === 'file-h5p';
                     if (isH5p && hasRendering2 && gradeForm !== null && gradeCompletionInput !== null) {
@@ -63,14 +64,14 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
             courseId: 0
         }
     };
-    const repoSearchButton = document.getElementById('id_edu_search_button');
+    const repoSearchButton = document.getElementById('edu_search_button');
     repoSearchButton.addEventListener('click', async() => {
         const ticket = await getTicket(ajaxParams);
         const repoSearchWithTicket = new URL(repoSearch);
         repoSearchWithTicket.searchParams.set('ticket', ticket.ticket);
         window.openRepo(repoSearchWithTicket.toString());
     });
-    const repoWorkspaceButton = document.getElementById('id_edu_workspace_button');
+    const repoWorkspaceButton = document.getElementById('edu_workspace_button');
     if (repoWorkspaceButton !== null) {
         repoWorkspaceButton.addEventListener('click', async() => {
             const ticket = await getTicket(ajaxParams);
@@ -79,7 +80,7 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
             window.openRepo(repoWorkspaceWithTicket.toString());
         });
     }
-    const repoCollectionsButton = document.getElementById('id_edu_collections_button');
+    const repoCollectionsButton = document.getElementById('edu_collections_button');
     if (repoCollectionsButton !== null) {
         repoCollectionsButton.addEventListener('click', async() => {
             const ticket = await getTicket(ajaxParams);

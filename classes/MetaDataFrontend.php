@@ -52,20 +52,21 @@ class MetaDataFrontend {
             <form class="repo-reg" action="import_metadata.php" method="post">
                 <h3>Try to register the edu-sharing moodle-plugin with a repository:</h3>
                 <p>If your moodle is behind a proxy-server, this might not work and you have to register the plugin manually.</p>
+                <input type="hidden" name="sesskey" value="' . sesskey() . '">
                 <div class="edu_metadata">
                     <div class="repo_input">
-                        <p class="repo_input_name">Repo-URL:</p><input type="text" value="'. $repourl .'" name="repoUrl" />
+                        <p class="repo_input_name">Repo-URL:</p><input type="text" value="'. s($repourl) .'" name="repoUrl" />
                     </div>
                     <div class="repo_input">
                         <p class="repo_input_name">Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
                         <p class="repo_input_name">Repo-Admin-Password:</p><input class="short_input" type="password" name="repoPwd">
                     </div>
                     <div class="repo_input">
-                        <p class="repo_input_name">Change Moodle-AppID:</p><input type="text" value="'. $appid .'" name="appId" />
+                        <p class="repo_input_name">Change Moodle-AppID:</p><input type="text" value="'. s($appid) .'" name="appId" />
                         <p>(optional)</p>
                     </div>
                     <div class="repo_input">
-                        <p class="repo_input_name">Add Host-Alias:</p><input type="text" value="'. $hostaliases .'" name="host_aliases" />
+                        <p class="repo_input_name">Add Host-Alias:</p><input type="text" value="'. s($hostaliases) .'" name="host_aliases" />
                         <p>(optional)</p>
                     </div>
                     <input class="btn" type="submit" value="Register Repo" name="repoReg">
@@ -91,6 +92,7 @@ class MetaDataFrontend {
         <form action="import_metadata.php" method="post" name="mdform">
             <h3>Enter your metadata endpoint here:</h3>
             <p>Hint: Just click on the example to copy it into the input-field.</p>
+            <input type="hidden" name="sesskey" value="' . sesskey() . '">
             <div class="edu_metadata">
                 <div class="edu_endpoint">
                     <p>Metadata-Endpoint:</p>
