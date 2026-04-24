@@ -64,14 +64,15 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
             courseId: 0
         }
     };
-    const repoSearchButton = document.getElementById('edu_search_button');
+    const repoSearchButton = document.getElementById('edu_search_button') ?? document.getElementById('id_edu_search_button');
     repoSearchButton.addEventListener('click', async() => {
         const ticket = await getTicket(ajaxParams);
         const repoSearchWithTicket = new URL(repoSearch);
         repoSearchWithTicket.searchParams.set('ticket', ticket.ticket);
         window.openRepo(repoSearchWithTicket.toString());
     });
-    const repoWorkspaceButton = document.getElementById('edu_workspace_button');
+    const repoWorkspaceButton =
+        document.getElementById('edu_workspace_button') ?? document.getElementById('id_edu_workspace_button');
     if (repoWorkspaceButton !== null) {
         repoWorkspaceButton.addEventListener('click', async() => {
             const ticket = await getTicket(ajaxParams);
@@ -80,7 +81,8 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
             window.openRepo(repoWorkspaceWithTicket.toString());
         });
     }
-    const repoCollectionsButton = document.getElementById('edu_collections_button');
+    const repoCollectionsButton =
+        document.getElementById('edu_collections_button') ?? document.getElementById('id_edu_collections_button');
     if (repoCollectionsButton !== null) {
         repoCollectionsButton.addEventListener('click', async() => {
             const ticket = await getTicket(ajaxParams);
