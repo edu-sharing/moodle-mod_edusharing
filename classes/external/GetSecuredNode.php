@@ -78,6 +78,7 @@ class GetSecuredNode extends external_api {
             'renderingBaseUrl' => new external_value(PARAM_TEXT, 'the rendering 2 base url'),
             'previewUrl' => new external_value(PARAM_TEXT, 'the preview url'),
             'customWidth' => new external_value(PARAM_TEXT, 'the custom width'),
+            'signingAlgorithm' => new external_value(PARAM_TEXT, 'the signing algorithm used for the signature'),
         ]);
     }
 
@@ -101,6 +102,7 @@ class GetSecuredNode extends external_api {
             'renderingBaseUrl' => $renderingurl,
             'previewUrl' => $securednode->previewUrl,
             'customWidth' => $service->get_custom_width($securednode->node),
+            'signingAlgorithm' => $securednode->signingAlgorithm,
         ];
     }
 }

@@ -171,6 +171,7 @@ class UtilityFunctions {
         $data        = $this->get_config_entry('application_appid')
             . $ts . $this->get_object_id_from_url($edusharing->object_url);
         $redirecturl .= '&sig=' . urlencode($service->sign($data));
+        $redirecturl .= '&signedAlg=' . urlencode($service->get_signing_algorithm());
         $redirecturl .= '&signed=' . urlencode($data);
         $redirecturl .= '&backLink='
             . urlencode($CFG->wwwroot . '/course/view.php?id='

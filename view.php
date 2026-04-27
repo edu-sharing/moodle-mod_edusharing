@@ -98,7 +98,7 @@ try {
         privateKey: get_config('edusharing', 'application_private_key'),
         appId: get_config('edusharing', 'application_appid')
     );
-    $redirecturl .= '&sig=' . urlencode($basehelper->sign($data));
+    $redirecturl .= '&sig=' . urlencode($basehelper->sign($data, $edusharingservice->get_signing_algorithm()));
     $redirecturl .= '&signed=' . urlencode($data);
     $backaction  = '&closeOnBack=true';
     if (empty($edusharing->popup_window)) {
@@ -106,6 +106,7 @@ try {
     }
     $redirecturl .= $backaction;
     $redirecturl .= '&ticket=' . urlencode(base64_encode($utils->encrypt_with_repo_key($ticket)));
+    $redirecturl .= '&signedAlg=' . $edusharingservice->get_signing_algorithm();
     $completion = new completion_info($course);
     $completion->set_module_viewed($cm);
     redirect($redirecturl);

@@ -491,9 +491,10 @@ class EduSharingService {
      *
      * @param string $input
      * @return string
+     * @throws Exception
      */
     public function sign(string $input): string {
-        return $this->nodehelper->base->sign($input);
+        return $this->nodehelper->base->sign(toSign: $input, algorithm: $this->get_signing_algorithm());
     }
 
     /**
@@ -572,6 +573,7 @@ class EduSharingService {
             version: $version
         );
         $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceid;
+        $securednode->signingAlgorithm = $this->get_signing_algorithm();
         return $securednode;
     }
 
@@ -607,6 +609,29 @@ class EduSharingService {
             $SESSION->filter_edusharing_rendering2 = false;
             return false;
         }
+    }
+
+    /**
+     * Function get_signing_algorithm
+     *
+     * @return string
+     */
+    public function get_signing_algorithm(): string {
+        global $SESSION;
+        if (isset($SESSION->edusharing_signing_algorithm)) {
+            return $SESSION->edusharing_signing_algorithm;
+        }
+        try {
+            $about = $this->nodehelper->base->getAbout();
+            if (isset($about['signatureAlgorithms'])) {
+                $SESSION->edusharing_signing_algorithm = 'SHA512withRSA';
+                return 'SHA512withRSA';
+            }
+        } catch (Exception) {
+            // Do nothing. Just use default.
+        }
+        $SESSION->edusharing_signing_algorithm = $this->nodehelper->base->defaultAlgorithm;
+        return $this->nodehelper->base->defaultAlgorithm;
     }
 
     /**

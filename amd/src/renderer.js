@@ -88,6 +88,7 @@ export const renderObject = async(element, repoUrl) => {
     renderComponent.assets_url = repoUrl + '/web-components/rendering-service-amd/assets';
     renderComponent.resource_url = resourceUrl;
     renderComponent.preview_url = response.previewUrl;
+    renderComponent.signature_algorithm = response.signingAlgorithm;
     wrapper.innerHTML = "";
     wrapper.appendChild(renderComponent);
 };
