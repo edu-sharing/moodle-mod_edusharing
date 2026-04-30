@@ -46,6 +46,8 @@ $mapping = [
     'EduSharingApiClient\MissingRightsException'     => __DIR__ . '/apiClient/src/EduSharing/MissingRightsException.php',
     'EduSharingApiClient\SecuredNode'                => __DIR__ . '/apiClient/src/EduSharing/SecuredNode.php',
     'EduSharingApiClient\PreviewSize'                => __DIR__ . '/apiClient/src/EduSharing/PreviewSize.php',
+    'EduSharingApiClient\SignatureHandler'           => __DIR__ . '/apiClient/src/EduSharing/SignatureHandler.php',
+    'EduSharingApiClient\DefaultSignatureHandler'    => __DIR__ . '/apiClient/src/EduSharing/DefaultSignatureHandler.php',
 ];
 
 spl_autoload_register(function ($class) use ($mapping) {

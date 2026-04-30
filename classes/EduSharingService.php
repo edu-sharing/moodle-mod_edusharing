@@ -23,7 +23,6 @@ use dml_exception;
 use EduSharingApiClient\AppAuthException;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
-use EduSharingApiClient\DisplayMode;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
@@ -115,6 +114,7 @@ class EduSharingService {
                 );
                 $this->nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
             }
+            $basehelper->registerSignatureHandler(new MoodleSignatureHandler($this->nodehelper));
         }
     }
 
@@ -494,7 +494,7 @@ class EduSharingService {
      * @throws Exception
      */
     public function sign(string $input): string {
-        return $this->nodehelper->base->sign(toSign: $input, algorithm: $this->get_signing_algorithm());
+        return $this->nodehelper->base->sign(toSign: $input);
     }
 
     /**
@@ -617,21 +617,7 @@ class EduSharingService {
      * @return string
      */
     public function get_signing_algorithm(): string {
-        global $SESSION;
-        if (isset($SESSION->edusharing_signing_algorithm)) {
-            return $SESSION->edusharing_signing_algorithm;
-        }
-        try {
-            $about = $this->nodehelper->base->getAbout();
-            if (isset($about['signatureAlgorithms'])) {
-                $SESSION->edusharing_signing_algorithm = 'SHA512withRSA';
-                return 'SHA512withRSA';
-            }
-        } catch (Exception) {
-            // Do nothing. Just use default.
-        }
-        $SESSION->edusharing_signing_algorithm = $this->nodehelper->base->defaultAlgorithm;
-        return $this->nodehelper->base->defaultAlgorithm;
+        return $this->nodehelper->base->signatureHandler->getAlgorithm();
     }
 
     /**
