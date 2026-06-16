@@ -614,6 +614,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $this->resetAfterTest();
         global $CFG;
         require_once($CFG->libdir . '/dml/tests/dml_test.php');
+        require_once($CFG->dirroot . '/mod/edusharing/lib.php');
         $dbrecord             = new stdClass();
         $dbrecord->id         = 'edusharingId123';
         $dbrecord->object_url = 'test.de';
