@@ -614,7 +614,6 @@ final class edusharing_service_test extends \advanced_testcase {
         $this->resetAfterTest();
         global $CFG;
         require_once($CFG->libdir . '/dml/tests/dml_test.php');
-        require_once($CFG->dirroot . '/mod/edusharing/lib.php');
         $dbrecord             = new stdClass();
         $dbrecord->id         = 'edusharingId123';
         $dbrecord->object_url = 'test.de';
@@ -646,7 +645,7 @@ final class edusharing_service_test extends \advanced_testcase {
             ->willReturn('myNodeId123');
         $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
-            ->onlyMethods(['get_ticket', 'get_usage_id', 'delete_usage'])
+            ->onlyMethods(['get_ticket', 'get_usage_id', 'delete_usage', 'delete_grade_item'])
             ->getMock();
         $servicemock->expects($this->once())
             ->method('get_ticket')
@@ -654,6 +653,9 @@ final class edusharing_service_test extends \advanced_testcase {
         $servicemock->expects($this->once())
             ->method('get_usage_id')
             ->willReturn('usage123');
+        $servicemock->expects($this->once())
+            ->method('delete_grade_item')
+            ->with($dbrecord);
         $servicemock->delete_instance((string)$id);
     }
 

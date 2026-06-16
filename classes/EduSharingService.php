@@ -284,9 +284,21 @@ class EduSharingService {
         if ($attemptids) {
             $DB->delete_records_list('edusharing_attempts', 'id', $attemptids);
         }
-        edusharing_grade_item_delete($edusharing);
+        $this->delete_grade_item($edusharing);
 
         $DB->delete_records('edusharing', ['id' => $edusharing->id]);
+    }
+
+    /**
+     * Function delete_grade_item
+     *
+     * Removes the gradebook item associated with the given edusharing instance.
+     *
+     * @param stdClass $edusharing
+     * @return void
+     */
+    public function delete_grade_item(stdClass $edusharing): void {
+        edusharing_grade_item_delete($edusharing);
     }
 
     /**
