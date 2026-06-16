@@ -1,10 +1,35 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
+
 namespace mod_edusharing\grading;
 
 use cm_info;
 use context_module;
 use stdClass;
 
+/**
+ * class Grader
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class Grader
 {
     /** No automathic grading using attempt results. */
@@ -22,10 +47,22 @@ class Grader
     /** Use first attempt results for grading. */
     const GRADEFIRSTATTEMPT = 4;
 
+    /**
+     * @var stdClass
+     */
     private stdClass $instance;
 
+    /**
+     * @var string
+     */
     private string $idnumber;
 
+    /**
+     * Function __construct
+     *
+     * @param stdClass $instance
+     * @param string $idnumber
+     */
     public function __construct(stdClass $instance, string $idnumber = '') {
         $this->instance = $instance;
         $this->idnumber = $idnumber;
@@ -40,7 +77,7 @@ class Grader
      */
     public function grade_item_update($grades = null): int {
         global $CFG;
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
         $item = [];
         $item['itemname'] = clean_param($this->instance->name, PARAM_NOTAGS);
@@ -64,8 +101,16 @@ class Grader
             $grades = null;
         }
 
-        return grade_update('mod/edusharing', $this->instance->course, 'mod',
-            'edusharing', $this->instance->id, 0, $grades, $item);
+        return grade_update(
+            'mod/edusharing',
+            $this->instance->course,
+            'mod',
+            'edusharing',
+            $this->instance->id,
+            0,
+            $grades,
+            $item
+        );
     }
 
     /**
@@ -75,10 +120,18 @@ class Grader
      */
     public function grade_item_delete(): ?int {
         global $CFG;
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
-        return grade_update('mod/edusharing', $this->instance->course, 'mod', 'edusharing',
-            $this->instance->id, 0, null, ['deleted' => 1]);
+        return grade_update(
+            'mod/edusharing',
+            $this->instance->course,
+            'mod',
+            'edusharing',
+            $this->instance->id,
+            0,
+            null,
+            ['deleted' => 1]
+        );
     }
 
     /**

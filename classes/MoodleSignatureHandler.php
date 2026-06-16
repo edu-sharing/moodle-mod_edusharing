@@ -22,15 +22,38 @@ use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\SignatureHandler;
 use Exception;
 
+/**
+ * class MoodleSignatureHandler
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ * @package mod_edusharing
+ * @copyright  metaVentis GmbH — http://metaventis.com
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class MoodleSignatureHandler implements SignatureHandler
 {
+    /**
+     * @var EduSharingNodeHelper
+     */
     private EduSharingNodeHelper $nodehelper;
 
+    /**
+     * MoodleSignatureHandler constructor
+     *
+     * @param EduSharingNodeHelper $nodehelper
+     */
     public function __construct(EduSharingNodeHelper $nodehelper) {
         $this->nodehelper = $nodehelper;
     }
 
+    // phpcs:disable -- Function cannot be lowercase as it implements an interface
+    /**
+     * Function getAlgorithm
+     *
+     * @return string
+     */
     public function getAlgorithm(): string {
+        // phpcs:enable
         global $SESSION;
         if (isset($SESSION->edusharing_signing_algorithm)) {
             return $SESSION->edusharing_signing_algorithm;
@@ -42,7 +65,7 @@ class MoodleSignatureHandler implements SignatureHandler
                 return 'SHA512withRSA';
             }
         } catch (Exception) {
-            // Do nothing. Just use default.
+            unset($exception);
         }
         $SESSION->edusharing_signing_algorithm = $this->nodehelper->base->defaultAlgorithm;
         return $this->nodehelper->base->defaultAlgorithm;

@@ -71,7 +71,7 @@ try {
             'containerId' => $courseid,
             'version' => $edusharing->object_version,
             'usage' => $edusharing->usage_id,
-            'resourceId' => $edusharing->id
+            'resourceId' => $edusharing->id,
         ];
 
         $completion = new completion_info($course);

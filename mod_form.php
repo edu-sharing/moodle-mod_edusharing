@@ -51,7 +51,6 @@ class mod_edusharing_mod_form extends moodleform_mod {
      */
     public function definition(): void {
 
-
         global $PAGE, $OUTPUT;
         try {
             $edusharingservice = new EduSharingService();
@@ -191,7 +190,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
             }
             // Add standard grading elements.
             $this->standard_grading_coursemodule_elements();
-            // Grade method
+            // Grade method.
             $options = Grader::get_grading_methods();
             $this->_form->addElement('select', 'grade_method', get_string('grade_grademethod', 'mod_h5pactivity'), $options);
             $this->_form->setType('grade_method', PARAM_INT);

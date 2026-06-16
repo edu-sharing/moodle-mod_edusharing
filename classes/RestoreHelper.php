@@ -243,7 +243,6 @@ class RestoreHelper {
         $usagedata->nodeVersion = $data->object_version;
         if ($userid !== null) {
             $user = core_user::get_user($userid);
-            error_log('User: ' . json_encode($user));
             profile_load_custom_fields($user);
             $ticket = $this->service->get_ticket_for_user($user);
             $usagedata->ticket = $ticket;
