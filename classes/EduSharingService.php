@@ -176,6 +176,7 @@ class EduSharingService {
      * @param Usage $usage
      * @param array|null $renderingparams
      * @param string|null $userid
+     * @param bool $rendering2
      * @return array
      * @throws JsonException
      * @throws NodeDeletedException

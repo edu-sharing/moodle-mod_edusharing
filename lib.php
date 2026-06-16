@@ -323,13 +323,12 @@ function edusharing_update_settings_name() {
 
 /**
  * Update mod_edusharing grades in the gradebook.
- *
- * Needed by {@link grade_update_mod_grades()}.
- *
+ **
  * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
  * @param array|null $grades
  * @return int
  * @throws coding_exception
+ * @throws dml_exception
  */
 function edusharing_grade_item_update(stdClass $moduleinstance, ?array $grades = null): int {
     global $DB;
@@ -355,12 +354,11 @@ function edusharing_grade_item_delete(stdClass $moduleinstance): ?int {
 
 /**
  * Update mod_edusharing grades in the gradebook.
- *
- * Needed by {@link grade_update_mod_grades()}.
- *
+ **
  * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
  * @param int $userid Update grade of specific user only, 0 means all participants.
  * @throws coding_exception
+ * @throws dml_exception
  */
 function edusharing_update_grades(stdClass $moduleinstance, int $userid = 0): void {
     global $DB;
