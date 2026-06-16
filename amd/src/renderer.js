@@ -54,6 +54,8 @@ export const renderObject = async(element, repoUrl) => {
             nodeId: nodeId,
             resourceId: resourceId,
             version: version,
+            containerId: containerId,
+            usageId: usage,
         }
     };
 

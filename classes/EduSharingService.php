@@ -109,7 +109,7 @@ class EduSharingService {
                 $nodeconfig       = new EduSharingNodeHelperConfig(
                     new UrlHandling(
                         true,
-                        $CFG->wwwroot . "/filter/edusharing/inlineHelper.php?sesskey=" . sesskey()
+                        $CFG->wwwroot . "/mod/edusharing/contentRedirect.php?sesskey=" . sesskey()
                     )
                 );
                 $this->nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
@@ -357,6 +357,19 @@ class EduSharingService {
         if (!empty($edusharing->instance)) {
             $edusharing->id = $edusharing->instance;
         }
+        try {
+            $memento = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
+        } catch (Exception $exception) {
+            unset($exception);
+            return false;
+        }
+        // The edit form does not include object_url / object_version; keep the stored values.
+        if (empty($edusharing->object_url)) {
+            $edusharing->object_url = $memento->object_url;
+        }
+        if (!isset($edusharing->object_version)) {
+            $edusharing->object_version = $memento->object_version;
+        }
         $this->post_process_edusharing_object($edusharing, $updatetime);
         $usagedata              = new stdClass();
         $usagedata->containerId = $edusharing->course;
@@ -364,7 +377,6 @@ class EduSharingService {
         $usagedata->nodeId      = $this->utils->get_object_id_from_url($edusharing->object_url);
         $usagedata->nodeVersion = $edusharing->object_version;
         try {
-            $memento           = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
             $usagedata->ticket = $this->get_ticket();
         } catch (Exception $exception) {
             unset($exception);
@@ -557,22 +569,15 @@ class EduSharingService {
     /**
      * Function get_secured_node
      *
-     * @param string $nodeid
-     * @param string $resourceid
-     * @param string $version
+     * @param Usage $usage
      * @return SecuredNode
      * @throws JsonException
      * @throws dml_exception
      */
-    public function get_secured_node(string $nodeid, string $resourceid, string $version): SecuredNode {
+    public function get_secured_node(Usage $usage): SecuredNode {
         global $CFG;
-        $securednode = $this->nodehelper->getSecuredNode(
-            ticket: $this->get_ticket(),
-            nodeId: $nodeid,
-            repoId: $this->utils->get_config_entry('application_homerepid'),
-            version: $version
-        );
-        $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $resourceid;
+        $securednode = $this->nodehelper->getSecuredNodeByUsage($usage, $this->utils->get_auth_key());
+        $securednode->previewUrl = $CFG->wwwroot . '/mod/edusharing/preview.php?resourceId=' . $usage->resourceId;
         $securednode->signingAlgorithm = $this->get_signing_algorithm();
         return $securednode;
     }

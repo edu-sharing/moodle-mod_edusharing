@@ -20,6 +20,7 @@ namespace mod_edusharing\external;
 
 use context_course;
 use core_external\external_api;
+use EduSharingApiClient\Usage;
 use Exception;
 use external_single_structure;
 use core_external\external_value;
@@ -59,6 +60,8 @@ class GetSecuredNode extends external_api {
             'nodeId' => new external_value(PARAM_TEXT, 'node id'),
             'resourceId' => new external_value(PARAM_TEXT, 'resource id'),
             'version' => new external_value(PARAM_TEXT, 'version', VALUE_DEFAULT, '-1'),
+            'containerId' => new external_value(PARAM_TEXT, 'container id'),
+            'usageId' => new external_value(PARAM_TEXT, 'usage id'),
         ]);
         return new external_function_parameters(['eduSecuredNodeStructure' => $structure]);
     }
@@ -93,7 +96,14 @@ class GetSecuredNode extends external_api {
      */
     public static function execute(array $structure): array {
         $service = new EduSharingService();
-        $securednode = $service->get_secured_node($structure['nodeId'], $structure['resourceId'], $structure['version']);
+        $usage = new Usage(
+            nodeId     : $structure['nodeId'],
+            nodeVersion: $structure['version'],
+            containerId: $structure['containerId'],
+            resourceId : $structure['resourceId'],
+            usageId    : $structure['usageId'],
+        );
+        $securednode = $service->get_secured_node($usage);
         $renderingurl = $service->get_rendering_2_url();
         return [
             'securedNode' => $securednode->securedNode,

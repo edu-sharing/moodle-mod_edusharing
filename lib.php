@@ -95,6 +95,10 @@ function edusharing_add_instance(stdClass $edusharing): int|bool {
 function edusharing_update_instance(stdClass $edusharing): bool {
     global $DB;
     $service = new EduSharingService();
+    // When editing a course module, Moodle provides the instance id as $edusharing->instance.
+    if (!empty($edusharing->instance)) {
+        $edusharing->id = $edusharing->instance;
+    }
     try {
         $previousentry = $DB->get_record('edusharing', ['id' => $edusharing->id]);
         $gradingmethodchange = $previousentry->grade_method != $edusharing->grade_method;

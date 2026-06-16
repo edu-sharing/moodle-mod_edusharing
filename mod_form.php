@@ -76,15 +76,19 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $currentedusharing = $this->current;
             $mediatype = '';
             if (!empty($currentedusharing) && isset($currentedusharing->object_url)) {
-                $usage = new Usage(
-                    nodeId: $utils->get_object_id_from_url($currentedusharing->object_url),
-                    nodeVersion: $currentedusharing->object_version,
-                    containerId: $currentedusharing->course,
-                    resourceId: $currentedusharing->id,
-                    usageId: $currentedusharing->usage_id
-                );
-                $node = $edusharingservice->get_node(usage: $usage, rendering2: true);
-                $mediatype = $node['node']['mediatype'] ?? '';
+                try {
+                    $usage = new Usage(
+                        nodeId: $utils->get_object_id_from_url($currentedusharing->object_url),
+                        nodeVersion: $currentedusharing->object_version,
+                        containerId: $currentedusharing->course,
+                        resourceId: $currentedusharing->id,
+                        usageId: $currentedusharing->usage_id
+                    );
+                    $node = $edusharingservice->get_node(usage: $usage, rendering2: true);
+                    $mediatype = $node['node']['mediatype'] ?? '';
+                } catch (Exception $exception) {
+                    debugging($exception->getMessage());
+                }
             }
             $repobase = $utils->get_config_entry('application_cc_gui_url');
             $PAGE->requires->js_call_amd('mod_edusharing/modform', 'init', [trim($repobase, '/'), $mediatype, $hasgradingfeature]);
@@ -102,7 +106,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $this->_form->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
             $this->standard_intro_elements(get_string('description', Constants::EDUSHARING_MODULE_NAME));
             // Repo button and version select are not to be shown for edit form.
-            if (!isset($_GET['update'])) {
+            if (empty($this->_instance)) {
                 $objecttitlehelp = $utils->get_config_entry('enable_repo_target_chooser') ?
                     get_string('object_title_help_chooser', Constants::EDUSHARING_MODULE_NAME) :
                     get_string('object_title_help', Constants::EDUSHARING_MODULE_NAME);
@@ -214,10 +218,10 @@ class mod_edusharing_mod_form extends moodleform_mod {
             $this->_form->setDefault('popup_window', !empty($CFG->resource_popup));
             // Add standard elements, common to all modules.
             $this->standard_coursemodule_elements();
-            $submit2label = get_string('savechangesandreturntocourse');
         } catch (Exception $e) {
             debugging($e->getLine() . ': ' . $e->getMessage());
         }
+        $submit2label = get_string('savechangesandreturntocourse');
         $buttons = [];
         if (!empty($submit2label) && $this->courseformat->has_view_page()) {
             $buttons[] = $this->_form->createElement('submit', 'submitbutton2', $submit2label);

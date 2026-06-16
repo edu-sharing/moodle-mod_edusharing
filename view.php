@@ -98,7 +98,7 @@ try {
         privateKey: get_config('edusharing', 'application_private_key'),
         appId: get_config('edusharing', 'application_appid')
     );
-    $redirecturl .= '&sig=' . urlencode($basehelper->sign($data, $edusharingservice->get_signing_algorithm()));
+    $redirecturl .= '&sig=' . urlencode($basehelper->sign($data));
     $redirecturl .= '&signed=' . urlencode($data);
     $backaction  = '&closeOnBack=true';
     if (empty($edusharing->popup_window)) {

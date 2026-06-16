@@ -69,10 +69,13 @@ class UtilityFunctions {
      * Get the object-id from object-url.
      * E.g. "abc-123-xyz-456789" for "ccrep://homeRepository/abc-123-xyz-456789"
      *
-     * @param string $url
+     * @param string|null $url
      * @return string
      */
-    public function get_object_id_from_url(string $url): string {
+    public function get_object_id_from_url(?string $url): string {
+        if (empty($url)) {
+            return '';
+        }
         $objectid = parse_url($url, PHP_URL_PATH);
         if ($objectid === false) {
             try {
