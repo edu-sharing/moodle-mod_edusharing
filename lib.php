@@ -323,7 +323,7 @@ function edusharing_update_settings_name() {
 
 /**
  * Update mod_edusharing grades in the gradebook.
- **
+ *
  * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
  * @param array|null $grades
  * @return int
@@ -354,7 +354,7 @@ function edusharing_grade_item_delete(stdClass $moduleinstance): ?int {
 
 /**
  * Update mod_edusharing grades in the gradebook.
- **
+ *
  * @param stdClass $moduleinstance Instance object with extra cmidnumber and modname property.
  * @param int $userid Update grade of specific user only, 0 means all participants.
  * @throws coding_exception
