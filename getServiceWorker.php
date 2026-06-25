@@ -46,7 +46,7 @@ try {
         exit;
     }
     $curl = new curl();
-    $response = $curl->get($repositoryurl . '/web-components/rendering-service-amd/edu-service-worker.js');
+    $response = $curl->get($repositoryurl . '/web-components/rendering-service/edu-service-worker.js');
     $info = $curl->get_info();
     if (!empty($info['http_code']) && $info['http_code'] >= 200 && $info['http_code'] < 300) {
         header('Content-Length: ' . strlen($response));

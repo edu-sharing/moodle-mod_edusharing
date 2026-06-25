@@ -71,6 +71,7 @@ export const renderObject = async(element, repoUrl) => {
     } else {
         wrapper.style.width = width ? (width + "px") : '';
     }
+
     const serviceWorkerPhp = `${Config.wwwroot}/mod/edusharing/getServiceWorker.php`;
     if ('serviceWorker' in navigator) {
         await navigator.serviceWorker.register(serviceWorkerPhp, {
@@ -87,7 +88,7 @@ export const renderObject = async(element, repoUrl) => {
     renderComponent.render_url = response.renderingBaseUrl;
     renderComponent.service_worker_url = serviceWorkerPhp;
     renderComponent.activate_service_worker = false;
-    renderComponent.assets_url = repoUrl + '/web-components/rendering-service-amd/assets';
+    renderComponent.assets_url = repoUrl + '/web-components/rendering-service/assets';
     renderComponent.resource_url = resourceUrl;
     renderComponent.preview_url = response.previewUrl;
     renderComponent.signature_algorithm = response.signingAlgorithm;
