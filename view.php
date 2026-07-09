@@ -56,6 +56,12 @@ try {
     $edusharingservice = new EduSharingService();
     $utils = new UtilityFunctions();
     if ($edusharingservice->has_rendering_2()) {
+        try {
+            $edusharingservice->get_ticket();
+        } catch (Exception $exception) {
+            trigger_error($exception->getMessage(), E_USER_WARNING);
+            exit();
+        }
         global $edusharingwcloaded, $OUTPUT;
         $context = context_module::instance($cm->id);
         $contextid = $context->id;
@@ -64,7 +70,8 @@ try {
             $PAGE->requires->js_call_amd('mod_edusharing/remoteloader', 'init', [$repourl]);
             $edusharingwcloaded = true;
         }
-        $PAGE->requires->js_call_amd('mod_edusharing/renderer', 'init', [$repourl, $contextid]);
+        $useserviceworker = (bool) get_config('edusharing', 'use_service_worker');
+        $PAGE->requires->js_call_amd('mod_edusharing/renderer', 'init', [$repourl, $contextid, $useserviceworker]);
 
         $templatedata = [
             'nodeId' => $utils->get_object_id_from_url($edusharing->object_url),

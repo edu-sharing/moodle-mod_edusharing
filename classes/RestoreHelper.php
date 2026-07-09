@@ -229,12 +229,12 @@ class RestoreHelper {
      * @param stdClass $data
      * @param int $newitemid
      * @param int|null $userid
-     * @return Usage|null
+     * @return Usage
      * @throws \JsonException
      * @throws Exception
      * @throws MissingRightsException
      */
-    public function add_usage(stdClass $data, int $newitemid, ?int $userid = null): ?Usage {
+    public function add_usage(stdClass $data, int $newitemid, ?int $userid = null): Usage {
         $usagedata              = new stdClass();
         $usagedata->containerId = $data->course;
         $usagedata->resourceId  = $newitemid;

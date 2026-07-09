@@ -156,6 +156,8 @@ $string['require_login_for_metadata'] = 'Login für Metadatenabfrage nötig';
 $string['require_login_for_metadata_help'] = 'Ist diese Option aktiviert, ist ein Login nötig, um die App-Metadaten abzufragen';
 $string['allow_registration_over_http'] = 'Repository-Registration über HTTP erlauben';
 $string['allow_registration_over_http_help'] = 'Mit dieser Option kann die Repository-Registration über unsicheres HTTP erfolgen. Sie sollte nur zu Entwicklungs- und Testzwecken verwendet werden.';
+$string['use_service_worker'] = 'Rendering-Service-Worker verwenden';
+$string['use_service_worker_help'] = 'Wenn aktiviert, wird ein Service Worker registriert, um die Darstellung von Edu-Sharing-Inhalten zu unterstützen. Standardmäßig deaktiviert.';
 $string['use_as_idp'] = 'Moodle als IDP für Edu-Sharing verwenden';
 $string['use_as_idp_help'] = 'Ist diese Funktion aktiviert, kann Moodle zum Login bei Edu-Sharing verwendet werden.';
 

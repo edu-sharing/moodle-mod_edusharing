@@ -86,6 +86,13 @@ if ($ADMIN->fulltree) {
             description: new lang_string('allow_registration_over_http_help', 'edusharing'),
             defaultsetting: '0'
         )
+    ); $settings->add(
+        new admin_setting_configcheckbox(
+            name: 'edusharing/use_service_worker',
+            visiblename: new lang_string('use_service_worker', 'edusharing'),
+            description: new lang_string('use_service_worker_help', 'edusharing'),
+            defaultsetting: '0'
+        )
     );
     $settings->add(new admin_setting_configtextarea('edusharing/application_private_key', 'private_key', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtextarea('edusharing/application_public_key', 'public_key', '', '', PARAM_TEXT, 50));

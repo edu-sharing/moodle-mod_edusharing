@@ -180,6 +180,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $usageobject->resourceId  = 'resourceIdTest';
         $usageobject->nodeId      = 'nodeIdTest';
         $usageobject->nodeVersion = 'nodeVersion';
+        $usageobject->courseTitle = 'courseTitleTest';
         $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper               = new EduSharingAuthHelper($basehelper);
@@ -189,7 +190,36 @@ final class edusharing_service_test extends \advanced_testcase {
             ->getMock();
         $nodehelpermock->expects($this->once())
             ->method('createUsage')
-            ->with('ticketTest', 'containerIdTest', 'resourceIdTest', 'nodeIdTest', 'nodeVersion');
+            ->with('ticketTest', 'containerIdTest', 'resourceIdTest', 'nodeIdTest', 'nodeVersion', 'courseTitleTest');
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['get_ticket'])
+            ->setConstructorArgs([$authhelper, $nodehelpermock])
+            ->getMock();
+        $servicemock->expects($this->once())
+            ->method('get_ticket')
+            ->willReturn('ticketTest');
+        $servicemock->create_usage($usageobject);
+    }
+
+    /**
+     * Function test_if_create_usage_passes_null_course_title_when_not_set
+     */
+    public function test_if_create_usage_passes_null_course_title_when_not_set(): void {
+        $usageobject              = new stdClass();
+        $usageobject->containerId = 'containerIdTest';
+        $usageobject->resourceId  = 'resourceIdTest';
+        $usageobject->nodeId      = 'nodeIdTest';
+        $usageobject->nodeVersion = 'nodeVersion';
+        $basehelper               = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig               = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper               = new EduSharingAuthHelper($basehelper);
+        $nodehelpermock           = $this->getMockBuilder(EduSharingNodeHelper::class)
+            ->onlyMethods(['createUsage'])
+            ->setConstructorArgs([$basehelper, $nodeconfig])
+            ->getMock();
+        $nodehelpermock->expects($this->once())
+            ->method('createUsage')
+            ->with('ticketTest', 'containerIdTest', 'resourceIdTest', 'nodeIdTest', 'nodeVersion', null);
         $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelpermock])
@@ -339,6 +369,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->resourceId         = 'resourceIdTest';
         $usagedata->nodeId             = 'outputUrl';
         $usagedata->nodeVersion        = 'nodeVersionTest';
+        $usagedata->courseTitle        = 'courseTitleTest';
         $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
@@ -347,12 +378,15 @@ final class edusharing_service_test extends \advanced_testcase {
         $authhelper                    = new EduSharingAuthHelper($basehelper);
         $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['get_object_id_from_url'])
+            ->onlyMethods(['get_object_id_from_url', 'get_course_title'])
             ->getMock();
         $utilsmock->expects($this->once())
             ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->willReturn('outputUrl');
+        $utilsmock->expects($this->once())
+            ->method('get_course_title')
+            ->willReturn('courseTitleTest');
         $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
@@ -406,6 +440,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->resourceId         = 'resourceIdTest';
         $usagedata->nodeId             = 'outputUrl';
         $usagedata->nodeVersion        = 'nodeVersionTest';
+        $usagedata->courseTitle        = 'courseTitleTest';
         $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
@@ -414,12 +449,15 @@ final class edusharing_service_test extends \advanced_testcase {
         $authhelper                    = new EduSharingAuthHelper($basehelper);
         $nodehelper                    = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $utilsmock                     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['get_object_id_from_url'])
+            ->onlyMethods(['get_object_id_from_url', 'get_course_title'])
             ->getMock();
         $utilsmock->expects($this->once())
             ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->willReturn('outputUrl');
+        $utilsmock->expects($this->once())
+            ->method('get_course_title')
+            ->willReturn('courseTitleTest');
         $servicemock = $this->getMockBuilder(EduSharingService::class)
             ->onlyMethods(['create_usage', 'get_ticket'])
             ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
@@ -478,6 +516,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->resourceId              = 3;
         $usagedata->nodeId                  = 'outputUrl';
         $usagedata->nodeVersion             = '1.0';
+        $usagedata->courseTitle             = 'courseTitleTest';
         $dbmock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
@@ -491,12 +530,15 @@ final class edusharing_service_test extends \advanced_testcase {
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['get_object_id_from_url'])
+            ->onlyMethods(['get_object_id_from_url', 'get_course_title'])
             ->getMock();
         $utilsmock->expects($this->once())
             ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->willReturn('outputUrl');
+        $utilsmock->expects($this->once())
+            ->method('get_course_title')
+            ->willReturn('courseTitleTest');
         $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper  = new EduSharingAuthHelper($basehelper);
@@ -544,6 +586,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->resourceId              = 3;
         $usagedata->nodeId                  = 'outputUrl';
         $usagedata->nodeVersion             = '1';
+        $usagedata->courseTitle             = 'courseTitleTest';
         $dbmock                             = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['insert_record', 'update_record', 'delete_records'])
             ->getMock();
@@ -559,12 +602,15 @@ final class edusharing_service_test extends \advanced_testcase {
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
         $utilsmock     = $this->getMockBuilder(UtilityFunctions::class)
-            ->onlyMethods(['get_object_id_from_url'])
+            ->onlyMethods(['get_object_id_from_url', 'get_course_title'])
             ->getMock();
         $utilsmock->expects($this->once())
             ->method('get_object_id_from_url')
             ->with('inputUrl')
             ->willReturn('outputUrl');
+        $utilsmock->expects($this->once())
+            ->method('get_course_title')
+            ->willReturn('courseTitleTest');
         $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper  = new EduSharingAuthHelper($basehelper);

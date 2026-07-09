@@ -133,7 +133,8 @@ class EduSharingService {
             (string)$usagedata->containerId,
             (string)$usagedata->resourceId,
             (string)$usagedata->nodeId,
-            (string)$usagedata->nodeVersion
+            (string)$usagedata->nodeVersion,
+            !empty($usagedata->courseTitle) ? (string)$usagedata->courseTitle : null
         );
     }
 
@@ -308,6 +309,7 @@ class EduSharingService {
      * @param int|null $updatetime
      * @return bool|int
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function add_instance(stdClass $edusharing, ?int $updatetime = null): bool|int {
         global $DB;
@@ -340,6 +342,7 @@ class EduSharingService {
         $usagedata->resourceId  = $id;
         $usagedata->nodeId      = $this->utils->get_object_id_from_url($edusharing->object_url);
         $usagedata->nodeVersion = $edusharing->object_version;
+        $usagedata->courseTitle = $this->utils->get_course_title((int)$edusharing->course);
         try {
             $usage                = $this->create_usage($usagedata);
             $edusharing->id       = $id;
@@ -363,6 +366,7 @@ class EduSharingService {
      * @param stdClass $edusharing
      * @param int|null $updatetime
      * @return bool
+     * @throws dml_exception
      */
     public function update_instance(stdClass $edusharing, ?int $updatetime = null): bool {
         global $DB;
@@ -389,6 +393,7 @@ class EduSharingService {
         $usagedata->resourceId  = $edusharing->id;
         $usagedata->nodeId      = $this->utils->get_object_id_from_url($edusharing->object_url);
         $usagedata->nodeVersion = $edusharing->object_version;
+        $usagedata->courseTitle = $this->utils->get_course_title((int)$edusharing->course);
         try {
             $usagedata->ticket = $this->get_ticket();
         } catch (Exception $exception) {
