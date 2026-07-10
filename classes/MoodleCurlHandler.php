@@ -44,6 +44,7 @@ class MoodleCurlHandler extends CurlHandler {
      */
     public function handleCurlRequest(string $url, array $curlOptions): CurlResult {
         // phpcs:enable
+        error_log("called handleCurlRequest with url: $url, curlOptions: " . json_encode($curlOptions));
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
         $curl         = new curl();
@@ -73,6 +74,7 @@ class MoodleCurlHandler extends CurlHandler {
                 $options[$key] = $value;
             }
         }
+        error_log("calling curl method: " . $this->method);
         if ($this->method === static::METHOD_POST) {
             $result = $curl->post($url, $params, $options);
         } else if ($this->method === static::METHOD_PUT) {

@@ -1,7 +1,7 @@
 import Config from 'core/config';
 import {getCurrentUser, getSecuredNode, sendXapiStatement} from "./repository";
 
-export const init = async(repoUrl, contextId) => {
+export const init = async(repoUrl, contextId, useServiceWorker) => {
     const element = document.getElementById('edusharing_view');
     window.addEventListener('message', async(e) => {
         if (!e.data || e.data.type !== 'H5P_XAPI') {
@@ -27,14 +27,15 @@ export const init = async(repoUrl, contextId) => {
         };
         sendXapiStatement(ajaxParams);
     });
-    await renderObject(element, repoUrl);
+    await renderObject(element, repoUrl, useServiceWorker);
 };
 
 /**
  * @param {Element} element
  * @param {string} repoUrl
+ * @param {boolean} useServiceWorker
  */
-export const renderObject = async(element, repoUrl) => {
+export const renderObject = async(element, repoUrl, useServiceWorker) => {
     const wrapper = element.parentElement;
     if (!wrapper) {
         return;
@@ -73,7 +74,7 @@ export const renderObject = async(element, repoUrl) => {
     }
 
     const serviceWorkerPhp = `${Config.wwwroot}/mod/edusharing/getServiceWorker.php`;
-    if ('serviceWorker' in navigator) {
+    if (useServiceWorker && 'serviceWorker' in navigator) {
         await navigator.serviceWorker.register(serviceWorkerPhp, {
             scope: '/'
         });
@@ -87,7 +88,7 @@ export const renderObject = async(element, repoUrl) => {
     renderComponent.jwt = response.jwt;
     renderComponent.render_url = response.renderingBaseUrl;
     renderComponent.service_worker_url = serviceWorkerPhp;
-    renderComponent.activate_service_worker = false;
+    renderComponent.activate_service_worker = useServiceWorker;
     renderComponent.assets_url = repoUrl + '/web-components/rendering-service/assets';
     renderComponent.resource_url = resourceUrl;
     renderComponent.preview_url = response.previewUrl;

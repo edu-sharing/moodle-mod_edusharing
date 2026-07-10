@@ -91,6 +91,22 @@ class UtilityFunctions {
     }
 
     /**
+     * Function get_course_title
+     *
+     * Resolves a course id to its fullname. Returns an empty string if the
+     * course cannot be found, so usage creation never breaks on the lookup.
+     *
+     * @param int $courseid
+     * @return string
+     * @throws dml_exception
+     */
+    public function get_course_title(int $courseid): string {
+        global $DB;
+        $course = $DB->get_record('course', ['id' => $courseid], 'id, fullname');
+        return $course === false ? '' : $course->fullname;
+    }
+
+    /**
      * Function get_repository_id_from_url
      *
      * Get the repository-id from object-url.

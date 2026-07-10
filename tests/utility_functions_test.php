@@ -66,6 +66,53 @@ final class utility_functions_test extends advanced_testcase {
     }
 
     /**
+     * Function test_if_get_course_title_returns_fullname_when_course_found
+     *
+     * @return void
+     */
+    public function test_if_get_course_title_returns_fullname_when_course_found(): void {
+        $this->resetAfterTest();
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
+        $utils          = new UtilityFunctions();
+        $course         = new stdClass();
+        $course->id     = 42;
+        $course->fullname = 'My Course';
+        $dbmock         = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record'])
+            ->getMock();
+        $dbmock->expects($this->once())
+            ->method('get_record')
+            ->with('course', ['id' => 42], 'id, fullname')
+            ->willReturn($course);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
+        $GLOBALS['DB'] = $dbmock;
+        $this->assertEquals('My Course', $utils->get_course_title(42));
+    }
+
+    /**
+     * Function test_if_get_course_title_returns_empty_string_when_course_missing
+     *
+     * @return void
+     */
+    public function test_if_get_course_title_returns_empty_string_when_course_missing(): void {
+        $this->resetAfterTest();
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
+        $utils  = new UtilityFunctions();
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record'])
+            ->getMock();
+        $dbmock->expects($this->once())
+            ->method('get_record')
+            ->with('course', ['id' => 42], 'id, fullname')
+            ->willReturn(false);
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
+        $GLOBALS['DB'] = $dbmock;
+        $this->assertEquals('', $utils->get_course_title(42));
+    }
+
+    /**
      * Function test_if_get_repository_id_from_url_returns_host_if_url_is_ok
      *
      * @return void

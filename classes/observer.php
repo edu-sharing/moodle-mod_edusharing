@@ -36,6 +36,20 @@ use mod_edusharing\UtilityFunctions;
  */
 class mod_edusharing_observer {
     /**
+     * Function get_service
+     *
+     * Factory for the EduSharingService used by the deletion handlers.
+     * Exposed as a protected static method so unit tests can override it
+     * to inject a mock without hitting the remote repository.
+     *
+     * @return EduSharingService
+     * @throws dml_exception
+     */
+    protected static function get_service(): EduSharingService {
+        return new EduSharingService();
+    }
+
+    /**
      * Function course_module_deleted
      *
      * @param \core\event\course_module_deleted $event
@@ -52,10 +66,10 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $service = new EduSharingService();
+        $service = static::get_service();
         foreach ($eduobjects as $object) {
             try {
-                $service->delete_instance($object['id']);
+                $service->delete_instance($object->id);
             } catch (Exception $exception) {
                 debugging($exception->getMessage());
             }
@@ -235,7 +249,7 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $service = new EduSharingService();
+        $service = static::get_service();
         foreach ($eduobjects as $object) {
             try {
                 $service->delete_instance($object->id);
@@ -260,7 +274,7 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $service = new EduSharingService();
+        $service = static::get_service();
         foreach ($eduobjects as $object) {
             try {
                 $service->delete_instance($object->id);
