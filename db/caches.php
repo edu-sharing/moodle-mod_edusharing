@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of the edu-sharing plugin
+ * Cache definitions for the edu-sharing plugin
  *
  * @package    mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
@@ -23,9 +23,14 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->component    = 'mod_edusharing';
-$plugin->version      = 2026071000;
-$plugin->requires     = 2024100700;
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
-$plugin->release      = '11.0.1';
+
+$definitions = [
+    // Caches the repository /rest/_about response. The payload is small and
+    // global (identical for every user), so an application cache is used.
+    // TTL keeps it fresh in case the connected repository is upgraded.
+    'about' => [
+        'mode'       => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'ttl'        => 3600,
+    ],
+];

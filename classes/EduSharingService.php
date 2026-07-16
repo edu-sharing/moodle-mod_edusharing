@@ -106,7 +106,7 @@ class EduSharingService {
             $basehelper->registerCurlHandler(new MoodleCurlHandler());
             $this->authhelper === null && $this->authhelper = new EduSharingAuthHelper($basehelper);
             if ($this->nodehelper === null) {
-                $nodeconfig       = new EduSharingNodeHelperConfig(
+                $nodeconfig = new EduSharingNodeHelperConfig(
                     new UrlHandling(
                         true,
                         $CFG->wwwroot . "/mod/edusharing/contentRedirect.php?sesskey=" . sesskey()
@@ -114,7 +114,7 @@ class EduSharingService {
                 );
                 $this->nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
             }
-            $basehelper->registerSignatureHandler(new MoodleSignatureHandler($this->nodehelper));
+            $basehelper->registerAboutApiCacheHandler(new MoodleAboutApiCacheHandler($this->nodehelper));
         }
     }
 
@@ -607,7 +607,7 @@ class EduSharingService {
      * @throws Exception
      */
     public function get_rendering_2_url(): string {
-        $about = $this->nodehelper->base->getAbout();
+        $about = $this->nodehelper->base->getAboutCached();
         if (isset($about['renderingService2']['url'])) {
             return $about['renderingService2']['url'];
         }
@@ -620,16 +620,10 @@ class EduSharingService {
      * @return bool
      */
     public function has_rendering_2(): bool {
-        global $SESSION;
-        if (isset($SESSION->filter_edusharing_rendering2)) {
-            return (bool)$SESSION->filter_edusharing_rendering2;
-        }
         try {
             $this->get_rendering_2_url();
-            $SESSION->filter_edusharing_rendering2 = true;
             return true;
-        } catch (Exception) {
-            $SESSION->filter_edusharing_rendering2 = false;
+        } catch (Exception $exception) {
             return false;
         }
     }
@@ -638,9 +632,10 @@ class EduSharingService {
      * Function get_signing_algorithm
      *
      * @return string
+     * @throws JsonException
      */
     public function get_signing_algorithm(): string {
-        return $this->nodehelper->base->signatureHandler->getAlgorithm();
+        return $this->nodehelper->base->getAlgorithm();
     }
 
     /**
