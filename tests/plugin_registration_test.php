@@ -27,6 +27,7 @@ use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
 use EduSharingApiClient\UrlHandling;
 use JsonException;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 // phpcs:ignore -- No Moodle internal check needed.
 global $CFG;
@@ -39,8 +40,8 @@ require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
  * @package mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \mod_edusharing\PluginRegistration
  */
+#[CoversClass(\mod_edusharing\PluginRegistration::class)]
 final class plugin_registration_test extends advanced_testcase {
     /**
      * Function test_register_plugin_returns_content_from_service_call_on_success
