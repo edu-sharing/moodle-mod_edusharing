@@ -44,7 +44,7 @@ test:
     - cd $MOODLE_DIR
     - php public/admin/tool/phpunit/cli/init.php
     - cd public/mod/edusharing/apiClient
-    - git clone https://github.com/edu-sharing/php-auth-plugin.git
+    - git clone --branch 11.0 --depth 1 https://github.com/edu-sharing/php-auth-plugin.git
     - cp -a php-auth-plugin/src/. ./src
 
   script:

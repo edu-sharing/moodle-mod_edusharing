@@ -48,6 +48,7 @@ $mapping = [
     'EduSharingApiClient\PreviewSize'                 => __DIR__ . '/apiClient/src/EduSharing/PreviewSize.php',
     'EduSharingApiClient\AboutApiCacheHandler'        => __DIR__ . '/apiClient/src/EduSharing/AboutApiCacheHandler.php',
     'EduSharingApiClient\DefaultAboutApiCacheHandler' => __DIR__ . '/apiClient/src/EduSharing/DefaultAboutApiCacheHandler.php',
+    'EduSharingApiClient\InvalidAppIdException'       => __DIR__ . '/apiClient/src/EduSharing/InvalidAppIdException.php',
 ];
 
 spl_autoload_register(function ($class) use ($mapping) {
