@@ -103,7 +103,7 @@ class RestoreHelper {
                 }
             }
             try {
-                $module = $DB->get_record($cm->name, ['id' => $cm->instance], '*', MUST_EXIST);
+                $module = $DB->get_record($cm->modname, ['id' => $cm->instance], '*', MUST_EXIST);
             } catch (Exception $exception) {
                 mtrace($exception->getMessage());
                 continue;
@@ -116,7 +116,7 @@ class RestoreHelper {
                     }
                 }
             }
-            $DB->update_record($cm->name, $module);
+            $DB->update_record($cm->modname, $module);
         }
         rebuild_course_cache($courseid, true);
     }
