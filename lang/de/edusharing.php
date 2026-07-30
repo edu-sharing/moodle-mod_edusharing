@@ -34,12 +34,24 @@ $string['display'] = 'Anzeige';
 
 // Modulename seems to be used in admin-panels.
 // Pluginname seems to be used in course-view.
+// Both are declared as literals first: plugin validation parses this file statically
+// without executing it, and get_config() is not usable yet during installation.
+$string['modulename'] = 'edu-sharing Objekt';
+$string['modulename_help'] = '';
+
+// Admins can rebrand the module via the plugin settings. The string cache is reset
+// by edusharing_update_settings_name() whenever one of these settings changes.
 try {
-    $string['modulename'] = get_config('edusharing', 'application_appname') . ' ' . get_config('edusharing', 'module_type');
-    $string['modulename_help'] = get_config('edusharing', 'info_text');
+    $appname = get_config('edusharing', 'application_appname');
+    $moduletype = get_config('edusharing', 'module_type');
+    $infotext = get_config('edusharing', 'info_text');
+    if (!empty($appname) || !empty($moduletype)) {
+        $string['modulename'] = trim($appname . ' ' . $moduletype);
+    }
+    if (!empty($infotext)) {
+        $string['modulename_help'] = $infotext;
+    }
 } catch (Exception $exception) {
-    $string['modulename'] = '';
-    $string['modulename_help'] = '';
     unset($exception);
 }
 

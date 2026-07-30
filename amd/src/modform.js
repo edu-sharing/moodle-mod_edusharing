@@ -18,13 +18,19 @@ export const init = async(repoUrl, mediatype, hasRendering2) => {
                 if (event.data.event === 'APPLY_NODE' && validateOrigin(event.origin, repoUrl)) {
                     const node = event.data.data;
                     const isH5p = node.mediatype === 'file-h5p';
-                    if (isH5p && hasRendering2 && gradeForm !== null && gradeCompletionInput !== null) {
+                    // The completion input only exists if completion tracking is enabled for the site and
+                    // the course, so it must not be a precondition for showing the grading section.
+                    if (isH5p && hasRendering2 && gradeForm !== null) {
                         gradeForm.classList.remove('d-none');
-                        gradeCompletionInput.classList.remove('d-none');
+                        if (gradeCompletionInput !== null) {
+                            gradeCompletionInput.classList.remove('d-none');
+                        }
                     } else {
                         const gradeTypeSelect = document.getElementById('id_grade_modgrade_type');
-                        gradeTypeSelect.value = 'none';
-                        gradeTypeSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                        if (gradeTypeSelect !== null) {
+                            gradeTypeSelect.value = 'none';
+                            gradeTypeSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                        }
                     }
                     window.win.close();
                     window.document.getElementById('id_object_url').value = node.objectUrl;
