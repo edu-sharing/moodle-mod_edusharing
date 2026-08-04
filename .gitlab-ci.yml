@@ -186,21 +186,29 @@ build_bundle:
       cd "$CI_PROJECT_DIR"
 
       echo "== Checking archive layout =="
-      unzip -l "$ZIP_NAME" | grep -q " $PLUGIN_DIR_NAME/version.php\$" \
-        || { echo "$ZIP_NAME has no $PLUGIN_DIR_NAME/version.php - wrong archive root?"; exit 1; }
-      if ! unzip -l "$ZIP_NAME" | grep -q "$PLUGIN_DIR_NAME/apiClient/src/EduSharing/"; then
+      # Write the listing to a file and grep that, rather than piping into
+      # "grep -q". GitLab runs job scripts with "set -o pipefail", and grep -q
+      # exits on its first match, which kills unzip with SIGPIPE (141) - so a
+      # piped check reports failure precisely when the pattern DOES match.
+      LISTING="/tmp/archive-listing.txt"
+      unzip -l "$ZIP_NAME" > "$LISTING"
+
+      if ! grep -q " $PLUGIN_DIR_NAME/version.php\$" "$LISTING"; then
+        echo "$ZIP_NAME has no $PLUGIN_DIR_NAME/version.php - wrong archive root?"
+        exit 1
+      fi
+      if ! grep -q "$PLUGIN_DIR_NAME/apiClient/src/EduSharing/" "$LISTING"; then
         echo "$ZIP_NAME is missing apiClient/src/EduSharing, even though staging had $STAGED_CLASSES classes."
         echo "--- apiClient entries in the archive ---"
-        unzip -l "$ZIP_NAME" | grep apiClient | head -20 || echo "(no apiClient entries at all)"
-        echo "--- staged tree ---"
-        find "$STAGE/$PLUGIN_DIR_NAME/apiClient/src" -maxdepth 2 2>&1 | head -20 || true
+        grep -m 20 apiClient "$LISTING" || echo "(no apiClient entries at all)"
         exit 1
       fi
-      if unzip -l "$ZIP_NAME" | grep -qE "$PLUGIN_DIR_NAME/(\.git|apiClient/composer\.json)"; then
+      if grep -qE "$PLUGIN_DIR_NAME/(\.git|apiClient/composer\.json)" "$LISTING"; then
         echo "$ZIP_NAME still contains files that should have been stripped."
+        grep -E "$PLUGIN_DIR_NAME/(\.git|apiClient/composer\.json)" "$LISTING" || true
         exit 1
       fi
-      unzip -l "$ZIP_NAME"
+      cat "$LISTING"
 
       echo "== Preparing release notes =="
       # Slice the matching section out of the Keep-a-Changelog file, e.g.
