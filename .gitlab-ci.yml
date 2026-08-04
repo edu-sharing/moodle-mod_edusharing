@@ -90,6 +90,7 @@ build_bundle:
     # checkout leaves apiClient empty, the zip would otherwise be built without
     # the edu-sharing API client. Both commands are no-ops when all is well.
     - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - git config --global --add safe.directory "$CI_PROJECT_DIR/apiClient"
     - git submodule sync --recursive
     - git submodule update --init --recursive
   script:
@@ -143,22 +144,24 @@ build_bundle:
       echo "== Staging bundle =="
       STAGE="/tmp/bundle"
       rm -rf "$STAGE"
-      mkdir -p "$STAGE/$PLUGIN_DIR_NAME"
-      cp -a "$CI_PROJECT_DIR/." "$STAGE/$PLUGIN_DIR_NAME/"
+      mkdir -p "$STAGE/$PLUGIN_DIR_NAME/apiClient"
+
+      # Export the tracked tree at this commit instead of copying the working
+      # directory. That keeps .git and any leftovers from a reused runner
+      # workspace out of the bundle, and makes the content depend only on the
+      # tag. git archive does not descend into submodules, so apiClient is
+      # exported separately from its own repository.
+      git archive --format=tar HEAD | tar -xf - -C "$STAGE/$PLUGIN_DIR_NAME"
+      git -C apiClient archive --format=tar HEAD | tar -xf - -C "$STAGE/$PLUGIN_DIR_NAME/apiClient"
+
       cd "$STAGE/$PLUGIN_DIR_NAME"
 
-      # VCS / CI / IDE metadata never belongs in a release zip. The manual build
-      # script dropped these implicitly, because "cp -r dir/*" skips dotfiles.
-      rm -rf .git .gitignore .gitlab-ci.yml .gitmodules .idea
-
-      # Output of an earlier run of this job, in case the runner reused a
-      # working directory that was not cleaned.
-      rm -f ./*.zip notes.md release.json build.env
+      # Tracked VCS / CI metadata that has no place in a release zip.
+      rm -rf .gitignore .gitlab-ci.yml .gitmodules
 
       # apiClient (php-auth-plugin) ships a full dev setup; keep only src/EduSharing.
       rm -rf apiClient/src/example \
              apiClient/src/tests \
-             apiClient/.git \
              apiClient/.gitignore \
              apiClient/.gitlab-ci.yml \
              apiClient/Dockerfile \
@@ -168,6 +171,15 @@ build_bundle:
              apiClient/composer.lock \
              apiClient/Readme.md
 
+      echo "== Verifying staged tree =="
+      STAGED_CLASSES=$(find apiClient/src/EduSharing -name '*.php' 2>/dev/null | wc -l)
+      echo "staged apiClient/src/EduSharing: $STAGED_CLASSES php files"
+      if [ "$STAGED_CLASSES" -eq 0 ]; then
+        echo "Staging produced no apiClient classes."
+        echo "--- find apiClient ---"; find apiClient -maxdepth 3 2>&1 | head -40 || true
+        exit 1
+      fi
+
       echo "== Zipping =="
       cd "$STAGE"
       zip -q -r "$CI_PROJECT_DIR/$ZIP_NAME" "$PLUGIN_DIR_NAME"
@@ -176,8 +188,14 @@ build_bundle:
       echo "== Checking archive layout =="
       unzip -l "$ZIP_NAME" | grep -q " $PLUGIN_DIR_NAME/version.php\$" \
         || { echo "$ZIP_NAME has no $PLUGIN_DIR_NAME/version.php - wrong archive root?"; exit 1; }
-      unzip -l "$ZIP_NAME" | grep -q "$PLUGIN_DIR_NAME/apiClient/src/EduSharing/" \
-        || { echo "$ZIP_NAME is missing apiClient/src/EduSharing - was the submodule checked out?"; exit 1; }
+      if ! unzip -l "$ZIP_NAME" | grep -q "$PLUGIN_DIR_NAME/apiClient/src/EduSharing/"; then
+        echo "$ZIP_NAME is missing apiClient/src/EduSharing, even though staging had $STAGED_CLASSES classes."
+        echo "--- apiClient entries in the archive ---"
+        unzip -l "$ZIP_NAME" | grep apiClient | head -20 || echo "(no apiClient entries at all)"
+        echo "--- staged tree ---"
+        find "$STAGE/$PLUGIN_DIR_NAME/apiClient/src" -maxdepth 2 2>&1 | head -20 || true
+        exit 1
+      fi
       if unzip -l "$ZIP_NAME" | grep -qE "$PLUGIN_DIR_NAME/(\.git|apiClient/composer\.json)"; then
         echo "$ZIP_NAME still contains files that should have been stripped."
         exit 1
