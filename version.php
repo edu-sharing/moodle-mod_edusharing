@@ -28,4 +28,4 @@ $plugin->version      = 2026073000;
 $plugin->requires     = 2024100700;
 $plugin->maturity     = MATURITY_STABLE;
 $plugin->cron         = 0;
-$plugin->release      = '11.0.2';
+$plugin->release      = '7.7.7';
