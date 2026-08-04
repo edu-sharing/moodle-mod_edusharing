@@ -24,6 +24,10 @@ variables:
   # these two values are normally the only thing that needs to change.
   PLUGIN_DIR_NAME: "edusharing"
   PLUGIN_COMPONENT: "mod_edusharing"
+  # Where the release asset link points. "package" uploads the zip to the
+  # generic package registry (permanent URL, needs the Package Registry
+  # enabled). Set to "artifact" to link this pipeline's job artifact instead.
+  RELEASE_ASSET_SOURCE: "package"
   # Small image used by the build and release jobs. PHP is needed to read
   # $plugin->release out of version.php and to build the release payload.
   BUNDLE_IMAGE: "php:8.4-cli-alpine"
@@ -225,9 +229,21 @@ build_bundle:
 
       PACKAGE_URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$PLUGIN_COMPONENT/$VERSION/$ZIP_NAME"
 
+      # Which URL the release asset points at. "package" needs the Package
+      # Registry enabled on the instance; "artifact" works everywhere but ties
+      # the download to this job's artifact.
+      if [ "$RELEASE_ASSET_SOURCE" = "artifact" ]; then
+        ASSET_URL="$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/$ZIP_NAME?job=build_bundle"
+        LINK_TYPE="other"
+      else
+        ASSET_URL="$PACKAGE_URL"
+        LINK_TYPE="package"
+      fi
+      echo "Release asset ($RELEASE_ASSET_SOURCE): $ASSET_URL"
+
       # Build the Releases API payload here, where PHP is available to do the
       # JSON escaping of the changelog text.
-      ZIP_NAME="$ZIP_NAME" PACKAGE_URL="$PACKAGE_URL" php -r '
+      ZIP_NAME="$ZIP_NAME" ASSET_URL="$ASSET_URL" LINK_TYPE="$LINK_TYPE" php -r '
         $notes = trim((string) @file_get_contents("notes.md"));
         echo json_encode([
             "name"        => getenv("CI_COMMIT_TAG"),
@@ -235,8 +251,8 @@ build_bundle:
             "description" => $notes,
             "assets"      => ["links" => [[
                 "name"      => getenv("ZIP_NAME"),
-                "url"       => getenv("PACKAGE_URL"),
-                "link_type" => "package",
+                "url"       => getenv("ASSET_URL"),
+                "link_type" => getenv("LINK_TYPE"),
             ]]],
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
       ' > release.json
@@ -253,7 +269,9 @@ build_bundle:
     paths:
       - "*.zip"
       - release.json
-    expire_in: 1 month
+    # Never expire: with RELEASE_ASSET_SOURCE=artifact the release asset link
+    # points here, and even in package mode this is a cheap second copy.
+    expire_in: never
     reports:
       dotenv: build.env
 
@@ -271,12 +289,36 @@ publish_release:
     - |
       set -eu
 
+      if [ "$RELEASE_ASSET_SOURCE" = "artifact" ]; then
+        echo "== Skipping package upload (RELEASE_ASSET_SOURCE=artifact) =="
+      else
+
       echo "== Uploading $ZIP_NAME to the package registry =="
-      curl --silent --show-error --fail-with-body \
+      STATUS=$(curl --silent --output /tmp/upload-response.txt --write-out '%{http_code}' \
         --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         --upload-file "$ZIP_NAME" \
-        "$PACKAGE_URL"
+        "$PACKAGE_URL")
+      echo "HTTP $STATUS"
+      cat /tmp/upload-response.txt 2>/dev/null || true
       echo
+      case "$STATUS" in
+        20*)
+          ;;
+        403|404)
+          echo "The generic package registry rejected the upload (HTTP $STATUS)."
+          echo "Most likely the Package Registry is disabled for this project or instance."
+          echo "Check:   Settings > General > Visibility, project features, permissions > Packages"
+          echo "Verify:  curl --header \"PRIVATE-TOKEN: <token>\" \"$CI_API_V4_URL/projects/$CI_PROJECT_ID\" | grep -o '\"packages_enabled\":[^,]*'"
+          echo "If it cannot be enabled, set RELEASE_ASSET_SOURCE: \"artifact\" in .gitlab-ci.yml to link the job artifact instead."
+          exit 1
+          ;;
+        *)
+          echo "Unexpected response uploading the package (HTTP $STATUS)."
+          exit 1
+          ;;
+      esac
+
+      fi
 
       RELEASES_API="$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
 
