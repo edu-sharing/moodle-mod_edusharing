@@ -24,13 +24,12 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/lib/externallib.php');
 
-use context_course;
+use Exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use mod_edusharing\EduSharingService;
-use required_capability_exception;
 
 /**
  * Class GetTicket
@@ -83,13 +82,9 @@ class GetTicket extends external_api {
      *
      * @param array $input
      * @return array
-     * @throws required_capability_exception
+     * @throws Exception
      */
     public static function execute(array $input): array {
-        if ($input['courseId'] !== 0) {
-            $context = context_course::instance($input['courseId']);
-            require_capability('moodle/course:update', $context);
-        }
         $service = new EduSharingService();
         $ticket  = $service->get_ticket();
         return ['ticket' => $ticket];
