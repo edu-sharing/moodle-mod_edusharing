@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace mod_edusharing;
 
 use advanced_testcase;
+use cache;
+use core\exception\coding_exception;
 use dml_exception;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
@@ -99,6 +101,80 @@ final class metadata_logic_test extends advanced_testcase {
         $this->assertEquals('http:/test.de/edu-sharing/services/usage2?wsdl', $fakeconfig->get('repository_usagewebservice_wsdl'));
         $this->assertEquals('http', $fakeconfig->get('repository_protocol'));
         $this->assertEquals('repository-service', $fakeconfig->get('repository_host'));
+    }
+
+    /**
+     * Function test_if_import_metadata_purges_the_about_api_cache
+     *
+     * @return void
+     * @throws EduSharingUserException
+     * @throws dml_exception
+     * @throws coding_exception
+     */
+    public function test_if_import_metadata_purges_the_about_api_cache(): void {
+        $this->resetAfterTest();
+        global $_SERVER, $CFG;
+        require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
+        $_SERVER['SERVER_NAME'] = 'testServer';
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $fakeconfig             = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'app123',
+        ]);
+        $utils       = new UtilityFunctions($fakeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['import_metadata'])
+            ->setConstructorArgs([$authhelper, $nodehelper])
+            ->getMock();
+        $servicemock->method('import_metadata')
+            ->willReturn(new CurlResult($metadataxml, 0, []));
+        $cache = cache::make('mod_edusharing', 'about');
+        $cache->set('about', ['version' => 'staleRepoVersion']);
+        $logic = new MetadataLogic($servicemock, $utils);
+        $logic->import_metadata($metadataurl);
+        $this->assertFalse($cache->get('about'));
+    }
+
+    /**
+     * Function test_if_import_metadata_purges_the_ticket_cache
+     *
+     * @return void
+     * @throws EduSharingUserException
+     * @throws dml_exception
+     */
+    public function test_if_import_metadata_purges_the_ticket_cache(): void {
+        $this->resetAfterTest();
+        global $_SERVER, $CFG, $USER;
+        require_once($CFG->dirroot . '/mod/edusharing/tests/testUtils/FakeConfig.php');
+        $_SERVER['SERVER_NAME'] = 'testServer';
+        $metadataurl            = 'test.de';
+        $metadataxml            = file_get_contents(__DIR__ . '/metadataTest.xml');
+        $basehelper             = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper             = new EduSharingAuthHelper($basehelper);
+        $nodeconfig             = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper             = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $fakeconfig             = new FakeConfig();
+        $fakeconfig->set_entries([
+            'application_appid' => 'app123',
+        ]);
+        $utils       = new UtilityFunctions($fakeconfig);
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['import_metadata'])
+            ->setConstructorArgs([$authhelper, $nodehelper])
+            ->getMock();
+        $servicemock->method('import_metadata')
+            ->willReturn(new CurlResult($metadataxml, 0, []));
+        $USER->edusharing_userticket             = 'staleTicket';
+        $USER->edusharing_userticketvalidationts = time();
+        $logic                                   = new MetadataLogic($servicemock, $utils);
+        $logic->import_metadata($metadataurl);
+        $this->assertFalse(isset($USER->edusharing_userticket));
+        $this->assertFalse(isset($USER->edusharing_userticketvalidationts));
     }
 
     /**

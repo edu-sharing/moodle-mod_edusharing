@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_edusharing;
 
+use core\exception\coding_exception;
 use dml_exception;
 use DOMDocument;
 use EduSharingApiClient\EduSharingHelper;
@@ -88,6 +89,7 @@ class MetadataLogic {
      * @param string|null $host
      * @throws EduSharingUserException
      * @throws dml_exception
+     * @throws coding_exception
      */
     public function import_metadata(string $metadataurl, ?string $host = null): void {
         global $CFG;
@@ -162,6 +164,10 @@ class MetadataLogic {
         $this->utils->set_config_entry('EDU_AUTH_PARAM_NAME_EMAIL', 'email');
         $this->utils->set_config_entry('EDU_AUTH_AFFILIATION', $CFG->siteidentifier);
         $this->utils->set_config_entry('EDU_AUTH_AFFILIATION_NAME', $CFG->siteidentifier);
+        // The repository registration just changed, so the cached _about response
+        // and the session ticket are stale.
+        MoodleAboutApiCacheHandler::clear_cache();
+        EduSharingService::clear_ticket_cache();
     }
 
     /**

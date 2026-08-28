@@ -174,6 +174,21 @@ final class edusharing_service_test extends \advanced_testcase {
     }
 
     /**
+     * Function test_if_clear_ticket_cache_removes_ticket_and_validation_timestamp
+     *
+     * @return void
+     */
+    public function test_if_clear_ticket_cache_removes_ticket_and_validation_timestamp(): void {
+        $this->resetAfterTest();
+        global $USER;
+        $USER->edusharing_userticket             = 'testTicket';
+        $USER->edusharing_userticketvalidationts = time();
+        EduSharingService::clear_ticket_cache();
+        $this->assertFalse(isset($USER->edusharing_userticket));
+        $this->assertFalse(isset($USER->edusharing_userticketvalidationts));
+    }
+
+    /**
      * Function test_if_create_usage_calls_node_helper_method_with_correct_params
      */
     public function test_if_create_usage_calls_node_helper_method_with_correct_params(): void {

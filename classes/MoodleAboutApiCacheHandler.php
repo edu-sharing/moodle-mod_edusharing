@@ -45,6 +45,22 @@ class MoodleAboutApiCacheHandler implements AboutApiCacheHandler {
         $this->nodehelper = $nodehelper;
     }
 
+    /**
+     * Function clear_cache
+     *
+     * Purges the cached _about response.
+     *
+     * Must be called whenever the repository registration changes, as the
+     * cached payload then belongs to a different (or differently configured)
+     * repository.
+     *
+     * @return void
+     * @throws coding_exception
+     */
+    public static function clear_cache(): void {
+        \cache::make('mod_edusharing', 'about')->purge();
+    }
+
     // phpcs:disable -- Function cannot be lowercase as it implements an interface.
     /**
      * Returns the repository _about response, cached at application level.

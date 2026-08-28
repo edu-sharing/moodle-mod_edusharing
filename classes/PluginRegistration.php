@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_edusharing;
 
+use core\exception\coding_exception;
 use JsonException;
 
 /**
@@ -55,10 +56,16 @@ class PluginRegistration {
      * @return array
      * @throws EduSharingUserException
      * @throws JsonException
+     * @throws coding_exception
      */
     public function register_plugin(string $repourl, string $login, string $pwd, string $data): array {
         $this->validate_alfresco_session($repourl, $login . ':' . $pwd);
-        return $this->perform_registration($repourl, $data, $login . ':' . $pwd);
+        $result = $this->perform_registration($repourl, $data, $login . ':' . $pwd);
+        // The plugin is now registered at a (possibly different) repository, so the
+        // cached _about response and the session ticket are stale.
+        MoodleAboutApiCacheHandler::clear_cache();
+        EduSharingService::clear_ticket_cache();
+        return $result;
     }
 
     /**

@@ -25,6 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Conflicting JS-Bundles in Edu-Sharing web components are now properly isolated from requirejs.
 - Multiple size corrections for the web component.
 
+### Changed
+
+- PDF, Serlo, and LTI objects now only offer height selection
+- The cached repository _about response and the cached session ticket are now purged
+  whenever the repository registration changes (metadata import, plugin registration, or a
+  manual edit of a repository setting).
+
 ## [11.0.3] - 2026-08-05
 
 ### Fixed
@@ -305,7 +312,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Setting to submit users' names, surnames and email addresses for app auth (default yes)
+- Setting to submit users' names, surnames, and email addresses for app auth (default yes)
 - Rest services to add and delete instances.
 - Rest service to get ticket
 - Compatibility with new tinyMCE-Plugin

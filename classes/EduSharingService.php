@@ -299,6 +299,22 @@ class EduSharingService {
     }
 
     /**
+     * Function clear_ticket_cache
+     *
+     * Discards the ticket cached in the current user's session.
+     *
+     * Must be called whenever the repository registration changes: a ticket
+     * issued by the previously registered repository is not valid at the new
+     * one, and revalidating it throws instead of falling back to a new ticket.
+     *
+     * @return void
+     */
+    public static function clear_ticket_cache(): void {
+        global $USER;
+        unset($USER->edusharing_userticket, $USER->edusharing_userticketvalidationts);
+    }
+
+    /**
      * Function get_ticket_for_user
      *
      * Get authentication ticket for a specific user

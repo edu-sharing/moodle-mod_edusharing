@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace mod_edusharing;
 
 use advanced_testcase;
+use cache;
+use core\exception\coding_exception;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
@@ -75,6 +77,71 @@ final class plugin_registration_test extends advanced_testcase {
         $result = $registrationlogic->register_plugin($repourl, $user, $password, $data);
         $this->assertArrayHasKey('content', $result);
         $this->assertEquals('expectedContent', $result['content']);
+    }
+
+    /**
+     * Function test_register_plugin_purges_the_about_api_cache_on_success
+     *
+     * @return void
+     * @throws EduSharingUserException
+     * @throws JsonException
+     * @throws coding_exception
+     */
+    public function test_register_plugin_purges_the_about_api_cache_on_success(): void {
+        $this->resetAfterTest();
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper  = new EduSharingAuthHelper($basehelper);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $repourl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['validate_session', 'register_plugin'])
+            ->setConstructorArgs([$authhelper, $nodehelper])
+            ->getMock();
+        $servicemock->method('validate_session')
+            ->willReturn(new CurlResult('{"isAdmin": true}', 0, []));
+        $servicemock->method('register_plugin')
+            ->willReturn(new CurlResult('{"appid": "newAppId"}', 0, []));
+        $cache = cache::make('mod_edusharing', 'about');
+        $cache->set('about', ['version' => 'staleRepoVersion']);
+        $registrationlogic = new PluginRegistration($servicemock);
+        $registrationlogic->register_plugin($repourl, $user, $password, 'data');
+        $this->assertFalse($cache->get('about'));
+    }
+
+    /**
+     * Function test_register_plugin_purges_the_ticket_cache_on_success
+     *
+     * @return void
+     * @throws EduSharingUserException
+     * @throws JsonException
+     */
+    public function test_register_plugin_purges_the_ticket_cache_on_success(): void {
+        $this->resetAfterTest();
+        global $USER;
+        $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $authhelper  = new EduSharingAuthHelper($basehelper);
+        $nodeconfig  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $nodehelper  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $repourl     = 'http://test.de';
+        $user        = 'uName';
+        $password    = 'testPass';
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['validate_session', 'register_plugin'])
+            ->setConstructorArgs([$authhelper, $nodehelper])
+            ->getMock();
+        $servicemock->method('validate_session')
+            ->willReturn(new CurlResult('{"isAdmin": true}', 0, []));
+        $servicemock->method('register_plugin')
+            ->willReturn(new CurlResult('{"appid": "newAppId"}', 0, []));
+        $USER->edusharing_userticket             = 'staleTicket';
+        $USER->edusharing_userticketvalidationts = time();
+        $registrationlogic                       = new PluginRegistration($servicemock);
+        $registrationlogic->register_plugin($repourl, $user, $password, 'data');
+        $this->assertFalse(isset($USER->edusharing_userticket));
+        $this->assertFalse(isset($USER->edusharing_userticketvalidationts));
     }
 
     /**

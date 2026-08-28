@@ -97,15 +97,23 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtextarea('edusharing/application_private_key', 'private_key', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtextarea('edusharing/application_public_key', 'public_key', '', '', PARAM_TEXT, 50));
     $settings->add(new admin_setting_heading('edusharing/rep', get_string('homerepProperties', 'edusharing'), ''));
-    $settings->add(new admin_setting_configtextarea('edusharing/repository_public_key', 'public_key', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_clientport', 'clientport', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_port', 'port', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_domain', 'domain', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_type', 'type', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_appid', 'appid', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_protocol', 'protocol', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_host', 'host', '', '', PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('edusharing/repository_version', 'version', '', '5.1', PARAM_TEXT, 50));
+    // Changing any of these settings changes the repository registration,
+    // so the cached _about response and the session ticket have to be purged.
+    $reposettings = [
+        new admin_setting_configtextarea('edusharing/repository_public_key', 'public_key', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_clientport', 'clientport', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_port', 'port', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_domain', 'domain', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_type', 'type', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_appid', 'appid', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_protocol', 'protocol', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_host', 'host', '', '', PARAM_TEXT, 50),
+        new admin_setting_configtext('edusharing/repository_version', 'version', '', '5.1', PARAM_TEXT, 50),
+    ];
+    foreach ($reposettings as $reposetting) {
+        $reposetting->set_updatedcallback('edusharing_purge_registration_caches');
+        $settings->add($reposetting);
+    }
     $settings->add(new admin_setting_heading('edusharing/auth', get_string('authparameters', 'edusharing'), ''));
     $settings->add(
         new admin_setting_configtext(

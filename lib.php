@@ -31,6 +31,7 @@
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\grading\Grader;
+use mod_edusharing\MoodleAboutApiCacheHandler;
 use mod_edusharing\UsageErrorMapper;
 use mod_edusharing\UtilityFunctions;
 
@@ -378,6 +379,21 @@ function edusharing_update_settings_images(string $settingname) {
 function edusharing_update_settings_name() {
     // Reset language cache.
     get_string_manager()->reset_caches();
+}
+
+/**
+ * Function edusharing_purge_registration_caches
+ *
+ * Callback for repository settings which are part of the registration.
+ * Purges the cached _about response and the session ticket so the next
+ * call hits the newly configured repository.
+ *
+ * @return void
+ * @throws coding_exception
+ */
+function edusharing_purge_registration_caches() {
+    MoodleAboutApiCacheHandler::clear_cache();
+    EduSharingService::clear_ticket_cache();
 }
 
 /**
