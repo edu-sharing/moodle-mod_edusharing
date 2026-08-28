@@ -42,7 +42,6 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
         return;
     }
     const width = element.getAttribute('data-width');
-    const height = element.getAttribute('data-height');
     const nodeId = element.getAttribute('data-node');
     const containerId = element.getAttribute('data-container');
     const version = element.getAttribute('data-version');
