@@ -375,13 +375,6 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
-        $memento->usage_id             = 'previousUsageId';
-        $memento->object_url           = 'previousUrl';
-        $memento->object_version       = 'previousVersion';
-        $expectedrecord                = clone($eduobjectupdate);
-        $expectedrecord->usage_id      = 'previousUsageId';
-        $expectedrecord->object_url    = 'previousUrl';
-        $expectedrecord->object_version = 'previousVersion';
         $basehelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper                    = new EduSharingAuthHelper($basehelper);
@@ -456,6 +449,14 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
+        $memento->usage_id             = 'previousUsageId';
+        $memento->object_url           = 'previousUrl';
+        $memento->object_version       = 'previousVersion';
+        // Everything the user changed is kept; only the object columns revert.
+        $expectedrecord                 = clone($eduobjectupdate);
+        $expectedrecord->usage_id       = 'previousUsageId';
+        $expectedrecord->object_url     = 'previousUrl';
+        $expectedrecord->object_version = 'previousVersion';
         $basehelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper                    = new EduSharingAuthHelper($basehelper);

@@ -47,8 +47,14 @@ final class usage_error_mapper_test extends advanced_testcase {
         $result = UsageErrorMapper::to_moodle_exception(new MissingRightsException('technical detail'));
         $this->assertSame('error_usage_no_publish_rights', $result->errorcode);
         $this->assertSame('edusharing', $result->module);
-        $this->assertStringContainsString('technical detail', (string)$result->debuginfo);
-        $this->assertStringNotContainsString('technical detail', $result->getMessage());
+        // The technical detail is kept out of the user-facing string and lives in debuginfo,
+        // which Moodle only reveals to developers. Note moodle_exception always appends
+        // debuginfo to the message under PHPUNIT_TEST, so assert the split via the property.
+        $this->assertSame('technical detail', $result->debuginfo);
+        $this->assertStringStartsWith(
+            get_string('error_usage_no_publish_rights', 'edusharing'),
+            $result->getMessage()
+        );
     }
 
     /**
