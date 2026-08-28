@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [11.0.4] - 2026-08-28
+## [11.0.4 beta] - 2026-08-28
 
 ### Fixed
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Objects inserted through the TinyMCE editor whose usage cannot be created are removed from
   the text and reported with their reason, and usages created during a failed save are no
   longer orphaned in the repository.
+- Conflicting JS-Bundles in Edu-Sharing web components are now properly isolated from requirejs.
+- Multiple size corrections for the web component.
 
 ## [11.0.3] - 2026-08-05
 
