@@ -190,3 +190,7 @@ $string['error_missing_rights_on_restore'] = 'Cet objet Edu-Sharing est manquant
 $string['error_unexpected_on_restore'] = 'Cet élément Edu-Sharing est manquant en raison d\'une erreur inattendue de restauration de cours.';
 $string['error_parsing_on_restore'] = 'Cet objet Edu-Sharing est absent de la récupération du cours en raison d\'un objet non analysable.';
 $string['error_invalid_config'] = 'EduSharing n\'est pas entièrement configuré (aucun ticket n’a pu être récupéré). La sélection depuis le dépôt n’est actuellement pas disponible. Veuillez vérifier la configuration du plugin.';
+$string['error_usage_creation_failed'] = 'L\'objet n\'a pas pu être enregistré dans le dépôt edu-sharing.';
+$string['error_usage_no_publish_rights'] = 'Vous ne disposez pas des droits de publication pour cet objet dans le dépôt edu-sharing.';
+$string['error_activity_creation_failed'] = 'L\'activité n\'a pas pu être créée. L\'objet edu-sharing a été supprimé à nouveau.';
+$string['error_usage_update_kept_previous'] = 'L\'objet edu-sharing n\'a pas pu être mis à jour : {$a} L\'objet précédent a été conservé ; vos autres modifications ont été enregistrées.';

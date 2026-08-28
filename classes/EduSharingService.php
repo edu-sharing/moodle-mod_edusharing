@@ -51,6 +51,68 @@ use stdClass;
  */
 class EduSharingService {
     /**
+     * Mimetypes of objects which are rendered at a fixed width of 100% and at a height
+     * chosen by the user instead of at the dimensions reported by the repository.
+     *
+     * @see EduSharingService::uses_custom_height for the other objects treated this way.
+     *
+     * Keep in sync with CUSTOM_HEIGHT_MIMETYPES in mod_edusharing/utils (amd/src/utils.js).
+     */
+    public const CUSTOM_HEIGHT_MIMETYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.oasis.opendocument.presentation',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'application/rtf',
+        'application/vnd.oasis.opendocument.text-template',
+        'text/plain',
+    ];
+
+    /**
+     * Node properties that mark an object as serlo. Serlo objects are rendered like pdf documents.
+     *
+     * ccm:ccressourcetype is what the repository actually delivers for them. Objects that carry
+     * the source in ccm:replicationsource instead are covered as well, because that is what the
+     * rendering service identifies serlo by.
+     *
+     * Keep in sync with SERLO_PROPERTIES in mod_edusharing/utils (amd/src/utils.js).
+     */
+    public const SERLO_PROPERTIES = ['ccm:ccressourcetype', 'ccm:replicationsource'];
+
+    /**
+     * Property value marking a serlo object.
+     */
+    public const SERLO_SOURCE = 'serlo';
+
+    /**
+     * Node aspect marking an lti 1.3 tool object. Those are rendered like pdf documents too.
+     *
+     * Keep in sync with LTI_TOOL_ASPECT in mod_edusharing/utils (amd/src/utils.js).
+     */
+    public const LTI_TOOL_ASPECT = 'ccm:ltitool_node';
+
+    /**
+     * Range and fallback of the height the user may pick for a full width object.
+     *
+     * Keep in sync with CUSTOM_HEIGHT_MIN/MAX/DEFAULT in mod_edusharing/utils (amd/src/utils.js).
+     */
+    public const CUSTOM_HEIGHT_MIN = 300;
+    /**
+     * @see EduSharingService::CUSTOM_HEIGHT_MIN
+     */
+    public const CUSTOM_HEIGHT_MAX = 1200;
+    /**
+     * @see EduSharingService::CUSTOM_HEIGHT_MIN
+     */
+    public const CUSTOM_HEIGHT_DEFAULT = 600;
+
+    /**
      * @var EduSharingAuthHelper|null
      */
     private ?EduSharingAuthHelper $authhelper;
@@ -305,13 +367,20 @@ class EduSharingService {
     /**
      * Function add_instance
      *
+     * Inserts the edusharing entry and registers the corresponding usage in the repository.
+     *
+     * If the usage cannot be created, the freshly inserted entry is removed again and the
+     * original exception is rethrown, so callers can tell the user why it failed.
+     *
      * @param stdClass $edusharing
      * @param int|null $updatetime
-     * @return bool|int
+     * @return int
      * @throws coding_exception
      * @throws dml_exception
+     * @throws MissingRightsException
+     * @throws Exception
      */
-    public function add_instance(stdClass $edusharing, ?int $updatetime = null): bool|int {
+    public function add_instance(stdClass $edusharing, ?int $updatetime = null): int {
         global $DB;
 
         $edusharing->timecreated  = $updatetime ?? time();
@@ -335,7 +404,7 @@ class EduSharingService {
             $id = $DB->insert_record('edusharing', $edusharing);
         } catch (Exception $exception) {
             debugging($exception->getMessage());
-            return false;
+            throw $exception;
         }
         $usagedata              = new stdClass();
         $usagedata->containerId = $edusharing->course;
@@ -356,30 +425,33 @@ class EduSharingService {
             } catch (Exception $deleteexception) {
                 debugging($deleteexception->getMessage());
             }
-            return false;
+            throw $exception;
         }
     }
 
     /**
      * Function update_instance
      *
+     * Updates the entry and refreshes the corresponding usage in the repository.
+     *
+     * If the usage cannot be refreshed, the previously working object is kept while every
+     * other change the user made is still persisted, and the original exception is rethrown
+     * so the caller can tell the user why the object stayed as it was.
+     *
      * @param stdClass $edusharing
      * @param int|null $updatetime
-     * @return bool
+     * @return void
      * @throws dml_exception
+     * @throws MissingRightsException
+     * @throws Exception
      */
-    public function update_instance(stdClass $edusharing, ?int $updatetime = null): bool {
+    public function update_instance(stdClass $edusharing, ?int $updatetime = null): void {
         global $DB;
         // FIX: when editing a moodle-course-module the $edusharing->id will be named $edusharing->instance.
         if (!empty($edusharing->instance)) {
             $edusharing->id = $edusharing->instance;
         }
-        try {
-            $memento = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
-        } catch (Exception $exception) {
-            unset($exception);
-            return false;
-        }
+        $memento = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
         // The edit form does not include object_url / object_version; keep the stored values.
         if (empty($edusharing->object_url)) {
             $edusharing->object_url = $memento->object_url;
@@ -395,25 +467,23 @@ class EduSharingService {
         $usagedata->nodeVersion = $edusharing->object_version;
         $usagedata->courseTitle = $this->utils->get_course_title((int)$edusharing->course);
         try {
-            $usagedata->ticket = $this->get_ticket();
-        } catch (Exception $exception) {
-            unset($exception);
-            return false;
-        }
-        try {
+            $usagedata->ticket    = $this->get_ticket();
             $usage                = $this->create_usage($usagedata);
             $edusharing->usage_id = $usage->usageId;
             $DB->update_record('edusharing', $edusharing);
         } catch (Exception $exception) {
             !empty($exception->getMessage()) && debugging($exception->getMessage());
+            // Keep the object that is known to work, but save everything else the user changed.
+            $edusharing->usage_id       = $memento->usage_id;
+            $edusharing->object_url     = $memento->object_url;
+            $edusharing->object_version = $memento->object_version;
             try {
-                $DB->update_record('edusharing', $memento);
+                $DB->update_record('edusharing', $edusharing);
             } catch (Exception $updateexception) {
-                !empty($exception->getMessage()) && debugging($updateexception->getMessage());
+                !empty($updateexception->getMessage()) && debugging($updateexception->getMessage());
             }
-            return false;
+            throw $exception;
         }
-        return true;
     }
 
     /**
@@ -645,31 +715,110 @@ class EduSharingService {
      * @return string
      */
     public function get_custom_width(array $node): string {
-        if (strtolower($node['remote']['repository']['repositoryType'] ?? '') === 'youtube') {
+        if ($this->is_youtube_node($node)) {
             return 'none';
         }
-        $url = $node['properties']['ccm:wwwurl'][0] ?? '';
-        if (str_contains($url, 'youtu.be') || str_contains($url, 'youtube.com/watch?')) {
-            return 'none';
-        }
-        $pdfmimetypes = [
-            'application/pdf',
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.oasis.opendocument.text",
-            "application/vnd.oasis.opendocument.presentation",
-            "application/vnd.oasis.opendocument.spreadsheet",
-            "application/rtf",
-            "application/vnd.oasis.opendocument.text-template",
-            "text/plain",
-        ];
-        if (in_array($node['mimetype'] ?? '', $pdfmimetypes)) {
+        if ($this->uses_custom_height($node)) {
             return '100%';
         }
         return '';
+    }
+
+    /**
+     * Function uses_custom_height
+     *
+     * Pdf-like documents, serlo objects and lti 1.3 tool objects are rendered at a fixed width
+     * of 100%. For those the user picks the height, so the height stored with the object has to
+     * be applied on rendering instead of being left to the rendering service.
+     *
+     * @param array $node
+     * @return bool
+     */
+    public function uses_custom_height(array $node): bool {
+        if ($this->is_youtube_node($node)) {
+            return false;
+        }
+        if (in_array($node['mimetype'] ?? '', self::CUSTOM_HEIGHT_MIMETYPES, true)) {
+            return true;
+        }
+        return $this->is_serlo_node($node) || $this->has_aspect($node, self::LTI_TOOL_ASPECT);
+    }
+
+    /**
+     * Function has_aspect
+     *
+     * Aspects are exact qualified names, so they are compared as a whole - unlike the property
+     * values in is_serlo_node, which have variants to cover.
+     *
+     * @param array $node
+     * @param string $aspect
+     * @return bool
+     */
+    private function has_aspect(array $node, string $aspect): bool {
+        $aspects = $node['aspects'] ?? [];
+        if (!is_array($aspects)) {
+            $aspects = [$aspects];
+        }
+        foreach ($aspects as $value) {
+            if (is_string($value) && strtolower(trim($value)) === strtolower($aspect)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Function is_serlo_node
+     *
+     * The repository reports node properties as string arrays and a property may well carry
+     * more than one value, so every entry is looked at. A plain string is tolerated too.
+     * Values are matched by prefix, so variants such as 'serlo_spider' count as serlo as well.
+     *
+     * @param array $node
+     * @return bool
+     */
+    private function is_serlo_node(array $node): bool {
+        foreach (self::SERLO_PROPERTIES as $property) {
+            $values = $node['properties'][$property] ?? [];
+            if (!is_array($values)) {
+                $values = [$values];
+            }
+            foreach ($values as $value) {
+                if (is_string($value) && str_starts_with(strtolower(trim($value)), self::SERLO_SOURCE)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Function clamp_custom_height
+     *
+     * Restricts a height picked by the user to the allowed range. Anything unusable falls
+     * back to the default height instead of to a broken layout.
+     *
+     * @param mixed $value
+     * @return int
+     */
+    public function clamp_custom_height(mixed $value): int {
+        if (!is_numeric($value)) {
+            return self::CUSTOM_HEIGHT_DEFAULT;
+        }
+        return min(self::CUSTOM_HEIGHT_MAX, max(self::CUSTOM_HEIGHT_MIN, (int)$value));
+    }
+
+    /**
+     * Function is_youtube_node
+     *
+     * @param array $node
+     * @return bool
+     */
+    private function is_youtube_node(array $node): bool {
+        if (strtolower($node['remote']['repository']['repositoryType'] ?? '') === 'youtube') {
+            return true;
+        }
+        $url = $node['properties']['ccm:wwwurl'][0] ?? '';
+        return str_contains($url, 'youtu.be') || str_contains($url, 'youtube.com/watch?');
     }
 }

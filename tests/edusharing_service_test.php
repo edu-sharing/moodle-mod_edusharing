@@ -23,10 +23,12 @@ use core\moodle_database_for_testing;
 use dml_exception;
 use EduSharingApiClient\CurlHandler as EdusharingCurlHandler;
 use EduSharingApiClient\CurlResult;
+use EduSharingApiClient\AppAuthException;
 use EduSharingApiClient\EduSharingAuthHelper;
 use EduSharingApiClient\EduSharingHelperBase;
 use EduSharingApiClient\EduSharingNodeHelper;
 use EduSharingApiClient\EduSharingNodeHelperConfig;
+use EduSharingApiClient\MissingRightsException;
 use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\UrlHandling;
 use EduSharingApiClient\Usage;
@@ -373,6 +375,13 @@ final class edusharing_service_test extends \advanced_testcase {
         $usagedata->ticket             = 'ticketTest';
         $memento                       = new stdClass();
         $memento->id                   = 'someId';
+        $memento->usage_id             = 'previousUsageId';
+        $memento->object_url           = 'previousUrl';
+        $memento->object_version       = 'previousVersion';
+        $expectedrecord                = clone($eduobjectupdate);
+        $expectedrecord->usage_id      = 'previousUsageId';
+        $expectedrecord->object_url    = 'previousUrl';
+        $expectedrecord->object_version = 'previousVersion';
         $basehelper                    = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $nodeconfig                    = new EduSharingNodeHelperConfig(new UrlHandling(true));
         $authhelper                    = new EduSharingAuthHelper($basehelper);
@@ -410,15 +419,18 @@ final class edusharing_service_test extends \advanced_testcase {
             ->with('edusharing', $eduobjectupdate);
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
-        $this->assertTrue($servicemock->update_instance($eduobject, $currenttime));
+        $servicemock->update_instance($eduobject, $currenttime);
     }
 
     /**
-     * Function test_if_update_instance_resets_data_and_returns_false_on_update_error
+     * Function test_if_update_instance_keeps_previous_object_and_rethrows_on_update_error
+     *
+     * The user's other changes must still be persisted, while the object columns are kept
+     * as they were, and the reason must survive for the caller to display.
      *
      * @return void
      */
-    public function test_if_update_instance_resets_data_and_returns_false_on_update_error(): void {
+    public function test_if_update_instance_keeps_previous_object_and_rethrows_on_update_error(): void {
         $this->resetAfterTest();
         global $CFG;
         require_once($CFG->libdir . '/dml/tests/dml_test.php');
@@ -468,7 +480,7 @@ final class edusharing_service_test extends \advanced_testcase {
         $servicemock->expects($this->once())
             ->method('create_usage')
             ->with($usagedata)
-            ->willThrowException(new Exception(''));
+            ->willThrowException(new MissingRightsException('User missing publish rights.'));
         $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
             ->onlyMethods(['get_record', 'update_record'])
             ->getMock();
@@ -478,10 +490,68 @@ final class edusharing_service_test extends \advanced_testcase {
             ->willReturn($memento);
         $dbmock->expects($this->once())
             ->method('update_record')
-            ->with('edusharing', $memento);
+            ->with('edusharing', $expectedrecord);
         // phpcs:ignore -- GLOBALS is supposed to be all caps.
         $GLOBALS['DB'] = $dbmock;
-        $this->assertFalse($servicemock->update_instance($eduobject, $currenttime));
+        $this->expectException(MissingRightsException::class);
+        $this->expectExceptionMessage('User missing publish rights.');
+        $servicemock->update_instance($eduobject, $currenttime);
+    }
+
+    /**
+     * Function test_if_update_instance_rethrows_when_ticket_cannot_be_fetched
+     *
+     * A failing ticket must not be reported as a successful update.
+     *
+     * @return void
+     */
+    public function test_if_update_instance_rethrows_when_ticket_cannot_be_fetched(): void {
+        $this->resetAfterTest();
+        global $CFG;
+        require_once($CFG->libdir . '/dml/tests/dml_test.php');
+        $currenttime                 = time();
+        $eduobject                   = new stdClass();
+        $eduobject->object_url       = 'inputUrl';
+        $eduobject->course           = 'containerIdTest';
+        $eduobject->object_version   = 'nodeVersionTest';
+        $eduobject->id               = 'resourceIdTest';
+        $memento                     = new stdClass();
+        $memento->id                 = 'someId';
+        $memento->usage_id           = 'previousUsageId';
+        $memento->object_url         = 'previousUrl';
+        $memento->object_version     = 'previousVersion';
+        $basehelper                  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig                  = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper                  = new EduSharingAuthHelper($basehelper);
+        $nodehelper                  = new EduSharingNodeHelper($basehelper, $nodeconfig);
+        $utilsmock                   = $this->getMockBuilder(UtilityFunctions::class)
+            ->onlyMethods(['get_object_id_from_url', 'get_course_title'])
+            ->getMock();
+        $utilsmock->method('get_object_id_from_url')->willReturn('outputUrl');
+        $utilsmock->method('get_course_title')->willReturn('courseTitleTest');
+        $servicemock = $this->getMockBuilder(EduSharingService::class)
+            ->onlyMethods(['create_usage', 'get_ticket'])
+            ->setConstructorArgs([$authhelper, $nodehelper, $utilsmock])
+            ->getMock();
+        $servicemock->expects($this->once())
+            ->method('get_ticket')
+            ->willThrowException(new AppAuthException('INVALID_HOST'));
+        $servicemock->expects($this->never())
+            ->method('create_usage');
+        $dbmock = $this->getMockBuilder(moodle_database_for_testing::class)
+            ->onlyMethods(['get_record', 'update_record'])
+            ->getMock();
+        $dbmock->expects($this->once())
+            ->method('get_record')
+            ->with('edusharing', ['id' => 'resourceIdTest'], '*', MUST_EXIST)
+            ->willReturn($memento);
+        // The user's other changes are still persisted, with the object columns left alone.
+        $dbmock->expects($this->once())
+            ->method('update_record');
+        // phpcs:ignore -- GLOBALS is supposed to be all caps.
+        $GLOBALS['DB'] = $dbmock;
+        $this->expectException(AppAuthException::class);
+        $servicemock->update_instance($eduobject, $currenttime);
     }
 
     /**
@@ -555,11 +625,13 @@ final class edusharing_service_test extends \advanced_testcase {
     }
 
     /**
-     * Function test_if_add_instance_returns_false_and_resets_data_on_creation_failure
+     * Function test_if_add_instance_rethrows_and_resets_data_on_creation_failure
+     *
+     * The reason must survive, so callers can tell the user why the usage could not be created.
      *
      * @return void
      */
-    public function test_if_add_instance_returns_false_and_resets_data_on_creation_failure(): void {
+    public function test_if_add_instance_rethrows_and_resets_data_on_creation_failure(): void {
         $this->resetAfterTest();
         global $CFG;
         require_once($CFG->libdir . '/dml/tests/dml_test.php');
@@ -622,8 +694,10 @@ final class edusharing_service_test extends \advanced_testcase {
         $servicemock->expects($this->once())
             ->method('create_usage')
             ->with($usagedata)
-            ->willThrowException(new Exception(''));
-        $this->assertFalse($servicemock->add_instance($eduobject));
+            ->willThrowException(new MissingRightsException('User missing publish rights.'));
+        $this->expectException(MissingRightsException::class);
+        $this->expectExceptionMessage('User missing publish rights.');
+        $servicemock->add_instance($eduobject);
     }
 
     /**
@@ -907,5 +981,177 @@ final class edusharing_service_test extends \advanced_testcase {
         $nodehelper = new EduSharingNodeHelper($basehelper, $nodeconfig);
         $service    = new EduSharingService($authhelper, $nodehelper);
         $this->assertEquals('Unexpected Error', $service->get_render_html('www.testUrl.de'));
+    }
+
+    /**
+     * Function get_size_test_service
+     *
+     * A service that can answer size questions without touching config or network.
+     *
+     * @return EduSharingService
+     * @throws dml_exception
+     */
+    private function get_size_test_service(): EduSharingService {
+        $basehelper = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        return new EduSharingService(
+            new EduSharingAuthHelper($basehelper),
+            new EduSharingNodeHelper($basehelper, $nodeconfig)
+        );
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_true_for_pdf_like_mimetypes
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_true_for_pdf_like_mimetypes(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        foreach (EduSharingService::CUSTOM_HEIGHT_MIMETYPES as $mimetype) {
+            $node = ['mimetype' => $mimetype];
+            $this->assertTrue($service->uses_custom_height($node), $mimetype);
+            $this->assertEquals('100%', $service->get_custom_width($node), $mimetype);
+        }
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_true_for_serlo_objects
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_true_for_serlo_objects(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $properties = [
+            ['ccm:ccressourcetype' => ['serlo']],
+            ['ccm:ccressourcetype' => ['other_type', 'serlo']],
+            ['ccm:ccressourcetype' => 'serlo'],
+            ['ccm:ccressourcetype' => ['  Serlo  ']],
+            ['ccm:replicationsource' => ['serlo']],
+            ['ccm:replicationsource' => ['serlo_spider']],
+        ];
+        foreach ($properties as $property) {
+            $node = [
+                'mimetype'   => 'text/html',
+                'properties' => $property,
+            ];
+            $this->assertTrue($service->uses_custom_height($node), json_encode($property));
+            $this->assertEquals('100%', $service->get_custom_width($node), json_encode($property));
+        }
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_true_for_lti_tool_objects
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_true_for_lti_tool_objects(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $aspectsets = [
+            ['ccm:ltitool_node'],
+            ['cclom:general', 'ccm:ltitool_node'],
+            'ccm:ltitool_node',
+        ];
+        foreach ($aspectsets as $aspects) {
+            $node = [
+                'mimetype' => 'text/html',
+                'aspects'  => $aspects,
+            ];
+            $this->assertTrue($service->uses_custom_height($node), json_encode($aspects));
+            $this->assertEquals('100%', $service->get_custom_width($node), json_encode($aspects));
+        }
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_false_for_unrelated_aspects
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_false_for_unrelated_aspects(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $aspectsets = [['ccm:published'], [], null, [['ccm:ltitool_node']]];
+        foreach ($aspectsets as $aspects) {
+            $node = [
+                'mimetype' => 'video/mp4',
+                'aspects'  => $aspects,
+            ];
+            $this->assertFalse($service->uses_custom_height($node), json_encode($aspects));
+            $this->assertEquals('', $service->get_custom_width($node), json_encode($aspects));
+        }
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_false_for_other_objects
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_false_for_other_objects(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $properties = [
+            ['ccm:ccressourcetype' => ['h5p']],
+            ['ccm:ccressourcetype' => []],
+            ['ccm:ccressourcetype' => null],
+            ['ccm:ccressourcetype' => [['nested']]],
+            ['ccm:replicationsource' => ['some_other_source']],
+            [],
+        ];
+        foreach ($properties as $property) {
+            $node = [
+                'mimetype'   => 'video/mp4',
+                'properties' => $property,
+            ];
+            $this->assertFalse($service->uses_custom_height($node), json_encode($property));
+            $this->assertEquals('', $service->get_custom_width($node), json_encode($property));
+        }
+    }
+
+    /**
+     * Function test_clamp_custom_height_keeps_the_height_within_the_allowed_range
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_clamp_custom_height_keeps_the_height_within_the_allowed_range(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $this->assertEquals(EduSharingService::CUSTOM_HEIGHT_DEFAULT, $service->clamp_custom_height(null));
+        $this->assertEquals(EduSharingService::CUSTOM_HEIGHT_DEFAULT, $service->clamp_custom_height(''));
+        $this->assertEquals(EduSharingService::CUSTOM_HEIGHT_DEFAULT, $service->clamp_custom_height('nonsense'));
+        $this->assertEquals(EduSharingService::CUSTOM_HEIGHT_MIN, $service->clamp_custom_height('42'));
+        $this->assertEquals(EduSharingService::CUSTOM_HEIGHT_MAX, $service->clamp_custom_height('99999'));
+        $this->assertEquals(700, $service->clamp_custom_height('700'));
+        $this->assertEquals(700, $service->clamp_custom_height(700));
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_false_for_youtube_objects
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_false_for_youtube_objects(): void {
+        $this->resetAfterTest();
+        $service   = $this->get_size_test_service();
+        $byrepotype = [
+            'mimetype' => 'text/plain',
+            'remote'   => ['repository' => ['repositoryType' => 'YOUTUBE']],
+        ];
+        $byurl      = [
+            'mimetype'   => 'text/plain',
+            'properties' => ['ccm:wwwurl' => ['https://www.youtube.com/watch?v=123']],
+        ];
+        foreach ([$byrepotype, $byurl] as $node) {
+            $this->assertFalse($service->uses_custom_height($node));
+            $this->assertEquals('none', $service->get_custom_width($node));
+        }
     }
 }

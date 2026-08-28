@@ -1,4 +1,9 @@
+import {install as guardRequireJs} from './requirejsguard';
+
 export const init = (repoUrl) => {
+    // Must happen before the bundle is injected - see requirejsguard for the why.
+    guardRequireJs();
+
     window.__env = {
         EDU_SHARING_API_URL: `${repoUrl}/rest`
     };

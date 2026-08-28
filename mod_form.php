@@ -230,4 +230,32 @@ class mod_edusharing_mod_form extends moodleform_mod {
         $this->_form->setType('buttonar', PARAM_RAW);
         $this->_form->closeHeaderBefore('buttonar');
     }
+
+    /**
+     * Function validation
+     *
+     * Rejects a submission whose object url does not identify an edu-sharing node, so the
+     * user gets an inline error and keeps their input instead of losing the whole form to
+     * an error page once usage creation fails.
+     *
+     * The object chooser is only part of the add form, so there is nothing to check on edit.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     * @throws coding_exception
+     */
+    public function validation($data, $files): array {
+        $errors = parent::validation($data, $files);
+        if (!empty($this->_instance)) {
+            return $errors;
+        }
+        $objecturl = trim($data['object_url'] ?? '');
+        if ($objecturl === '') {
+            $errors['object_url'] = get_string('required');
+        } else if (empty((new UtilityFunctions())->get_object_id_from_url($objecturl))) {
+            $errors['object_url'] = get_string('error_get_object_id_from_url', Constants::EDUSHARING_MODULE_NAME);
+        }
+        return $errors;
+    }
 }

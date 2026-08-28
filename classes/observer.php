@@ -119,8 +119,8 @@ class mod_edusharing_observer {
                     unset($edusharing->id);
                     unset($edusharing->usage_id);
                     $edusharing->module_id = $data['objectid'];
+                    // Throws on failure, carrying the reason for the rollback below.
                     $newresourceid = $service->add_instance($edusharing);
-                    $newresourceid === false && throw new Exception('ES add instance failed');
                     if (isset($edusharing->usage_id)) {
                         $currentusage = new stdClass();
                         $currentusage->nodeId = $utils->get_object_id_from_url($edusharing->object_url);

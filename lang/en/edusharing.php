@@ -190,3 +190,7 @@ $string['error_missing_rights_on_restore'] = 'This Edu-Sharing object is missing
 $string['error_unexpected_on_restore'] = 'This Edu-Sharing object is missing due to an unexpected error having occurred during restoration';
 $string['error_parsing_on_restore'] = 'This Edu-Sharing object is missing due to a parsing error having occurred during restoration';
 $string['error_invalid_config'] = 'EduSharing is not fully configured (no ticket could be fetched). Repository selection is currently unavailable. Please check the plugin configuration.';
+$string['error_usage_creation_failed'] = 'The object could not be registered in the edu-sharing repository.';
+$string['error_usage_no_publish_rights'] = 'You do not have publish rights for this object in the edu-sharing repository.';
+$string['error_activity_creation_failed'] = 'The activity could not be created. The edu-sharing object was removed again.';
+$string['error_usage_update_kept_previous'] = 'The edu-sharing object could not be updated: {$a} The previously used object was kept; your other changes were saved.';

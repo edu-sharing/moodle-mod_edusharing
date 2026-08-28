@@ -31,6 +31,7 @@
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\grading\Grader;
+use mod_edusharing\UsageErrorMapper;
 use mod_edusharing\UtilityFunctions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -63,23 +64,62 @@ function edusharing_supports(string $feature): int|bool {
  * will create a new instance and return the id number
  * of the new instance.
  *
+ * A moodle_exception is thrown on failure rather than returning false: core catches it in
+ * add_moduleinfo(), removes the course module it already created, and rethrows it, so the
+ * user gets the actual reason instead of the generic "Incorrect function" error.
+ *
  * @param stdClass $edusharing An object from the form in mod_form.php
- * @return int|bool The id of the newly inserted edusharing record
+ * @return int The id of the newly inserted edusharing record
+ * @throws moodle_exception
  */
-function edusharing_add_instance(stdClass $edusharing): int|bool {
-    global $DB;
-    $service = new EduSharingService();
+function edusharing_add_instance(stdClass $edusharing): int {
+    $service = null;
+    $id      = null;
     try {
-        $id = $service->add_instance($edusharing);
-        $cmid = $edusharing->coursemodule;
-        $DB->set_field('course_modules', 'instance', $edusharing->id, ['id' => $cmid]);
-        $edusharing->cmid = $cmid;
+        $service = new EduSharingService();
+        $id      = $service->add_instance($edusharing);
+        $edusharing->cmid = $edusharing->coursemodule;
         edusharing_grade_item_update($edusharing);
     } catch (Exception $exception) {
         debugging('Instance creation failed: ' . $exception->getMessage());
-        return false;
+        if ($id === null) {
+            // Nothing was registered remotely; add_instance removed its own record already.
+            throw UsageErrorMapper::to_moodle_exception($exception);
+        }
+        // The usage exists but the activity is about to be rolled back, and no database
+        // rollback can undo a remote call - so remove it explicitly.
+        edusharing_delete_orphaned_usage($service, $edusharing);
+        throw new moodle_exception(
+            'error_activity_creation_failed',
+            'edusharing',
+            '',
+            null,
+            $exception->getMessage()
+        );
     }
     return $id;
+}
+
+/**
+ * Function edusharing_delete_orphaned_usage
+ *
+ * Best-effort removal of a usage that was created for an activity which then failed to be
+ * created. Mirrors the compensation performed in mod_edusharing\observer.
+ *
+ * @param EduSharingService $service
+ * @param stdClass $edusharing
+ * @return void
+ */
+function edusharing_delete_orphaned_usage(EduSharingService $service, stdClass $edusharing): void {
+    try {
+        $utils               = new UtilityFunctions();
+        $usagedata           = new stdClass();
+        $usagedata->nodeId   = $utils->get_object_id_from_url($edusharing->object_url);
+        $usagedata->usageId  = $edusharing->usage_id;
+        $service->delete_usage($usagedata);
+    } catch (Exception $exception) {
+        debugging('Could not remove the orphaned usage: ' . $exception->getMessage());
+    }
 }
 
 /**
@@ -89,20 +129,39 @@ function edusharing_add_instance(stdClass $edusharing): int|bool {
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
+ * The edit form does not offer the object chooser, so the object itself cannot change here.
+ * A failing usage refresh therefore means the repository is unreachable or the rights were
+ * revoked - not that the user picked something invalid. In that case the previously working
+ * object is kept, every other change is still saved, and the user is warned with the reason.
+ *
  * @param stdClass $edusharing An object from the form in mod_form.php
  * @return boolean Success/Fail
  */
 function edusharing_update_instance(stdClass $edusharing): bool {
     global $DB;
-    $service = new EduSharingService();
     // When editing a course module, Moodle provides the instance id as $edusharing->instance.
     if (!empty($edusharing->instance)) {
         $edusharing->id = $edusharing->instance;
     }
     try {
-        $previousentry = $DB->get_record('edusharing', ['id' => $edusharing->id]);
+        $service             = new EduSharingService();
+        $previousentry       = $DB->get_record('edusharing', ['id' => $edusharing->id], '*', MUST_EXIST);
         $gradingmethodchange = $previousentry->grade_method != $edusharing->grade_method;
+    } catch (Exception $exception) {
+        debugging('Instance update failed: ' . $exception->getMessage());
+        return false;
+    }
+    try {
         $service->update_instance($edusharing);
+    } catch (Exception $exception) {
+        debugging('Usage update failed: ' . $exception->getMessage());
+        \core\notification::warning(get_string(
+            'error_usage_update_kept_previous',
+            'edusharing',
+            UsageErrorMapper::get_user_message($exception)
+        ));
+    }
+    try {
         $edusharing->cmid = $edusharing->coursemodule;
         if ($gradingmethodchange) {
             edusharing_update_grades($edusharing);
@@ -110,7 +169,7 @@ function edusharing_update_instance(stdClass $edusharing): bool {
             edusharing_grade_item_update($edusharing);
         }
     } catch (Exception $exception) {
-        debugging('Instance update failed: ' . $exception->getMessage());
+        debugging('Grade update failed: ' . $exception->getMessage());
         return false;
     }
 

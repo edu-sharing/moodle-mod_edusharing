@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.4] - 2026-08-28
+
+### Fixed
+
+- Failures while registering an object in the edu-sharing repository now tell the user the
+  actual reason (missing publish rights, authentication failure, or a general repository
+  error) instead of a generic Moodle error.
+- Creating an edu-sharing activity no longer fails with "Incorrect function"; the reason is
+  shown and the half-created activity is rolled back, including the remote usage.
+- Editing an edu-sharing activity no longer reports success when the usage could not be
+  refreshed. The previously working object is kept, the remaining changes are saved, and a
+  warning naming the reason is shown.
+- The activity form now rejects a submission without a usable object url inline, instead of
+  discarding the whole form once usage creation fails.
+- Objects inserted through the TinyMCE editor whose usage cannot be created are removed from
+  the text and reported with their reason, and usages created during a failed save are no
+  longer orphaned in the repository.
+
 ## [11.0.3] - 2026-08-05
 
 ### Fixed

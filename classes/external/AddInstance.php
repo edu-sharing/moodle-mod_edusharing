@@ -31,6 +31,8 @@ use external_single_structure;
 use external_value;
 use Exception;
 use mod_edusharing\EduSharingService;
+use mod_edusharing\UsageErrorMapper;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -94,7 +96,7 @@ class AddInstance extends external_api {
      *
      * @param array $edustructure
      * @return array
-     * @throws Exception
+     * @throws moodle_exception
      */
     public static function execute(array $edustructure): array {
         $context = context_course::instance($edustructure['courseId']);
@@ -105,10 +107,11 @@ class AddInstance extends external_api {
         $edusharing->course         = $edustructure['courseId'];
         $edusharing->object_version = $edustructure['objectVersion'];
         $edusharing->introformat    = 0;
-        $service                    = new EduSharingService();
-        $id                         = $service->add_instance($edusharing);
-        if ($id === false) {
-            throw new Exception('Error adding instance');
+        try {
+            $service = new EduSharingService();
+            $id      = $service->add_instance($edusharing);
+        } catch (Exception $exception) {
+            throw UsageErrorMapper::to_moodle_exception($exception);
         }
         $edustructure['id'] = $id;
         return $edustructure;

@@ -190,3 +190,7 @@ $string['error_missing_rights_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt au
 $string['error_unexpected_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt aufgrund eines unerwarteten Fehlers bei der Kurswiederherstellung.';
 $string['error_parsing_on_restore'] = 'Dieses Edu-Sharing-Objekt fehlt aufgrund eines nicht parsebaren Objekts bei der Kurswiederherstellung.';
 $string['error_invalid_config'] = 'Edu-Sharing ist nicht korrekt konfiguriert (kein Ticket konnte abgerufen werden). Repository Auswahl ist derzeit nicht verfügbar. Bitte überprüfen Sie die Pluginkonfiguration.';
+$string['error_usage_creation_failed'] = 'Das Objekt konnte nicht im edu-sharing Repository registriert werden.';
+$string['error_usage_no_publish_rights'] = 'Sie besitzen im edu-sharing Repository keine Veröffentlichungsrechte für dieses Objekt.';
+$string['error_activity_creation_failed'] = 'Die Aktivität konnte nicht erstellt werden. Das edu-sharing Objekt wurde wieder entfernt.';
+$string['error_usage_update_kept_previous'] = 'Das edu-sharing Objekt konnte nicht aktualisiert werden: {$a} Das bisherige Objekt wurde beibehalten; Ihre übrigen Änderungen wurden gespeichert.';

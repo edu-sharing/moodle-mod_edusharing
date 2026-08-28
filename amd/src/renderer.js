@@ -1,5 +1,6 @@
 import Config from 'core/config';
 import {getCurrentUser, getSecuredNode, sendXapiStatement} from "./repository";
+import {clampCustomHeight} from "./utils";
 
 export const init = async(repoUrl, contextId, useServiceWorker) => {
     const element = document.getElementById('edusharing_view');
@@ -41,6 +42,7 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
         return;
     }
     const width = element.getAttribute('data-width');
+    const height = element.getAttribute('data-height');
     const nodeId = element.getAttribute('data-node');
     const containerId = element.getAttribute('data-container');
     const version = element.getAttribute('data-version');
@@ -60,9 +62,17 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
         }
     };
 
-    const response = await getSecuredNode(ajaxParams).catch(error => {
+    let response;
+    try {
+        response = await getSecuredNode(ajaxParams);
+    } catch (error) {
         window.console.error(error);
-    });
+        return;
+    }
+    if (!response) {
+        window.console.error(`No secured node returned for edu-sharing object ${nodeId}.`);
+        return;
+    }
 
     const customWidth = response.customWidth;
     if (customWidth) {
@@ -71,6 +81,14 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
         }
     } else {
         wrapper.style.width = width ? (width + "px") : '';
+    }
+    // Objects rendered at full width (pdf-like documents, serlo and lti tool objects) take the
+    // user has chosen. Where no height was chosen - the activity view, or an object inserted
+    // before the choice existed - the rendering service keeps deciding.
+    const fixedHeight = element.getAttribute('data-fixed-height');
+    const useCustomHeight = Boolean(response.useCustomHeight) && Boolean(fixedHeight);
+    if (useCustomHeight) {
+        wrapper.style.height = clampCustomHeight(fixedHeight) + 'px';
     }
 
     const serviceWorkerPhp = `${Config.wwwroot}/mod/edusharing/getServiceWorker.php`;
@@ -93,6 +111,12 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
     renderComponent.resource_url = resourceUrl;
     renderComponent.preview_url = response.previewUrl;
     renderComponent.signature_algorithm = response.signingAlgorithm;
+    if (useCustomHeight) {
+        renderComponent.style.display = 'block';
+        renderComponent.style.height = '100%';
+        renderComponent.component_height = fixedHeight;
+        renderComponent.footer_height = 60;
+    }
     wrapper.innerHTML = "";
     wrapper.appendChild(renderComponent);
 };
