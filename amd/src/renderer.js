@@ -81,9 +81,10 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
     } else {
         wrapper.style.width = width ? (width + "px") : '';
     }
-    // Objects rendered at full width (pdf-like documents, serlo and lti tool objects) take the
-    // user has chosen. Where no height was chosen - the activity view, or an object inserted
-    // before the choice existed - the rendering service keeps deciding.
+    // Objects rendered at full width take the height the user has chosen; which objects those
+    // are is decided server side, see mod_edusharing\EduSharingService::uses_custom_height.
+    // Where no height was chosen - the activity view, or an object inserted before the choice
+    // existed - the rendering service keeps deciding.
     const fixedHeight = element.getAttribute('data-fixed-height');
     const useCustomHeight = Boolean(response.useCustomHeight) && Boolean(fixedHeight);
     if (useCustomHeight) {

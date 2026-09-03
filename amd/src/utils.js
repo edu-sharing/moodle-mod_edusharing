@@ -50,6 +50,19 @@ export const SERLO_SOURCE = 'serlo';
  */
 export const LTI_TOOL_ASPECT = 'ccm:ltitool_node';
 
+/**
+ * Types of remote repositories whose objects are rendered like pdf documents as well.
+ *
+ * Unlike serlo, these are not recognisable by a node property: their objects come from a
+ * repository edu-sharing connects to as a whole, and that is what the rendering service
+ * identifies them by.
+ *
+ * Keep in sync with mod_edusharing\EduSharingService::CUSTOM_HEIGHT_REPOSITORY_TYPES.
+ *
+ * @type {string[]}
+ */
+export const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps', 'brockhaus'];
+
 export const CUSTOM_HEIGHT_MIN = 300;
 export const CUSTOM_HEIGHT_MAX = 1200;
 export const CUSTOM_HEIGHT_DEFAULT = 600;
@@ -91,7 +104,8 @@ export const isCustomHeightMimeType = (mimeType) => CUSTOM_HEIGHT_MIMETYPES.incl
 /**
  * Whether the given repository node is rendered at full width with a user defined height.
  *
- * Pdf-like documents, serlo objects and lti 1.3 tool objects are treated this way. Mirrors
+ * Pdf-like documents, serlo objects, lti 1.3 tool objects and objects from a learningapps or
+ * brockhaus repository are treated this way. Mirrors
  * mod_edusharing\EduSharingService::uses_custom_height for the repository nodes the editor
  * plugins receive from the repository picker.
  *
@@ -99,8 +113,21 @@ export const isCustomHeightMimeType = (mimeType) => CUSTOM_HEIGHT_MIMETYPES.incl
  * @returns {boolean}
  */
 export const usesCustomHeight = (node) => isCustomHeightMimeType(node.mimetype)
+    || CUSTOM_HEIGHT_REPOSITORY_TYPES.includes(getRemoteRepositoryType(node))
     || isSerloNode(node)
     || hasAspect(node, LTI_TOOL_ASPECT);
+
+/**
+ * The type of the remote repository a node was fetched from, lower cased and trimmed for
+ * comparison. Empty for nodes of the connected repository itself.
+ *
+ * @param {object} node
+ * @returns {string}
+ */
+const getRemoteRepositoryType = (node) => {
+    const type = node.remote?.repository?.repositoryType;
+    return typeof type === 'string' ? type.trim().toLowerCase() : '';
+};
 
 /**
  * Whether the given repository node carries the given aspect.

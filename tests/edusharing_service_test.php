@@ -1084,6 +1084,52 @@ final class edusharing_service_test extends \advanced_testcase {
     }
 
     /**
+     * Function test_uses_custom_height_returns_true_for_connected_repository_types
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_true_for_connected_repository_types(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $types   = ['learningapps', 'LearningApps', '  brockhaus  ', 'BROCKHAUS'];
+        foreach ($types as $type) {
+            $node = [
+                'mimetype' => 'text/html',
+                'remote'   => ['repository' => ['repositoryType' => $type]],
+            ];
+            $this->assertTrue($service->uses_custom_height($node), $type);
+            $this->assertEquals('100%', $service->get_custom_width($node), $type);
+        }
+    }
+
+    /**
+     * Function test_uses_custom_height_returns_false_for_other_repository_types
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_uses_custom_height_returns_false_for_other_repository_types(): void {
+        $this->resetAfterTest();
+        $service = $this->get_size_test_service();
+        $remotes = [
+            ['repository' => ['repositoryType' => 'ALFRESCO']],
+            ['repository' => ['repositoryType' => '']],
+            ['repository' => ['repositoryType' => ['learningapps']]],
+            ['repository' => []],
+            [],
+        ];
+        foreach ($remotes as $remote) {
+            $node = [
+                'mimetype' => 'video/mp4',
+                'remote'   => $remote,
+            ];
+            $this->assertFalse($service->uses_custom_height($node), json_encode($remote));
+            $this->assertEquals('', $service->get_custom_width($node), json_encode($remote));
+        }
+    }
+
+    /**
      * Function test_uses_custom_height_returns_false_for_unrelated_aspects
      *
      * @return void

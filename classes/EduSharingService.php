@@ -98,6 +98,17 @@ class EduSharingService {
     public const LTI_TOOL_ASPECT = 'ccm:ltitool_node';
 
     /**
+     * Types of remote repositories whose objects are rendered like pdf documents as well.
+     *
+     * Unlike serlo, these are not recognisable by a node property: their objects come from a
+     * repository edu-sharing connects to as a whole, and that is what the rendering service
+     * identifies them by.
+     *
+     * Keep in sync with CUSTOM_HEIGHT_REPOSITORY_TYPES in mod_edusharing/utils (amd/src/utils.js).
+     */
+    public const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps', 'brockhaus'];
+
+    /**
      * Range and fallback of the height the user may pick for a full width object.
      *
      * Keep in sync with CUSTOM_HEIGHT_MIN/MAX/DEFAULT in mod_edusharing/utils (amd/src/utils.js).
@@ -743,9 +754,10 @@ class EduSharingService {
     /**
      * Function uses_custom_height
      *
-     * Pdf-like documents, serlo objects and lti 1.3 tool objects are rendered at a fixed width
-     * of 100%. For those the user picks the height, so the height stored with the object has to
-     * be applied on rendering instead of being left to the rendering service.
+     * Pdf-like documents, serlo objects, lti 1.3 tool objects and objects from a learningapps
+     * or brockhaus repository are rendered at a fixed width of 100%. For those the user picks
+     * the height, so the height stored with the object has to be applied on rendering instead
+     * of being left to the rendering service.
      *
      * @param array $node
      * @return bool
@@ -757,7 +769,24 @@ class EduSharingService {
         if (in_array($node['mimetype'] ?? '', self::CUSTOM_HEIGHT_MIMETYPES, true)) {
             return true;
         }
+        if (in_array($this->get_remote_repository_type($node), self::CUSTOM_HEIGHT_REPOSITORY_TYPES, true)) {
+            return true;
+        }
         return $this->is_serlo_node($node) || $this->has_aspect($node, self::LTI_TOOL_ASPECT);
+    }
+
+    /**
+     * Function get_remote_repository_type
+     *
+     * The type of the remote repository a node was fetched from, lower cased and trimmed for
+     * comparison. Empty for nodes of the connected repository itself.
+     *
+     * @param array $node
+     * @return string
+     */
+    private function get_remote_repository_type(array $node): string {
+        $type = $node['remote']['repository']['repositoryType'] ?? '';
+        return is_string($type) ? strtolower(trim($type)) : '';
     }
 
     /**
@@ -831,7 +860,7 @@ class EduSharingService {
      * @return bool
      */
     private function is_youtube_node(array $node): bool {
-        if (strtolower($node['remote']['repository']['repositoryType'] ?? '') === 'youtube') {
+        if ($this->get_remote_repository_type($node) === 'youtube') {
             return true;
         }
         $url = $node['properties']['ccm:wwwurl'][0] ?? '';
