@@ -37,8 +37,7 @@ export const init = async(repoUrl, contextId, useServiceWorker) => {
  * @param {boolean} useServiceWorker
  */
 export const renderObject = async(element, repoUrl, useServiceWorker) => {
-    const wrapper = element.parentElement;
-    if (!wrapper) {
+    if (!element.parentElement) {
         return;
     }
     const width = element.getAttribute('data-width');
@@ -70,6 +69,19 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
     }
     if (!response) {
         window.console.error(`No secured node returned for edu-sharing object ${nodeId}.`);
+        return;
+    }
+
+    // The parent is resolved only now, and only if the object is still part of the page.
+    // Course formats that load their content by ajax - format_tiles for one - throw a whole
+    // section away and replace it with a freshly filtered copy, which can happen while the
+    // secured node above is still on its way. Everything below writes into the parent, so a
+    // parent looked up before the request would by then belong to a detached tree: the write
+    // succeeds, nothing is raised, and the copy that is actually on screen keeps its spinner
+    // forever. Dropping the render is safe - the new copy carries a new placeholder, and that
+    // one is observed anew, see filter_edusharing/edu.
+    const wrapper = element.isConnected ? element.parentElement : null;
+    if (!wrapper) {
         return;
     }
 
