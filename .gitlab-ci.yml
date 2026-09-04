@@ -19,6 +19,11 @@ variables:
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
+  # moodle-plugin-ci's post-create-project script runs
+  # "npm install" inside vendor/moodlehq/moodle-local_ci, which regularly takes
+  # longer than Composer's default 300s process timeout and then gets killed.
+  # 0 disables the timeout for every Composer-spawned process.
+  COMPOSER_PROCESS_TIMEOUT: "1800"
   IGNORE_PATHS: "mod/edusharing/apiClient,mod/edusharing/lang"
   # Bundle build. When copying the build/release jobs to another plugin repo,
   # these two values are normally the only thing that needs to change.
