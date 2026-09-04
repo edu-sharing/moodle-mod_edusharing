@@ -19,11 +19,10 @@ variables:
   MOODLE_DIR: "/var/www/html/moodle"
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   MOODLE_START_BEHAT_SERVERS: "NO"
-  # moodle-plugin-ci's post-create-project script runs
-  # "npm install" inside vendor/moodlehq/moodle-local_ci, which regularly takes
-  # longer than Composer's default 300s process timeout and then gets killed.
-  # 0 disables the timeout for every Composer-spawned process.
-  COMPOSER_PROCESS_TIMEOUT: "1800"
+  # Safety net only: no Composer-spawned process should legitimately run this
+  # long, but a bounded value means a stuck script fails the job instead of
+  # hanging until the GitLab job timeout. Composer's own default is 300.
+  COMPOSER_PROCESS_TIMEOUT: "600"
   IGNORE_PATHS: "mod/edusharing/apiClient,mod/edusharing/lang"
   # Bundle build. When copying the build/release jobs to another plugin repo,
   # these two values are normally the only thing that needs to change.
@@ -56,7 +55,14 @@ test:
     - rm -rf /builds/edu-sharing/community/integration/moodledata
     # Install Moodle CI plugin.
     - cd $CI_PROJECT_DIR/.. && rm -rf ci
-    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+    # --no-scripts skips moodle-plugin-ci's only Composer script, an
+    # "npm install" in vendor/moodlehq/moodle-local_ci that fetches the 31MB
+    # vnu-jar package (twice: post-install-cmd and post-create-project-cmd) and
+    # stalls on this runner. vnu.jar is used by "moodle-plugin-ci mustache"
+    # alone, which this pipeline does not run. If mustache is ever added to the
+    # script section below, drop --no-scripts or install it explicitly:
+    #   cd ci/vendor/moodlehq/moodle-local_ci && npm install --no-progress --no-audit --no-fund
+    - composer create-project -n --no-dev --prefer-dist --no-scripts moodlehq/moodle-plugin-ci ci ^4
     - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
     - chmod u+x ci/bin/moodle-plugin-ci
     - chmod u+x ci/bin/*
