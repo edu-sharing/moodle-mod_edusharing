@@ -3,7 +3,8 @@ import {validateOrigin} from "./utils";
 
 export const init = async(repoUrl, mediatype, hasRendering2) => {
     const gradeForm = document.getElementById('id_modstandardgrade');
-    const gradeCompletionInput = document.getElementById('id_completionusegrade')?.closest('.row.fitem') ?? null;
+    const completionCheckbox = document.getElementById('id_completionusegrade');
+    const gradeCompletionInput = completionCheckbox?.closest('.row.fitem') ?? null;
     if (mediatype !== 'file-h5p' || !hasRendering2) {
         if (gradeForm !== null) {
             gradeForm.classList.add('d-none');
