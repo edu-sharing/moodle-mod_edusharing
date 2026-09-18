@@ -35,6 +35,7 @@ use EduSharingApiClient\Usage;
 use EduSharingApiClient\UsageDeletedException;
 use Exception;
 use JsonException;
+use mod_edusharing\grading\Grader;
 use moodle_exception;
 use require_login_exception;
 use stdClass;
@@ -106,7 +107,7 @@ class EduSharingService {
      *
      * Keep in sync with CUSTOM_HEIGHT_REPOSITORY_TYPES in mod_edusharing/utils (amd/src/utils.js).
      */
-    public const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps', 'brockhaus'];
+    public const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps'];
 
     /**
      * Range and fallback of the height the user may pick for a full width object.
@@ -388,7 +389,8 @@ class EduSharingService {
      * @return void
      */
     public function delete_grade_item(stdClass $edusharing): void {
-        edusharing_grade_item_delete($edusharing);
+        $grader = new Grader($edusharing, $edusharing->idnumber ?? '');
+        $grader->grade_item_delete();
     }
 
     /**
@@ -755,9 +757,9 @@ class EduSharingService {
      * Function uses_custom_height
      *
      * Pdf-like documents, serlo objects, lti 1.3 tool objects and objects from a learningapps
-     * or brockhaus repository are rendered at a fixed width of 100%. For those the user picks
-     * the height, so the height stored with the object has to be applied on rendering instead
-     * of being left to the rendering service.
+     * repository are rendered at a fixed width of 100%. For those the user picks the height,
+     * so the height stored with the object has to be applied on rendering instead of being
+     * left to the rendering service.
      *
      * @param array $node
      * @return bool

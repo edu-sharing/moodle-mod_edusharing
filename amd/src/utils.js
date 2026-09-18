@@ -61,7 +61,49 @@ export const LTI_TOOL_ASPECT = 'ccm:ltitool_node';
  *
  * @type {string[]}
  */
-export const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps', 'brockhaus'];
+export const CUSTOM_HEIGHT_REPOSITORY_TYPES = ['learningapps'];
+
+/**
+ * Mediatypes of objects which are rendered at a fixed width of 100% and at a height chosen
+ * by the user, but which are not identified by their mimetype.
+ *
+ * This list exists for objects that are already stored in a course. Their repository node is
+ * gone by then - all that survives is the preview url - so the properties and aspects
+ * usesCustomHeight looks at are unavailable, and the mediatype is the only thing left that
+ * still names the kind of object. Serlo objects carry the mimetype 'application/json', which
+ * says nothing about how they are rendered.
+ *
+ * 'tool_object' is what the repository derives from the ccm:ltitool_node aspect LTI_TOOL_ASPECT
+ * names - and from the older ccm:tool_object aspect as well, so an lti 1.1 object is not
+ * distinguishable from an lti 1.3 one by its mediatype.
+ *
+ * 'file-geogebra' is here because the repository decides the mediatype from ccm:ccressourcetype
+ * before it looks at the lti aspects, so a geogebra object backed by an lti tool is never
+ * reported as a 'tool_object'. Every other mediatype derived from ccm:ccressourcetype shadows
+ * 'tool_object' the same way - 'file-serlo', 'file-git-repository', 'file-jupyter-notebook' and
+ * the open ended 'file-<connector subtype>' - so this list cannot be complete by construction.
+ * Asking the server, which decides from the node and needs no such list, is the way out.
+ *
+ * Unlike the other constants here this one has no server side counterpart: the server decides
+ * from the node itself and never has to fall back to the mediatype.
+ *
+ * @type {string[]}
+ */
+export const CUSTOM_HEIGHT_MEDIATYPES = ['file-serlo', 'tool_object', 'file-geogebra'];
+
+/**
+ * Types of remote repositories whose objects get the ordinary width and height choice, even
+ * though their mediatype on its own would offer no size choice at all.
+ *
+ * Brockhaus objects reach moodle as the mediatype 'link', which normally means a bare web link
+ * with no size to pick, but they are embedded and sized just like an image.
+ *
+ * This has no server side counterpart: the choice only shapes the editor dialogue, and the
+ * size the user picks ends up in the width and height of the element like any other.
+ *
+ * @type {string[]}
+ */
+export const EXPLICIT_SIZE_REPOSITORY_TYPES = ['brockhaus'];
 
 export const CUSTOM_HEIGHT_MIN = 300;
 export const CUSTOM_HEIGHT_MAX = 1200;
@@ -102,10 +144,45 @@ export const clampCustomHeight = (value) => {
 export const isCustomHeightMimeType = (mimeType) => CUSTOM_HEIGHT_MIMETYPES.includes(mimeType);
 
 /**
+ * Whether the given mediatype is rendered at full width with a user defined height.
+ *
+ * Only for stored objects whose node is no longer at hand, see CUSTOM_HEIGHT_MEDIATYPES.
+ * usesCustomHeight is the answer wherever the node itself is available.
+ *
+ * @param {string|null} mediaType
+ * @returns {boolean}
+ */
+export const isCustomHeightMediaType = (mediaType) => CUSTOM_HEIGHT_MEDIATYPES.includes(mediaType);
+
+/**
+ * Whether the given repository node is sized with an explicit width and height despite its
+ * mediatype, see EXPLICIT_SIZE_REPOSITORY_TYPES. For the repository nodes the editor plugins
+ * receive from the picker, so on insert.
+ *
+ * @param {object} node
+ * @returns {boolean}
+ */
+export const usesExplicitSize = (node) =>
+    EXPLICIT_SIZE_REPOSITORY_TYPES.includes(getRemoteRepositoryType(node));
+
+/**
+ * The same question for an object already stored in a course, where the node is gone and only
+ * the preview url is left. The url carries the remote repository it came from as its
+ * 'repository' parameter; it holds the repository's configured id, which is expected to be the
+ * repository type but is not guaranteed to be - an installation free to name it otherwise
+ * would not be recognised here.
+ *
+ * @param {string|null} repository
+ * @returns {boolean}
+ */
+export const isExplicitSizeRepository = (repository) => typeof repository === 'string'
+    && EXPLICIT_SIZE_REPOSITORY_TYPES.includes(repository.trim().toLowerCase());
+
+/**
  * Whether the given repository node is rendered at full width with a user defined height.
  *
- * Pdf-like documents, serlo objects, lti 1.3 tool objects and objects from a learningapps or
- * brockhaus repository are treated this way. Mirrors
+ * Pdf-like documents, serlo objects, lti 1.3 tool objects and objects from a learningapps
+ * repository are treated this way. Mirrors
  * mod_edusharing\EduSharingService::uses_custom_height for the repository nodes the editor
  * plugins receive from the repository picker.
  *

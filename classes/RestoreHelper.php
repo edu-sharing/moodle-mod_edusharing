@@ -82,41 +82,45 @@ class RestoreHelper {
         $sections = $DB->get_records('course_sections', ['course' => $courseid]);
         foreach ($sections as $section) {
             $esmatches = $this->get_inline_objects($section->summary ?? '');
-            if (!empty($esmatches)) {
-                foreach ($esmatches as $match) {
-                    $section->summary = str_replace($match, $this->convert_object($match, $courseid, $userid), $section->summary);
-                    $DB->update_record('course_sections', $section);
-                }
+            if (empty($esmatches)) {
+                continue;
             }
+            foreach ($esmatches as $match) {
+                $section->summary = str_replace(
+                    $match,
+                    $this->convert_object($match, $courseid, $userid, sectionid: (int)$section->id),
+                    $section->summary
+                );
+            }
+            $DB->update_record('course_sections', $section);
         }
-        $modules = get_course_mods($courseid);
         $course  = get_course($courseid);
-        foreach ($modules as $module) {
-            $modinfo = get_fast_modinfo($course);
-            $cm      = $modinfo->get_cm($module->id);
-            if (!empty($cm->content)) {
-                $esmatches = $this->get_inline_objects($cm->content);
-                if (!empty($esmatches)) {
-                    foreach ($esmatches as $match) {
-                        $cm->set_content(str_replace($match, $this->convert_object($match, $courseid, $userid), $cm->content));
-                    }
-                }
-            }
+        $modinfo = get_fast_modinfo($course);
+        foreach (get_course_mods($courseid) as $coursemodule) {
+            $cm = $modinfo->get_cm($coursemodule->id);
+            // Note: cm_info::$modname is the module type, and therefore the name of its main
+            // database table - cm_info::$name is the instance name shown on the course page.
             try {
-                $module = $DB->get_record($cm->name, ['id' => $cm->instance], '*', MUST_EXIST);
+                $instance = $DB->get_record($cm->modname, ['id' => $cm->instance], '*', MUST_EXIST);
             } catch (Exception $exception) {
                 mtrace($exception->getMessage());
                 continue;
             }
-            if (!empty($module->intro)) {
-                $esmatches = $this->get_inline_objects($module->intro);
-                if (!empty($esmatches)) {
-                    foreach ($esmatches as $match) {
-                        $module->intro = str_replace($match, $this->convert_object($match, $courseid, $userid), $module->intro);
-                    }
-                }
+            if (empty($instance->intro)) {
+                continue;
             }
-            $DB->update_record($cm->name, $module);
+            $esmatches = $this->get_inline_objects($instance->intro);
+            if (empty($esmatches)) {
+                continue;
+            }
+            foreach ($esmatches as $match) {
+                $instance->intro = str_replace(
+                    $match,
+                    $this->convert_object($match, $courseid, $userid, moduleid: (int)$cm->id),
+                    $instance->intro
+                );
+            }
+            $DB->update_record($cm->modname, $instance);
         }
         rebuild_course_cache($courseid, true);
     }
@@ -149,15 +153,26 @@ class RestoreHelper {
      * @param mixed $object
      * @param mixed $courseid
      * @param int|null $userid
+     * @param int|null $moduleid Course module the object sits in, if any.
+     * @param int|null $sectionid Course section the object sits in, if any.
      * @return mixed
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function convert_object($object, $courseid, ?int $userid): string {
-        global $DB;
+    private function convert_object(
+        $object,
+        $courseid,
+        ?int $userid,
+        ?int $moduleid = null,
+        ?int $sectionid = null
+    ): string {
+        global $CFG, $DB;
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
-        $doc->loadHTML($object, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $doc->loadHTML(
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $object,
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
         $errors = libxml_get_errors();
         if (!empty($errors)) {
             debugging("Html parsing error(s): " . json_encode($errors));
@@ -186,6 +201,8 @@ class RestoreHelper {
         parse_str($queryparams, $params);
         $edusharing                 = new stdClass();
         $edusharing->course         = $courseid;
+        $edusharing->module_id      = $moduleid;
+        $edusharing->section_id     = $sectionid;
         $edusharing->name           = $params['title'];
         $edusharing->introformat    = 0;
         $edusharing->object_url     = $params['object_url'];
@@ -205,22 +222,20 @@ class RestoreHelper {
             }
             if ($usage !== null) {
                 if (isset($usage->usageId)) {
-                    $edusharing->id      = $id;
-                    $edusharing->usageId = $usage->usageId;
+                    $edusharing->id       = $id;
+                    $edusharing->usage_id = $usage->usageId;
                     $DB->update_record(Constants::EDUSHARING_TABLE, $edusharing);
                 }
                 $params['resourceId'] = $id;
-                $url                  = strtok($qs, '?') . '?';
-                foreach ($params as $paramn => $paramv) {
-                    $url .= $paramn . '=' . $paramv . '&';
-                }
+                unset($params['ticket']);
+                $url = $CFG->wwwroot . '/mod/edusharing/preview.php?' . http_build_query($params, '', '&');
                 $node->setAttribute($type === 'a' ? 'href' : 'src', $url);
             } else {
                 $DB->delete_records('edusharing', ['id' => $id]);
                 return $object;
             }
         }
-        return $doc->saveHTML();
+        return $doc->saveHTML($node);
     }
 
     /**

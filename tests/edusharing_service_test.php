@@ -1092,7 +1092,7 @@ final class edusharing_service_test extends \advanced_testcase {
     public function test_uses_custom_height_returns_true_for_connected_repository_types(): void {
         $this->resetAfterTest();
         $service = $this->get_size_test_service();
-        $types   = ['learningapps', 'LearningApps', '  brockhaus  ', 'BROCKHAUS'];
+        $types   = ['learningapps', 'LearningApps', '  learningapps  ', 'LEARNINGAPPS'];
         foreach ($types as $type) {
             $node = [
                 'mimetype' => 'text/html',
@@ -1114,6 +1114,8 @@ final class edusharing_service_test extends \advanced_testcase {
         $service = $this->get_size_test_service();
         $remotes = [
             ['repository' => ['repositoryType' => 'ALFRESCO']],
+            ['repository' => ['repositoryType' => 'brockhaus']],
+            ['repository' => ['repositoryType' => 'BROCKHAUS']],
             ['repository' => ['repositoryType' => '']],
             ['repository' => ['repositoryType' => ['learningapps']]],
             ['repository' => []],

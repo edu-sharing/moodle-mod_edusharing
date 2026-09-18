@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.5] - 2026-09-18
+
+### Fixed
+
+- Editor objects in a restored course are converted again. The module lookup asked for the
+  activity's name where its type was meant, so the converted text was never written back and
+  every object kept the resource id of the site the course was exported from, which the filter
+  cannot resolve
+- A restored editor object keeps the usage id the repository returns, and records the module or
+  section it sits in, so deleting that activity or section releases the usage again
+- The preview url of a restored editor object is rebuilt against this site and the exporting
+  site's ticket is dropped, instead of carrying the url the object was exported with
+- Titles containing non-ascii characters survive a restore intact rather than being written
+  back as mangled entities
+- Missing lib import made deleting objects impossible
+- Stored objects whose node is no longer at hand can be recognised as height only ones by
+  their mediatype, which the editor plugins need for serlo, lti tool and geogebra objects
+  inserted before the height choice existed
+
+### Changed
+
+- Objects from a brockhaus repository are sized with a width and a height, like an image,
+  instead of being rendered at the full available width. Their mediatype is "link", which on
+  its own offers no size choice at all, so the repository they come from is what grants it
+
 ## [11.0.4] - 2026-09-07
 
 ### Fixed
