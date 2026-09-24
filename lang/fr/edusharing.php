@@ -194,3 +194,5 @@ $string['error_usage_creation_failed'] = 'L\'objet n\'a pas pu être enregistré
 $string['error_usage_no_publish_rights'] = 'Vous ne disposez pas des droits de publication pour cet objet dans le dépôt edu-sharing.';
 $string['error_activity_creation_failed'] = 'L\'activité n\'a pas pu être créée. L\'objet edu-sharing a été supprimé à nouveau.';
 $string['error_usage_update_kept_previous'] = 'L\'objet edu-sharing n\'a pas pu être mis à jour : {$a} L\'objet précédent a été conservé ; vos autres modifications ont été enregistrées.';
+$string['error_node_deleted'] = 'Cet objet edu-sharing n\'est plus disponible. Il a été supprimé dans le dépôt.';
+$string['error_loading_secured_node'] = 'Cet objet edu-sharing n\'a pas pu être chargé. Veuillez réessayer plus tard.';

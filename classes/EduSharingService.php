@@ -689,6 +689,7 @@ class EduSharingService {
      * @param Usage $usage
      * @return SecuredNode
      * @throws JsonException
+     * @throws NodeDeletedException if the object has been deleted in the repository
      * @throws dml_exception
      */
     public function get_secured_node(Usage $usage): SecuredNode {

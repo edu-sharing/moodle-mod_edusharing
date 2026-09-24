@@ -20,12 +20,14 @@ namespace mod_edusharing\external;
 
 use context_course;
 use core_external\external_api;
+use EduSharingApiClient\NodeDeletedException;
 use EduSharingApiClient\Usage;
 use Exception;
 use external_single_structure;
 use core_external\external_value;
 use external_function_parameters;
 use mod_edusharing\EduSharingService;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -93,6 +95,7 @@ class GetSecuredNode extends external_api {
      *
      * @param array $structure
      * @return array
+     * @throws moodle_exception with errorcode 'error_node_deleted' if the object is gone from the repository
      * @throws Exception
      */
     public static function execute(array $structure): array {
@@ -104,7 +107,12 @@ class GetSecuredNode extends external_api {
             resourceId : $structure['resourceId'],
             usageId    : $structure['usageId'],
         );
-        $securednode = $service->get_secured_node($usage);
+        try {
+            $securednode = $service->get_secured_node($usage);
+        } catch (NodeDeletedException $exception) {
+            // The renderer tells this case apart by the errorcode, see mod_edusharing/renderer.
+            throw new moodle_exception('error_node_deleted', 'mod_edusharing', '', null, $exception->getMessage());
+        }
         $renderingurl = $service->get_rendering_2_url();
         return [
             'securedNode' => $securednode->securedNode,

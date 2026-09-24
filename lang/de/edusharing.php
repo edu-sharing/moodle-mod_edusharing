@@ -194,3 +194,5 @@ $string['error_usage_creation_failed'] = 'Das Objekt konnte nicht im edu-sharing
 $string['error_usage_no_publish_rights'] = 'Sie besitzen im edu-sharing Repository keine Veröffentlichungsrechte für dieses Objekt.';
 $string['error_activity_creation_failed'] = 'Die Aktivität konnte nicht erstellt werden. Das edu-sharing Objekt wurde wieder entfernt.';
 $string['error_usage_update_kept_previous'] = 'Das edu-sharing Objekt konnte nicht aktualisiert werden: {$a} Das bisherige Objekt wurde beibehalten; Ihre übrigen Änderungen wurden gespeichert.';
+$string['error_node_deleted'] = 'Dieses edu-sharing Objekt ist nicht mehr verfügbar. Es wurde im Repositorium gelöscht.';
+$string['error_loading_secured_node'] = 'Dieses edu-sharing Objekt konnte nicht geladen werden. Bitte versuchen Sie es später erneut.';

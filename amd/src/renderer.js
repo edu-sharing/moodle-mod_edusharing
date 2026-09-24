@@ -1,4 +1,5 @@
 import Config from 'core/config';
+import {getString} from 'core/str';
 import {getCurrentUser, getSecuredNode, sendXapiStatement} from "./repository";
 import {clampCustomHeight} from "./utils";
 
@@ -29,6 +30,37 @@ export const init = async(repoUrl, contextId, useServiceWorker) => {
         sendXapiStatement(ajaxParams);
     });
     await renderObject(element, repoUrl, useServiceWorker);
+};
+
+/**
+ * The errorcode mod_edusharing_get_secured_node fails with for objects deleted in the repository.
+ *
+ * @type {string}
+ */
+const NODE_DELETED_ERRORCODE = 'error_node_deleted';
+
+/**
+ * Replaces the placeholder of an object that cannot be rendered with a message, so its spinner
+ * does not keep running.
+ *
+ * @param {Element} element
+ * @param {string} stringId the mod_edusharing string to display
+ * @param {string} alertType the bootstrap alert variant, e.g. 'info' or 'warning'
+ * @returns {Promise<void>}
+ */
+const renderNotice = async(element, stringId, alertType) => {
+    const message = await getString(stringId, 'mod_edusharing');
+    // Same reasoning as in renderObject: only the copy still on the page is worth writing to.
+    const wrapper = element.isConnected ? element.parentElement : null;
+    if (!wrapper) {
+        return;
+    }
+    const notice = document.createElement('div');
+    notice.classList.add('alert', `alert-${alertType}`, 'edusharing-render-notice');
+    notice.setAttribute('role', 'status');
+    notice.textContent = message;
+    wrapper.innerHTML = "";
+    wrapper.appendChild(notice);
 };
 
 /**
@@ -64,11 +96,19 @@ export const renderObject = async(element, repoUrl, useServiceWorker) => {
     try {
         response = await getSecuredNode(ajaxParams);
     } catch (error) {
+        // The repository answered 404: the object has been deleted there, which is not an error
+        // on this side, so the user is merely informed. Anything else is.
+        if (error?.errorcode === NODE_DELETED_ERRORCODE) {
+            await renderNotice(element, NODE_DELETED_ERRORCODE, 'info');
+            return;
+        }
         window.console.error(error);
+        await renderNotice(element, 'error_loading_secured_node', 'warning');
         return;
     }
     if (!response) {
         window.console.error(`No secured node returned for edu-sharing object ${nodeId}.`);
+        await renderNotice(element, 'error_loading_secured_node', 'warning');
         return;
     }
 
