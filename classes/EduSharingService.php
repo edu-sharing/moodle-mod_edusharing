@@ -267,6 +267,22 @@ class EduSharingService {
     }
 
     /**
+     * Function get_node_for_user
+     *
+     * Loads a node as the user the ticket belongs to, so its "access" list holds that user's permissions
+     *
+     * @param string $ticket
+     * @param string $nodeid
+     * @return array
+     * @throws JsonException
+     * @throws NodeDeletedException
+     * @throws Exception
+     */
+    public function get_node_for_user(string $ticket, string $nodeid): array {
+        return $this->nodehelper->getNodeByTicket($ticket, $nodeid);
+    }
+
+    /**
      * Function get_redirect_url
      *
      * @param Usage $usage

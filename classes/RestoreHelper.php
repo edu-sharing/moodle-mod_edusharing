@@ -148,7 +148,74 @@ class RestoreHelper {
     }
 
     /**
+     * Function load_inline_object
+     *
+     * @param string $object the html of an embedded edu-sharing object
+     * @return array|null ['doc' => DOMDocument, 'node' => DOMElement, 'type' => 'a'|'img', 'params' => array]
+     */
+    private static function load_inline_object(string $object): ?array {
+        libxml_use_internal_errors(true);
+        libxml_clear_errors();
+        $doc = new DOMDocument();
+        $doc->loadHTML(
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $object,
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+        if (!empty($errors)) {
+            debugging("Html parsing error(s): " . json_encode($errors));
+            debugging($object);
+            return null;
+        }
+        $type = 'a';
+        $node = $doc->getElementsByTagName('a')->item(0);
+        if (empty($node)) {
+            $type = 'img';
+            $node = $doc->getElementsByTagName('img')->item(0);
+        }
+        if (empty($node)) {
+            debugging("ES object element could not be found.");
+            debugging($object);
+            return null;
+        }
+        $queryparams = parse_url($node->getAttribute($type === 'a' ? 'href' : 'src'), PHP_URL_QUERY);
+        if (empty($queryparams)) {
+            debugging("ES object url could not be retrieved or parsed.");
+            debugging($object);
+            return null;
+        }
+        $params = [];
+        parse_str($queryparams, $params);
+        return ['doc' => $doc, 'node' => $node, 'type' => $type, 'params' => $params];
+    }
+
+    /**
+     * Function get_inline_object_params
+     *
+     * @param string $object the html of an embedded edu-sharing object
+     * @return array|null the query params of the object's url, null if it cannot be parsed
+     */
+    public static function get_inline_object_params(string $object): ?array {
+        return self::load_inline_object($object)['params'] ?? null;
+    }
+
+    /**
+     * Function get_inline_object_nodeid
+     *
+     * @param array $params the query params of an embedded object's url
+     * @return string
+     */
+    public static function get_inline_object_nodeid(array $params): string {
+        $nodeid = (new UtilityFunctions())->get_object_id_from_url($params['object_url'] ?? null);
+        return $nodeid !== '' ? $nodeid : (string)($params['nodeId'] ?? '');
+    }
+
+    /**
      * Function convert_object
+     *
+     * Objects the user lacks publish rights for are stripped, which the restore
+     * already announced (see local\hook_callbacks::after_restore_root_define_settings)
      *
      * @param mixed $object
      * @param mixed $courseid
@@ -167,38 +234,15 @@ class RestoreHelper {
         ?int $sectionid = null
     ): string {
         global $CFG, $DB;
-        libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
-        $doc->loadHTML(
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $object,
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
-        $errors = libxml_get_errors();
-        if (!empty($errors)) {
-            debugging("Html parsing error(s): " . json_encode($errors));
-            debugging($object);
+        $loaded = self::load_inline_object($object);
+        if ($loaded === null) {
             return get_string('error_parsing_on_restore', 'edusharing');
         }
-        $node = $doc->getElementsByTagName('a')->item(0);
-        $type = 'a';
-        if (empty($node)) {
-            $node = $doc->getElementsByTagName('img')->item(0);
-            $qs   = $node->getAttribute('src');
-            $type = 'img';
-        } else {
-            $qs = $node->getAttribute('href');
+        ['doc' => $doc, 'node' => $node, 'type' => $type, 'params' => $params] = $loaded;
+        $checker = new RestoreRightsChecker($this->service, $this->utils);
+        if (!$checker->can_publish(self::get_inline_object_nodeid($params), $userid)) {
+            return '';
         }
-        if (empty($node)) {
-            throw new Exception(get_string('error_loading_node', 'filter_edusharing'));
-        }
-        $params = [];
-        $queryparams = parse_url($qs, PHP_URL_QUERY);
-        if (empty($queryparams)) {
-            debugging("ES object url could not be retrieved or parsed.");
-            debugging($object);
-            return get_string('error_parsing_on_restore', 'edusharing');
-        }
-        parse_str($queryparams, $params);
         $edusharing                 = new stdClass();
         $edusharing->course         = $courseid;
         $edusharing->module_id      = $moduleid;
@@ -215,9 +259,11 @@ class RestoreHelper {
                 $usage = $this->add_usage($edusharing, $id, $userid);
             } catch (MissingRightsException $missingrightsexception) {
                 unset($missingrightsexception);
-                return get_string('error_missing_rights_on_restore', 'edusharing') . ': ' . ($params['nodeId'] ?? 'blank nodeId');
+                $DB->delete_records('edusharing', ['id' => $id]);
+                return '';
             } catch (Exception $exception) {
                 unset($exception);
+                $DB->delete_records('edusharing', ['id' => $id]);
                 return get_string('error_unexpected_on_restore', 'edusharing')  . ': ' . ($params['nodeId'] ?? 'blank nodeId');
             }
             if ($usage !== null) {

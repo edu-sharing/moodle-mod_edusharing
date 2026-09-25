@@ -27,6 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_edusharing\RestoreRightsChecker;
+use mod_edusharing\UtilityFunctions;
+
 global $CFG;
 
 require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/restore_edusharing_stepslib.php');
@@ -37,9 +40,26 @@ require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/restore_edusharing_
 class restore_edusharing_activity_task extends restore_activity_task {
     /**
      * Define (add) particular settings this activity can have
+     *
+     * No particular settings, but an activity whose object the restoring user lacks publish rights for
+     * is excluded from the restore, as its usage could not be created. The user has already been told
+     * so, see \mod_edusharing\local\hook_callbacks::after_restore_root_define_settings
      */
     protected function define_my_settings() {
-        // No particular settings for this activity.
+        $included = $this->get_setting($this->info->modulename . '_' . $this->info->moduleid . '_included');
+        if (!$included->get_value() || $included->get_status() !== base_setting::NOT_LOCKED) {
+            return;
+        }
+        $xml = is_readable($this->get_taskbasepath() . '/edusharing.xml')
+            ? simplexml_load_file($this->get_taskbasepath() . '/edusharing.xml') : false;
+        $nodeid = $xml === false ? ''
+            : (new UtilityFunctions())->get_object_id_from_url((string)($xml->edusharing->object_url ?? ''));
+        if ((new RestoreRightsChecker())->can_publish($nodeid, (int)$this->get_userid())) {
+            return;
+        }
+        $included->set_value(false);
+        $included->set_status(base_setting::LOCKED_BY_CONFIG);
+        $included->get_ui()->set_label(get_string('restore_missing_rights_activity_label', 'edusharing', s($this->get_name())));
     }
 
     /**

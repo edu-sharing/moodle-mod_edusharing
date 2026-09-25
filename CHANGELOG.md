@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.6] - 2026-09-25
+
+### Fixed
+
+- Restoring a course no longer fails silently for edu-sharing objects the restoring user lacks
+  publish rights (CCPublish) for. The rights are checked while the restore is prepared, for
+  edu-sharing activities as well as objects embedded in section summaries and activity
+  descriptions. The user is warned that they can continue but the objects in question will be
+  stripped from the course: such activities are excluded from the restore, embedded objects are
+  removed from the text, and no orphaned object records are left behind
+
 ## [11.0.5] - 2026-09-18
 
 ### Fixed

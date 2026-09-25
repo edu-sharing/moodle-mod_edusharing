@@ -1,12 +1,12 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-// This program is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of the edu-sharing plugin
+ * Hook callbacks for mod_edusharing
  *
  * @package    mod_edusharing
  * @copyright  metaVentis GmbH — http://metaventis.com
@@ -23,9 +23,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->component    = 'mod_edusharing';
-$plugin->version      = 2026092500;
-$plugin->requires     = 2024100700;
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
-$plugin->release      = '11.0.6';
+
+$callbacks = [
+    [
+        'hook'     => \core_backup\hook\after_restore_root_define_settings::class,
+        'callback' => [\mod_edusharing\local\hook_callbacks::class, 'after_restore_root_define_settings'],
+    ],
+];
