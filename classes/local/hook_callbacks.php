@@ -62,8 +62,11 @@ class hook_callbacks {
             return;
         }
         $items = array_map(
-            fn(array $object): string => get_string('restore_missing_rights_' . $object['kind'], 'edusharing',
-                s($object['title'] !== '' ? $object['title'] : $object['nodeid'])),
+            fn(array $object): string => get_string(
+                'restore_missing_rights_' . $object['kind'],
+                'edusharing',
+                s($object['title'] !== '' ? $object['title'] : $object['nodeid'])
+            ),
             $denied
         );
         $task->log(

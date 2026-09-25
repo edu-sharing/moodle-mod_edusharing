@@ -141,16 +141,22 @@ final class restore_rights_checker_test extends \advanced_testcase {
         mkdir($basepath . '/sections/section_1', 0777, true);
         mkdir($basepath . '/activities/edusharing_2', 0777, true);
         mkdir($basepath . '/activities/label_3', 0777, true);
-        file_put_contents($basepath . '/sections/section_1/section.xml',
+        file_put_contents(
+            $basepath . '/sections/section_1/section.xml',
             '<?xml version="1.0" encoding="UTF-8"?><section id="1"><summary>'
-            . s('<p>' . $this->get_embed('node-summary', 'In summary') . '</p>') . '</summary></section>');
-        file_put_contents($basepath . '/activities/edusharing_2/edusharing.xml',
+            . s('<p>' . $this->get_embed('node-summary', 'In summary') . '</p>') . '</summary></section>'
+        );
+        file_put_contents(
+            $basepath . '/activities/edusharing_2/edusharing.xml',
             '<?xml version="1.0" encoding="UTF-8"?><activity id="2" moduleid="2" modulename="edusharing">'
             . '<edusharing id="2"><name>My activity</name><intro></intro>'
-            . '<object_url>ccrep://repo/node-activity</object_url></edusharing></activity>');
-        file_put_contents($basepath . '/activities/label_3/label.xml',
+            . '<object_url>ccrep://repo/node-activity</object_url></edusharing></activity>'
+        );
+        file_put_contents(
+            $basepath . '/activities/label_3/label.xml',
             '<?xml version="1.0" encoding="UTF-8"?><activity id="3" moduleid="3" modulename="label">'
-            . '<label id="3"><intro>' . s($this->get_embed('node-label', 'In label')) . '</intro></label></activity>');
+            . '<label id="3"><intro>' . s($this->get_embed('node-label', 'In label')) . '</intro></label></activity>'
+        );
         $info = new stdClass();
         $info->sections   = ['section_1' => (object)['sectionid' => 1, 'directory' => 'sections/section_1']];
         $info->activities = [
@@ -277,10 +283,12 @@ final class restore_rights_checker_test extends \advanced_testcase {
         $user     = $this->getDataGenerator()->create_user();
         $basepath = make_request_directory();
         mkdir($basepath . '/sections/section_1', 0777, true);
-        file_put_contents($basepath . '/sections/section_1/section.xml',
+        file_put_contents(
+            $basepath . '/sections/section_1/section.xml',
             '<?xml version="1.0" encoding="UTF-8"?><section id="1"><summary>'
             . s($this->get_embed('allowed', 'Allowed object') . $this->get_embed('denied', 'Denied object'))
-            . '</summary></section>');
+            . '</summary></section>'
+        );
         $info = (object)[
             'sections'   => ['section_1' => (object)['sectionid' => 1, 'directory' => 'sections/section_1']],
             'activities' => [],
@@ -344,8 +352,14 @@ final class restore_rights_checker_test extends \advanced_testcase {
         ]);
         course_add_cm_to_section($course->id, $cmid, 0);
 
-        $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO,
-            backup::MODE_IMPORT, $USER->id);
+        $bc = new backup_controller(
+            backup::TYPE_1COURSE,
+            $course->id,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT,
+            $USER->id
+        );
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
@@ -356,8 +370,14 @@ final class restore_rights_checker_test extends \advanced_testcase {
         $this->assertFalse((new RestoreRightsChecker($service))->can_publish('denied-activity', (int)$USER->id));
 
         $newcourse = $this->getDataGenerator()->create_course();
-        $rc = new \restore_controller($backupid, $newcourse->id, backup::INTERACTIVE_NO, backup::MODE_IMPORT,
-            $USER->id, backup::TARGET_EXISTING_ADDING);
+        $rc = new \restore_controller(
+            $backupid,
+            $newcourse->id,
+            backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT,
+            $USER->id,
+            backup::TARGET_EXISTING_ADDING
+        );
         $included = $rc->get_plan()->get_setting('edusharing_' . $cmid . '_included');
         $this->assertFalse((bool)$included->get_value());
         $this->assertSame(\base_setting::LOCKED_BY_CONFIG, $included->get_status());
