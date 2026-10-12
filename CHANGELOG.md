@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Restoring a course no longer stops converting embedded objects at the first one the Tiny editor
+  created from a pasted edu-sharing embed iframe. Such objects carry no title, object url or
+  version in their url, so the title is taken from the element, the object url is built from the
+  node id and this site's home repository, and the version falls back to the latest. These objects
+  come out of the restore with a complete url. An object that still cannot be stored is replaced
+  by an error message instead of aborting the rest of the course
+- Backups now complete embedded objects the Tiny editor created from a pasted edu-sharing embed
+  iframe with their title, object url and version from the object's record, so a restore keeps the
+  version they were pinned to. The fallback described above now only applies to backups made
+  before this version
+- Checking publish rights before a restore no longer aborts when developer debugging shows
+  debugging messages as errors. A node the restoring user cannot access is written to the restore
+  log instead
+- A stripped or unrestorable embedded object no longer leaves Tiny's empty placeholder (and
+  caption) behind
+- Embedded objects whose title contains double quotes, or other characters libxml writes differently
+  than the editor stored them, are found again. The filter silently skipped them and showed only
+  their preview image, and restore and backup did not rewrite them
+
+### Security
+
+- Backups no longer contain the repository tickets the Tiny editor stores in an embedded object's
+  url
+
 ## [11.0.6] - 2026-09-25
 
 ### Fixed

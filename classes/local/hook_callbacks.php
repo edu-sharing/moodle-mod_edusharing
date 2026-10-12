@@ -39,7 +39,8 @@ class hook_callbacks {
      * Runs while the restore is prepared, before any setting is shown. Warns the user about
      * edu-sharing objects in the backup they lack publish rights for, as these will be stripped
      * from the course: activities by restore_edusharing_activity_task, embedded objects by
-     * RestoreHelper::convert_object
+     * RestoreHelper::convert_object. Problems checking are written to the restore log and never
+     * raised via debugging(), which throws in developer mode.
      *
      * @param after_restore_root_define_settings $hook
      * @return void
@@ -55,11 +56,23 @@ class hook_callbacks {
             $denied = $checker->get_denied_objects($objects, (int)$task->get_userid());
         } catch (Throwable $exception) {
             // Never keep the restore from being set up, the objects are checked again when restored.
-            debugging('Checking edu-sharing publish rights ahead of the restore failed: ' . $exception->getMessage());
+            $task->log(
+                'Checking edu-sharing publish rights ahead of the restore failed: ' . $exception->getMessage(),
+                backup::LOG_WARNING
+            );
             return;
         }
         if (empty($denied)) {
             return;
+        }
+        foreach ($denied as $object) {
+            $reason = $checker->get_failure($object['nodeid'], (int)$task->get_userid());
+            if ($reason !== null) {
+                $task->log(
+                    'edu-sharing publish rights check failed for node ' . $object['nodeid'] . ': ' . $reason,
+                    backup::LOG_WARNING
+                );
+            }
         }
         $items = array_map(
             fn(array $object): string => get_string(

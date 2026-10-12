@@ -49,12 +49,15 @@ class backup_edusharing_activity_task extends backup_activity_task {
 
     /**
      * Code the transformations to perform in the activity in
-     * order to get transportable (encoded) links
+     * order to get transportable (encoded) links. Embedded edu-sharing objects
+     * in the text are completed with the values of their records first.
      * @param string $content
      * @return array|string|string[]|null
      */
     public static function encode_content_links($content) {
         global $CFG;
+
+        $content = \mod_edusharing\BackupHelper::complete_inline_objects((string)$content);
 
         $base = preg_quote($CFG->wwwroot, "/");
 

@@ -123,12 +123,20 @@ final class restore_rights_checker_test extends \advanced_testcase {
     public function test_can_publish_is_false_on_error(): void {
         $this->resetAfterTest();
         $service = $this->get_service_mock();
-        $service->method('get_node_for_user')->willThrowException(new Exception('repository down'));
+        $service->expects($this->once())
+            ->method('get_node_for_user')
+            ->willThrowException(new Exception('repository down'));
         $checker = new RestoreRightsChecker($service);
 
+        $this->assertNull($checker->get_failure('node', null));
         $this->assertFalse($checker->can_publish('node', null));
-        $this->assertDebuggingCalled();
+        $this->assertDebuggingNotCalled();
+        $this->assertSame('repository down', $checker->get_failure('node', null));
+        // Answered from the cache, the service is not asked again.
+        $this->assertFalse($checker->can_publish('node', null));
         $this->assertFalse($checker->can_publish('', null));
+        RestoreRightsChecker::reset_cache();
+        $this->assertNull($checker->get_failure('node', null));
     }
 
     /**
@@ -320,6 +328,102 @@ final class restore_rights_checker_test extends \advanced_testcase {
             );
 
         hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+    }
+
+    /**
+     * Function get_hook_task
+     *
+     * @param string $basepath
+     * @param stdClass $info
+     * @param int $userid
+     * @param Exception|null $infoexception thrown by get_info if given
+     * @return MockObject&\restore_root_task
+     */
+    private function get_hook_task(
+        string $basepath,
+        stdClass $info,
+        int $userid,
+        ?Exception $infoexception = null
+    ): \restore_root_task {
+        global $CFG;
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        $task = $this->getMockBuilder(\restore_root_task::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get_basepath', 'get_info', 'get_userid', 'log'])
+            ->getMock();
+        $task->method('get_basepath')->willReturn($basepath);
+        if ($infoexception !== null) {
+            $task->method('get_info')->willThrowException($infoexception);
+        } else {
+            $task->method('get_info')->willReturn($info);
+        }
+        $task->method('get_userid')->willReturn($userid);
+        return $task;
+    }
+
+    /**
+     * Function test_hook_logs_reason_when_rights_check_failed
+     *
+     * @return void
+     */
+    public function test_hook_logs_reason_when_rights_check_failed(): void {
+        $this->resetAfterTest();
+        $user     = $this->getDataGenerator()->create_user();
+        $basepath = make_request_directory();
+        mkdir($basepath . '/sections/section_1', 0777, true);
+        file_put_contents(
+            $basepath . '/sections/section_1/section.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><section id="1"><summary>'
+            . s($this->get_embed('secret', 'Secret object')) . '</summary></section>'
+        );
+        $info = (object)[
+            'sections'   => ['section_1' => (object)['sectionid' => 1, 'directory' => 'sections/section_1']],
+            'activities' => [],
+        ];
+        // Prime the checker, as the hook creates its own one.
+        $service = $this->get_service_mock();
+        $service->method('get_node_for_user')->willThrowException(new Exception('fetching node by ticket failed 403'));
+        (new RestoreRightsChecker($service))->can_publish('secret', (int)$user->id);
+
+        $logged = [];
+        $task   = $this->get_hook_task($basepath, $info, (int)$user->id);
+        $task->method('log')->willReturnCallback(function (string $message, int $level) use (&$logged): bool {
+            $logged[] = [$message, $level];
+            return true;
+        });
+
+        hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+
+        $this->assertDebuggingNotCalled();
+        $this->assertCount(2, $logged);
+        $this->assertSame(backup::LOG_WARNING, $logged[0][1]);
+        $this->assertSame(
+            'edu-sharing publish rights check failed for node secret: fetching node by ticket failed 403',
+            $logged[0][0]
+        );
+        $this->assertSame(backup::LOG_WARNING, $logged[1][1]);
+        $this->assertStringContainsString('Secret object', $logged[1][0]);
+    }
+
+    /**
+     * Function test_hook_logs_warning_when_collecting_objects_fails
+     *
+     * @return void
+     */
+    public function test_hook_logs_warning_when_collecting_objects_fails(): void {
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $task = $this->get_hook_task(make_request_directory(), new stdClass(), (int)$user->id, new Exception('no info'));
+        $task->expects($this->once())
+            ->method('log')
+            ->with(
+                'Checking edu-sharing publish rights ahead of the restore failed: no info',
+                backup::LOG_WARNING
+            );
+
+        hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+
+        $this->assertDebuggingNotCalled();
     }
 
     /**

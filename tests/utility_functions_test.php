@@ -25,6 +25,7 @@ use core\moodle_database_for_testing;
 use dml_exception;
 use Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use testUtils\FakeConfig;
 use testUtils\TestStringGenerator;
@@ -501,5 +502,68 @@ final class utility_functions_test extends advanced_testcase {
         $this->assertTrue(count($result) === 4);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '</a>'))) === 2);
         $this->assertTrue(count(array_filter($result, fn($value) => str_contains($value, '<img'))) === 2);
+    }
+
+    /**
+     * Function provide_verbatim_match_cases
+     *
+     * @return array
+     */
+    public static function provide_verbatim_match_cases(): array {
+        $quoted = '<img class="edusharing_atto" alt="Go &quot;Rolling&quot; Video" title="Go &quot;Rolling&quot; Video"'
+            . ' src="https://x.de/preview.php?a=1&amp;b=2" width="300" height="200">';
+        $link   = '<a class="edusharing_atto" href="https://x.de/preview.php?a=1&amp;b=2" style="">Some text</a>';
+        $upper  = '<IMG CLASS="edusharing_atto" TITLE="Upper" SRC="https://x.de/p.php?a=1&amp;b=2">';
+        $self   = '<img class="edusharing_atto" title="Self" src="https://x.de/p.php" />';
+        $gt     = '<img class="edusharing_atto" title="a > b" src="https://x.de/p.php?a=1">';
+        $widget = '<div class="edusharing-widget-placeholder" data-x="1"><div class="inner">text</div><p>more</p></div>';
+        return [
+            'quoted title' => ['<p>a</p>' . $quoted . '<p>b</p>', [$quoted], []],
+            'anchor with inner text' => ['<p>' . $link . '</p>', [$link], []],
+            'uppercase tag and attributes' => ['<p>x</p>' . $upper, [$upper], []],
+            'self closing image' => [$self . '<p>x</p>', [$self], []],
+            'identical objects' => [$quoted . '<br>' . $quoted, [$quoted, $quoted], []],
+            'greater than in attribute' => ['<p>' . $gt . '</p>', [$gt], []],
+            'widget with nested div' => ['<p>a</p>' . $widget . '<p>b</p>', [], [$widget]],
+            'object in comment' => ['<!-- ' . $quoted . ' -->' . $self, [$self], []],
+            'unclosed anchor' => ['<p>x</p><a class="edusharing_atto" href="https://x.de">text', [], []],
+        ];
+    }
+
+    /**
+     * Function test_get_inline_object_matches_returns_verbatim_substrings
+     *
+     * @param string $text
+     * @param array $expectedrender
+     * @param array $expectedwidget
+     * @return void
+     */
+    #[DataProvider('provide_verbatim_match_cases')]
+    public function test_get_inline_object_matches_returns_verbatim_substrings(
+        string $text,
+        array $expectedrender,
+        array $expectedwidget
+    ): void {
+        $result = (new UtilityFunctions())->get_inline_object_matches($text);
+        $this->assertSame($expectedrender, $result['rendermatches']);
+        $this->assertSame($expectedwidget, $result['widgetmatches']);
+        foreach (array_merge($result['rendermatches'], $result['widgetmatches']) as $match) {
+            $this->assertTrue(str_contains($text, $match));
+        }
+    }
+
+    /**
+     * Function test_get_elements_by_class_returns_nested_hits
+     *
+     * @return void
+     */
+    public function test_get_elements_by_class_returns_nested_hits(): void {
+        $inner = '<img class="edusharing_atto" title="x" src="https://x.de/p.php">';
+        $outer = '<div class="edusharing-widget-placeholder">' . $inner . '</div>';
+        $utils = new UtilityFunctions();
+        $this->assertSame([$outer], $utils->get_inline_object_matches($outer)['widgetmatches']);
+        $this->assertSame([$inner], $utils->get_inline_object_matches($outer)['rendermatches']);
+        $this->assertSame([$inner], $utils->get_elements_by_class($outer, 'edusharing_atto'));
+        $this->assertSame([], $utils->get_elements_by_class($outer, 'missing'));
     }
 }

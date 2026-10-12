@@ -398,29 +398,114 @@ class UtilityFunctions {
     /**
      * Function get_inline_object_matches
      *
+     * The matches are verbatim substrings of the input text, exactly as they are stored. They are not
+     * re-serialized by libxml: DOMDocument writes attributes differently than the editor stored them
+     * (a title with double quotes becomes single quoted, entities are resolved), so callers that search
+     * for a match in the original text would not find it.
+     *
      * @param string $inputtext
      * @return array
      */
     public function get_inline_object_matches(string $inputtext): array {
-        $contenttype = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-        $dom = new DOMDocument();
-        $dom->loadHTML($contenttype . $inputtext, LIBXML_NOERROR);
-        $allelements = $dom->getElementsByTagName("*");
-        $matches = [];
-        $widgetmatches = [];
-        foreach ($allelements as $item) {
-            $classes = $item->attributes->getNamedItem('class')->nodeValue ?? '';
-            if (str_contains($classes, 'edusharing_atto')) {
-                $matches[] = $dom->saveHTML($item);
+        return [
+            'rendermatches' => $this->get_elements_by_class($inputtext, 'edusharing_atto'),
+            'widgetmatches' => $this->get_elements_by_class($inputtext, 'edusharing-widget-placeholder'),
+        ];
+    }
+
+    /**
+     * Function get_elements_by_class
+     *
+     * Returns the source of every element whose class attribute contains the given string, exactly as it
+     * appears in the text and in document order. Identical elements are returned once per occurrence.
+     * Nested hits are all returned, elements in html comments are ignored, and so are elements without
+     * a matching end tag.
+     *
+     * @param string $text
+     * @param string $class
+     * @return array
+     */
+    public function get_elements_by_class(string $text, string $class): array {
+        if ($class === '' || !str_contains($text, $class)) {
+            return [];
+        }
+        // Blank out comments, keeping every offset, so their tags are neither found nor counted.
+        $masked = preg_replace_callback(
+            '/<!--.*?(?:-->|$)/s',
+            static fn(array $comment): string => str_repeat(' ', strlen($comment[0])),
+            $text
+        );
+        $attributes = '(?:[^>"\']++|"[^"]*+"|\'[^\']*+\')*+';
+        $voidtags   = ['img', 'br', 'hr', 'input', 'embed', 'source', 'area', 'col', 'wbr', 'track', 'param', 'link', 'meta'];
+        $found      = preg_match_all(
+            '/<([a-zA-Z][a-zA-Z0-9-]*)\b' . $attributes . '\/?>/',
+            $masked,
+            $tags,
+            PREG_OFFSET_CAPTURE | PREG_SET_ORDER
+        );
+        $elements = [];
+        if (!$found) {
+            return $elements;
+        }
+        foreach ($tags as $tag) {
+            [$starttag, $offset] = $tag[0];
+            $tagname = strtolower($tag[1][0]);
+            if (!str_contains($starttag, $class) || !str_contains($this->get_class_attribute($starttag, $tagname), $class)) {
+                continue;
             }
-            if (str_contains($classes, 'edusharing-widget-placeholder')) {
-                $widgetmatches[] = $dom->saveHTML($item);
+            $length = strlen($starttag);
+            if (!in_array($tagname, $voidtags, true) && !str_ends_with($starttag, '/>')) {
+                $end = $this->find_end_tag($masked, $tagname, $offset + $length);
+                if ($end === null) {
+                    continue;
+                }
+                $length = $end - $offset;
+            }
+            $elements[] = substr($text, $offset, $length);
+        }
+        return $elements;
+    }
+
+    /**
+     * Function get_class_attribute
+     *
+     * @param string $starttag
+     * @param string $tagname lower case
+     * @return string
+     */
+    private function get_class_attribute(string $starttag, string $tagname): string {
+        $dom = new DOMDocument();
+        $dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $starttag, LIBXML_NOERROR);
+        $element = $dom->getElementsByTagName($tagname)->item(0);
+        return $element === null ? '' : $element->getAttribute('class');
+    }
+
+    /**
+     * Function find_end_tag
+     *
+     * @param string $masked the text with its comments blanked out
+     * @param string $tagname lower case
+     * @param int $from offset right behind the start tag
+     * @return int|null offset right behind the matching end tag, null if there is none
+     */
+    private function find_end_tag(string $masked, string $tagname, int $from): ?int {
+        $attributes = '(?:[^>"\']++|"[^"]*+"|\'[^\']*+\')*+';
+        $pattern    = '/<(\/?)' . preg_quote($tagname, '/') . '(?![a-zA-Z0-9-])' . $attributes . '>/i';
+        if (!preg_match_all($pattern, $masked, $tags, PREG_OFFSET_CAPTURE | PREG_SET_ORDER, $from)) {
+            return null;
+        }
+        $depth = 1;
+        foreach ($tags as $tag) {
+            if ($tag[1][0] === '/') {
+                $depth--;
+                if ($depth === 0) {
+                    return $tag[0][1] + strlen($tag[0][0]);
+                }
+            } else if (!str_ends_with($tag[0][0], '/>')) {
+                $depth++;
             }
         }
-        return [
-            'rendermatches' => $matches,
-            'widgetmatches' => $widgetmatches,
-        ];
+        return null;
     }
 
     /**

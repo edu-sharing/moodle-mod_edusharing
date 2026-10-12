@@ -86,10 +86,10 @@ class RestoreHelper {
                 continue;
             }
             foreach ($esmatches as $match) {
-                $section->summary = str_replace(
+                $section->summary = $this->replace_object(
+                    $section->summary,
                     $match,
-                    $this->convert_object($match, $courseid, $userid, sectionid: (int)$section->id),
-                    $section->summary
+                    $this->convert_object($match, $courseid, $userid, sectionid: (int)$section->id)
                 );
             }
             $DB->update_record('course_sections', $section);
@@ -114,15 +114,58 @@ class RestoreHelper {
                 continue;
             }
             foreach ($esmatches as $match) {
-                $instance->intro = str_replace(
+                $instance->intro = $this->replace_object(
+                    $instance->intro,
                     $match,
-                    $this->convert_object($match, $courseid, $userid, moduleid: (int)$cm->id),
-                    $instance->intro
+                    $this->convert_object($match, $courseid, $userid, moduleid: (int)$cm->id)
                 );
             }
             $DB->update_record($cm->modname, $instance);
         }
         rebuild_course_cache($courseid, true);
+    }
+
+    /**
+     * Function replace_object
+     *
+     * Replaces an object in a text by its conversion. Tiny wraps each object in a non-editable placeholder div
+     * (with the caption in it, if any). If the conversion is no object anymore, be it '' for a stripped object or an
+     * error message, the wrapper is replaced as well, as it would be left behind as an invisible block. A converted
+     * object keeps its wrapper.
+     *
+     * @param string $text
+     * @param string $match the html of the object element
+     * @param string $converted
+     * @return string
+     */
+    private function replace_object(string $text, string $match, string $converted): string {
+        if (!str_contains($converted, 'edusharing_atto')) {
+            $wrapper = $this->find_wrapper($text, $match);
+            if ($wrapper !== null) {
+                return str_replace($wrapper, $converted, $text);
+            }
+        }
+        return str_replace($match, $converted, $text);
+    }
+
+    /**
+     * Function find_wrapper
+     *
+     * @param string $text
+     * @param string $match the html of the object element
+     * @return string|null the html of the object's Tiny wrapper, null if it has none or is not found in the text as is
+     */
+    private function find_wrapper(string $text, string $match): ?string {
+        foreach ($this->utils->get_elements_by_class($text, 'edusharing-placeholder') as $wrapper) {
+            // A wrapper holding a second object must stay, it would take the converted sibling with it.
+            if (
+                str_contains($wrapper, $match)
+                && count($this->utils->get_elements_by_class($wrapper, 'edusharing_atto')) === 1
+            ) {
+                return $wrapper;
+            }
+        }
+        return null;
     }
 
     /**
@@ -150,10 +193,44 @@ class RestoreHelper {
     /**
      * Function load_inline_object
      *
+     * Objects the Tiny editor created from a pasted edu-sharing embed iframe carry only resourceId, nodeId, mimetype,
+     * mediatype, width and height in their url. Title, object url and version are missing there, but the restore
+     * needs them to store the object. So the title is taken from the element, the object url is built from the node id
+     * and this site's home repository, as the editor does, and the version falls back to '0', which means the latest.
+     * A version the object was pinned to cannot be recovered this way. Regular embeds carry all three and are left
+     * untouched. Backups made by this version already carry the values (see BackupHelper::complete_inline_objects),
+     * so the fallback is only for older backups and for objects whose record was not found at backup time.
+     *
      * @param string $object the html of an embedded edu-sharing object
      * @return array|null ['doc' => DOMDocument, 'node' => DOMElement, 'type' => 'a'|'img', 'params' => array]
      */
     private static function load_inline_object(string $object): ?array {
+        $parsed = self::parse_inline_object($object);
+        if ($parsed === null) {
+            return null;
+        }
+        $node   = $parsed['node'];
+        $params = $parsed['params'];
+        $params['title'] ??= $node->getAttribute('title') ?: $node->getAttribute('alt') ?: (string)($params['nodeId'] ?? '');
+        $homerepid = (string)get_config('edusharing', 'application_homerepid');
+        if (!isset($params['object_url']) && !empty($params['nodeId']) && $homerepid !== '') {
+            $params['object_url'] = 'ccrep://' . rawurlencode($homerepid) . '/' . rawurlencode((string)$params['nodeId']);
+        }
+        $params['window_version'] ??= '0';
+        $parsed['params'] = $params;
+        return $parsed;
+    }
+
+    /**
+     * Function parse_inline_object
+     *
+     * Parses the html of an embedded edu-sharing object and returns the raw query params of its url, without any
+     * fallback for missing ones.
+     *
+     * @param string $object the html of an embedded edu-sharing object
+     * @return array|null ['doc' => DOMDocument, 'node' => DOMElement, 'type' => 'a'|'img', 'params' => array]
+     */
+    public static function parse_inline_object(string $object): ?array {
         libxml_use_internal_errors(true);
         libxml_clear_errors();
         $doc = new DOMDocument();
@@ -249,11 +326,16 @@ class RestoreHelper {
         $edusharing->section_id     = $sectionid;
         $edusharing->name           = $params['title'];
         $edusharing->introformat    = 0;
-        $edusharing->object_url     = $params['object_url'];
+        $edusharing->object_url     = $params['object_url'] ?? null;
         $edusharing->object_version = $params['window_version'];
         $edusharing->timecreated    = time();
         $edusharing->timemodified   = time();
-        $id                         = $DB->insert_record('edusharing', $edusharing);
+        try {
+            $id = $DB->insert_record('edusharing', $edusharing);
+        } catch (dml_exception $exception) {
+            debugging($exception->getMessage());
+            return get_string('error_unexpected_on_restore', 'edusharing') . ': ' . ($params['nodeId'] ?? 'blank nodeId');
+        }
         if ($id !== false) {
             try {
                 $usage = $this->add_usage($edusharing, $id, $userid);

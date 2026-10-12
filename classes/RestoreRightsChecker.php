@@ -51,6 +51,13 @@ class RestoreRightsChecker {
     private static array $results = [];
 
     /**
+     * Reasons checks failed for, keyed like the results
+     *
+     * @var string[]
+     */
+    private static array $failures = [];
+
+    /**
      * Tickets fetched within this request, keyed by userid (null being the current user)
      *
      * @var string[]
@@ -84,7 +91,8 @@ class RestoreRightsChecker {
      * @return void
      */
     public static function reset_cache(): void {
-        self::$results = [];
+        self::$results  = [];
+        self::$failures = [];
         self::$tickets = [];
     }
 
@@ -92,7 +100,8 @@ class RestoreRightsChecker {
      * Function can_publish
      *
      * Any failure along the way, be it fetching the ticket or the node, counts as missing rights,
-     * as the usage could not be created either
+     * as the usage could not be created either. That is an expected outcome, so it is not reported
+     * via debugging(), which throws in developer mode. The reason is available via get_failure().
      *
      * @param string $nodeid
      * @param int|null $userid the restoring user, the current user if null
@@ -108,11 +117,22 @@ class RestoreRightsChecker {
                 $node = $this->get_service()->get_node_for_user($this->get_ticket($userid), $nodeid);
                 self::$results[$key] = in_array(self::PUBLISH_PERMISSION, $node['node']['access'] ?? [], true);
             } catch (Throwable $exception) {
-                debugging('Checking publish rights failed for node ' . $nodeid . ': ' . $exception->getMessage());
-                self::$results[$key] = false;
+                self::$results[$key]  = false;
+                self::$failures[$key] = $exception->getMessage();
             }
         }
         return self::$results[$key];
+    }
+
+    /**
+     * Function get_failure
+     *
+     * @param string $nodeid
+     * @param int|null $userid the restoring user, the current user if null
+     * @return string|null why checking the node failed, null if it did not fail or was not checked
+     */
+    public function get_failure(string $nodeid, ?int $userid): ?string {
+        return self::$failures[($userid ?? '') . ':' . $nodeid] ?? null;
     }
 
     /**
