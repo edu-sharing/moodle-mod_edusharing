@@ -307,6 +307,7 @@ function xmldb_edusharing_upgrade($oldversion = 0): bool {
     $utils = new UtilityFunctions();
     $appid = $logic->discern_app_id();
     $utils->set_config_entry('application_appid', $appid);
+    $data = $logic->get_config_data();
     if (empty($data['repoUrl']) || empty($data['repoAdmin']) || empty($data['repoAdminPassword'])) {
         return $result;
     }
