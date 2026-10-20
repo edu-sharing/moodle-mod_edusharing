@@ -32,6 +32,7 @@ final class xapi_statement_received extends \core\event\base {
     protected function init(): void {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'edusharing';
     }
 
     /**
