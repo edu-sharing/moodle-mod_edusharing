@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Opening an activity while the repository is unreachable no longer shows a blank page. The
+  activity page now shows an error message and a button back to the course. A missing activity id
+  shows Moodle's error page instead of a blank one as well
 - Graded H5P results sent through xAPI no longer get an error response. Moodle could not load the
   event class for received statements because it was in the wrong folder, and the event named no
   table for its object id, so Moodle refused to trigger it. The grade was saved, but the request
