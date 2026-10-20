@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Graded H5P results sent through xAPI no longer get an error response. Moodle could not load the
+  event class for received statements because it was in the wrong folder, so the grade was saved but
+  the request failed and the event was never logged
 - Restoring a course no longer stops converting embedded objects at the first one the Tiny editor
   created from a pasted edu-sharing embed iframe. Such objects carry no title, object url or
   version in their url, so the title is taken from the element, the object url is built from the
