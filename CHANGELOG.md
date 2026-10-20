@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Moodle 4.5 now also warns about missing publish rights on the restore settings page. The warning
+  relied on a hook added in Moodle 5.0, on 4.5 it is now given by the backup's edu-sharing
+  activities, so it is only shown for backups that contain at least one
 - Opening an activity while the repository is unreachable no longer shows a blank page. The
   activity page now shows an error message and a button back to the course. A missing activity id
   shows Moodle's error page instead of a blank one as well

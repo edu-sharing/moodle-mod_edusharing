@@ -22,6 +22,7 @@ use backup;
 use core_backup\hook\after_restore_root_define_settings;
 use html_writer;
 use mod_edusharing\RestoreRightsChecker;
+use restore_task;
 use Throwable;
 
 /**
@@ -36,17 +37,32 @@ class hook_callbacks {
     /**
      * Function after_restore_root_define_settings
      *
+     * Moodle 5.0 and later only, see warn_about_missing_rights for 4.5.
+     *
+     * @param after_restore_root_define_settings $hook
+     * @return void
+     */
+    public static function after_restore_root_define_settings(after_restore_root_define_settings $hook): void {
+        self::warn_about_missing_rights($hook->task);
+    }
+
+    /**
+     * Function warn_about_missing_rights
+     *
      * Runs while the restore is prepared, before any setting is shown. Warns the user about
      * edu-sharing objects in the backup they lack publish rights for, as these will be stripped
      * from the course: activities by restore_edusharing_activity_task, embedded objects by
      * RestoreHelper::convert_object. Problems checking are written to the restore log and never
      * raised via debugging(), which throws in developer mode.
      *
-     * @param after_restore_root_define_settings $hook
+     * Called by after_restore_root_define_settings. Moodle 4.5 lacks that hook, there
+     * restore_edusharing_activity_task calls this instead, so 4.5 only warns about backups with
+     * an edu-sharing activity.
+     *
+     * @param restore_task $task any task of the restore, only its plan is used
      * @return void
      */
-    public static function after_restore_root_define_settings(after_restore_root_define_settings $hook): void {
-        $task = $hook->task;
+    public static function warn_about_missing_rights(restore_task $task): void {
         try {
             $checker = new RestoreRightsChecker();
             $objects = $checker->collect_backup_objects($task->get_basepath(), $task->get_info());

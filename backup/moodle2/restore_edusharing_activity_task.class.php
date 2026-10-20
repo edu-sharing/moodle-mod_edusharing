@@ -27,6 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use core_backup\hook\after_restore_root_define_settings;
+use mod_edusharing\local\hook_callbacks;
 use mod_edusharing\RestoreRightsChecker;
 use mod_edusharing\UtilityFunctions;
 
@@ -38,14 +40,22 @@ require_once($CFG->dirroot . '/mod/edusharing/backup/moodle2/restore_edusharing_
  * class restore_edusharing_activity_task
  */
 class restore_edusharing_activity_task extends restore_activity_task {
+    /** @var bool[] restore ids the publish rights warning was given for, keyed by restore id */
+    private static array $warnedrestoreids = [];
+
     /**
      * Define (add) particular settings this activity can have
      *
      * No particular settings, but an activity whose object the restoring user lacks publish rights for
      * is excluded from the restore, as its usage could not be created. The user has already been told
-     * so, see \mod_edusharing\local\hook_callbacks::after_restore_root_define_settings
+     * so, see \mod_edusharing\local\hook_callbacks::warn_about_missing_rights
      */
     protected function define_my_settings() {
+        // Moodle 4.5 lacks the hook that gives the warning, so the first edu-sharing activity of the restore gives it.
+        if (!class_exists(after_restore_root_define_settings::class) && empty(self::$warnedrestoreids[$this->get_restoreid()])) {
+            self::$warnedrestoreids[$this->get_restoreid()] = true;
+            hook_callbacks::warn_about_missing_rights($this);
+        }
         $included = $this->get_setting($this->info->modulename . '_' . $this->info->moduleid . '_included');
         if (!$included->get_value() || $included->get_status() !== base_setting::NOT_LOCKED) {
             return;

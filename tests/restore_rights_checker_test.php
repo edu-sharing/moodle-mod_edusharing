@@ -327,7 +327,7 @@ final class restore_rights_checker_test extends \advanced_testcase {
                 backup::LOG_WARNING
             );
 
-        hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+        hook_callbacks::warn_about_missing_rights($task);
     }
 
     /**
@@ -392,7 +392,7 @@ final class restore_rights_checker_test extends \advanced_testcase {
             return true;
         });
 
-        hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+        hook_callbacks::warn_about_missing_rights($task);
 
         $this->assertDebuggingNotCalled();
         $this->assertCount(2, $logged);
@@ -421,9 +421,35 @@ final class restore_rights_checker_test extends \advanced_testcase {
                 backup::LOG_WARNING
             );
 
-        hook_callbacks::after_restore_root_define_settings(new after_restore_root_define_settings($task));
+        hook_callbacks::warn_about_missing_rights($task);
 
         $this->assertDebuggingNotCalled();
+    }
+
+    /**
+     * Function test_hook_callback_checks_rights
+     *
+     * @return void
+     */
+    public function test_hook_callback_checks_rights(): void {
+        global $CFG;
+        if (!class_exists(after_restore_root_define_settings::class)) {
+            $this->markTestSkipped('The hook was added in Moodle 5.0, restore_edusharing_activity_task warns on 4.5.');
+        }
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $task = $this->get_hook_task(make_request_directory(), new stdClass(), (int)$user->id, new Exception('no info'));
+        $task->expects($this->once())
+            ->method('log')
+            ->with(
+                'Checking edu-sharing publish rights ahead of the restore failed: no info',
+                backup::LOG_WARNING
+            );
+        $manager = \core\hook\manager::phpunit_get_instance([
+            'mod_edusharing' => $CFG->dirroot . '/mod/edusharing/db/hooks.php',
+        ]);
+
+        $manager->dispatch(new after_restore_root_define_settings($task));
     }
 
     /**
@@ -432,41 +458,13 @@ final class restore_rights_checker_test extends \advanced_testcase {
      * @return void
      */
     public function test_restore_excludes_activities_without_publish_rights(): void {
-        global $CFG, $DB, $USER;
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-        require_once($CFG->dirroot . '/course/lib.php');
+        global $DB, $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
         $course   = $this->getDataGenerator()->create_course();
         $moduleid = (int)$DB->get_field('modules', 'id', ['name' => 'edusharing'], MUST_EXIST);
-        // Created by hand, adding an instance the regular way would ask the repository for a usage.
-        $instanceid = $DB->insert_record('edusharing', (object)[
-            'course'         => $course->id,
-            'name'           => 'Denied activity',
-            'intro'          => '',
-            'introformat'    => FORMAT_HTML,
-            'object_url'     => 'ccrep://repo/denied-activity',
-            'object_version' => '1.0',
-            'timecreated'    => time(),
-            'timemodified'   => time(),
-        ]);
-        $cmid = add_course_module((object)[
-            'course' => $course->id, 'module' => $moduleid, 'instance' => $instanceid, 'section' => 0, 'visible' => 1,
-        ]);
-        course_add_cm_to_section($course->id, $cmid, 0);
-
-        $bc = new backup_controller(
-            backup::TYPE_1COURSE,
-            $course->id,
-            backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO,
-            backup::MODE_IMPORT,
-            $USER->id
-        );
-        $backupid = $bc->get_backupid();
-        $bc->execute_plan();
-        $bc->destroy();
+        $cmid     = $this->create_activity((int)$course->id, 'Denied activity', 'denied-activity');
+        $backupid = $this->backup_course((int)$course->id);
 
         // Prime the checker, as the restore creates its own ones.
         $service = $this->get_service_mock();
@@ -495,5 +493,107 @@ final class restore_rights_checker_test extends \advanced_testcase {
         $this->assertSame(0, $DB->count_records('edusharing', ['course' => $newcourse->id]));
         // The course_restored observer talks to the unconfigured repository.
         $this->resetDebugging();
+    }
+
+    /**
+     * Function test_restore_warns_once_about_missing_rights
+     *
+     * The hook gives the warning, on Moodle 4.5 the first edu-sharing activity does.
+     *
+     * @return void
+     */
+    public function test_restore_warns_once_about_missing_rights(): void {
+        global $DB, $USER;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $this->create_activity((int)$course->id, 'First denied activity', 'denied-first');
+        $this->create_activity((int)$course->id, 'Second denied activity', 'denied-second');
+        $backupid = $this->backup_course((int)$course->id);
+
+        // Prime the checker, as the restore creates its own ones.
+        $service = $this->get_service_mock();
+        $service->method('get_node_for_user')->willReturn(['node' => ['access' => ['Read']]]);
+        $checker = new RestoreRightsChecker($service);
+        $checker->can_publish('denied-first', (int)$USER->id);
+        $checker->can_publish('denied-second', (int)$USER->id);
+
+        $newcourse = $this->getDataGenerator()->create_course();
+        $rc = new \restore_controller(
+            $backupid,
+            $newcourse->id,
+            backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT,
+            $USER->id,
+            backup::TARGET_EXISTING_ADDING
+        );
+        $messages = $DB->get_fieldset_select('backup_logs', 'message', 'backupid = ?', [$rc->get_restoreid()]);
+        $rc->destroy();
+
+        $warnings = array_values(array_filter(
+            $messages,
+            fn(string $message): bool => str_contains($message, 'Missing edu-sharing publish rights')
+        ));
+        $this->assertCount(1, $warnings);
+        $this->assertStringContainsString('First denied activity', $warnings[0]);
+        $this->assertStringContainsString('Second denied activity', $warnings[0]);
+    }
+
+    /**
+     * Function create_activity
+     *
+     * Created by hand, adding an instance the regular way would ask the repository for a usage.
+     *
+     * @param int $courseid
+     * @param string $name
+     * @param string $nodeid
+     * @return int the course module id
+     */
+    private function create_activity(int $courseid, string $name, string $nodeid): int {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/course/lib.php');
+        $instanceid = $DB->insert_record('edusharing', (object)[
+            'course'         => $courseid,
+            'name'           => $name,
+            'intro'          => '',
+            'introformat'    => FORMAT_HTML,
+            'object_url'     => 'ccrep://repo/' . $nodeid,
+            'object_version' => '1.0',
+            'timecreated'    => time(),
+            'timemodified'   => time(),
+        ]);
+        $cmid = add_course_module((object)[
+            'course'   => $courseid,
+            'module'   => $DB->get_field('modules', 'id', ['name' => 'edusharing'], MUST_EXIST),
+            'instance' => $instanceid,
+            'section'  => 0,
+            'visible'  => 1,
+        ]);
+        course_add_cm_to_section($courseid, $cmid, 0);
+        return (int)$cmid;
+    }
+
+    /**
+     * Function backup_course
+     *
+     * @param int $courseid
+     * @return string the backup id
+     */
+    private function backup_course(int $courseid): string {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        $bc = new backup_controller(
+            backup::TYPE_1COURSE,
+            $courseid,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT,
+            $USER->id
+        );
+        $backupid = $bc->get_backupid();
+        $bc->execute_plan();
+        $bc->destroy();
+        return $backupid;
     }
 }
