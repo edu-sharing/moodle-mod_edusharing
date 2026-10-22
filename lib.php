@@ -392,6 +392,11 @@ function edusharing_update_settings_name() {
  * @throws coding_exception
  */
 function edusharing_purge_registration_caches() {
+    global $CFG;
+    // MoodleAboutApiCacheHandler implements an API client interface, which is not
+    // autoloadable by Moodle, and this callback runs on admin settings save,
+    // where nothing else has registered the API client autoloader yet.
+    require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
     MoodleAboutApiCacheHandler::clear_cache();
     EduSharingService::clear_ticket_cache();
 }

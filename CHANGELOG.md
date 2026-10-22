@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Saving a changed repository setting in the plugin settings no longer fails with "Interface
+  EduSharingApiClient\AboutApiCacheHandler not found". The callback that purges the cached
+  repository info did not load the edu-sharing API client first
 - Moodle 4.5 now also warns about missing publish rights on the restore settings page. The warning
   relied on a hook added in Moodle 5.0, on 4.5 it is now given by the backup's edu-sharing
   activities, so it is only shown for backups that contain at least one
