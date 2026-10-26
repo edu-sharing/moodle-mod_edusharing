@@ -183,8 +183,9 @@ class RestoreRightsChecker {
      * Function collect_backup_objects
      *
      * Lists the edu-sharing objects of an extracted backup: edu-sharing activities as well as
-     * objects embedded in section summaries and activity descriptions, which are the texts
-     * RestoreHelper::convert_inline_options converts after the restore
+     * objects embedded in section summaries and in the texts of activities (see
+     * UtilityFunctions::get_text_fields), which are the texts RestoreHelper::convert_inline_options
+     * converts after the restore
      *
      * @param string $basepath the directory the backup has been extracted to
      * @param stdClass $info the backup information
@@ -212,7 +213,13 @@ class RestoreRightsChecker {
                     'moduleid' => (int)$activity->moduleid,
                 ];
             }
-            $objects = array_merge($objects, $this->collect_text_objects((string)($instance->intro ?? '')));
+            $fields = new stdClass();
+            foreach ($instance->children() as $child) {
+                $fields->{$child->getName()} = (string)$child;
+            }
+            foreach ($this->utils->get_text_fields($fields) as $text) {
+                $objects = array_merge($objects, $this->collect_text_objects($text));
+            }
         }
         return $objects;
     }

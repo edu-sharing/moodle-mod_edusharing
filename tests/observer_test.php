@@ -81,4 +81,85 @@ final class observer_test extends \advanced_testcase {
 
         TestableObserver::course_module_deleted($event);
     }
+
+    /**
+     * Function create_record
+     *
+     * @param int $courseid
+     * @return int the id of an edusharing record as the Tiny plugin creates it, with the course only
+     */
+    private function create_record(int $courseid): int {
+        global $DB;
+        $record                 = new stdClass();
+        $record->course         = $courseid;
+        $record->name           = 'embedded object';
+        $record->introformat    = 0;
+        $record->object_url     = 'ccrep://repository/1234';
+        $record->object_version = '1.0';
+        $record->usage_id       = 'usage-' . $courseid;
+        $record->timecreated    = time();
+        $record->timemodified   = time();
+        return (int)$DB->insert_record('edusharing', $record);
+    }
+
+    /**
+     * Function get_embed
+     *
+     * @param int $resourceid
+     * @return string an object as the Tiny plugin embeds it
+     */
+    private function get_embed(int $resourceid): string {
+        return '<div class="edusharing-placeholder" contenteditable="false">'
+            . '<img class="edusharing_atto" src="https://moodle.test/mod/edusharing/preview.php?resourceId='
+            . $resourceid . '&amp;nodeId=1234&amp;title=Object" width="300" height="200"></div>';
+    }
+
+    /**
+     * Function test_course_module_created_ties_objects_in_page_content_to_the_page
+     *
+     * A page keeps its text in content, not in intro. Its objects must get the page's course
+     * module, or deleting the page leaves their usages behind.
+     *
+     * @return void
+     */
+    public function test_course_module_created_ties_objects_in_page_content_to_the_page(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course      = $this->getDataGenerator()->create_course();
+        $othercourse = $this->getDataGenerator()->create_course();
+        $own         = $this->create_record((int)$course->id);
+        $foreign     = $this->create_record((int)$othercourse->id);
+
+        // The foreign object stands for a page restored before its objects were converted.
+        $page = $this->getDataGenerator()->create_module('page', [
+            'course'        => $course->id,
+            'content'       => '<p>before</p>' . $this->get_embed($own) . $this->get_embed($foreign),
+            'contentformat' => FORMAT_HTML,
+        ]);
+
+        $record = $DB->get_record('edusharing', ['id' => $own], '*', MUST_EXIST);
+        $this->assertSame((int)$page->cmid, (int)$record->module_id);
+        $this->assertSame((int)get_coursemodule_from_id('page', $page->cmid)->section, (int)$record->section_id);
+        $foreignrecord = $DB->get_record('edusharing', ['id' => $foreign], '*', MUST_EXIST);
+        $this->assertNull($foreignrecord->module_id);
+        $this->assertNull($foreignrecord->section_id);
+    }
+
+    /**
+     * Function test_course_module_updated_ties_objects_in_page_content_to_the_page
+     *
+     * @return void
+     */
+    public function test_course_module_updated_ties_objects_in_page_content_to_the_page(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $page   = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
+        $own    = $this->create_record((int)$course->id);
+        $DB->set_field('page', 'content', $this->get_embed($own), ['id' => $page->id]);
+
+        \core\event\course_module_updated::create_from_cm(get_coursemodule_from_id('page', $page->cmid))->trigger();
+
+        $this->assertSame((int)$page->cmid, (int)$DB->get_field('edusharing', 'module_id', ['id' => $own]));
+    }
 }

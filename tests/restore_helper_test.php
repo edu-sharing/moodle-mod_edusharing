@@ -259,6 +259,48 @@ final class restore_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Function test_convert_inline_options_converts_page_content
+     *
+     * A page keeps its text in content, beside its description.
+     *
+     * @return void
+     */
+    public function test_convert_inline_options_converts_page_content(): void {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+        $user   = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $page   = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
+        // Set directly, the observers of the plugin would react to events.
+        $DB->update_record('page', (object)[
+            'id'      => $page->id,
+            'intro'   => $this->get_embed('node-intro', 'In intro', 106),
+            'content' => '<p>before</p>' . $this->get_embed('node-content', 'In content', 107) . '<p>after</p>',
+        ]);
+
+        (new RestoreHelper($this->get_service_mock()))->convert_inline_options((int)$course->id, (int)$user->id);
+
+        $instance = $DB->get_record('page', ['id' => $page->id], '*', MUST_EXIST);
+        $this->assertStringContainsString('before', $instance->content);
+        $this->assertStringContainsString('after', $instance->content);
+        foreach (['intro' => 'node-intro', 'content' => 'node-content'] as $field => $nodeid) {
+            $record = $DB->get_record('edusharing', [
+                'course'     => $course->id,
+                'module_id'  => $page->cmid,
+                'object_url' => 'ccrep://repo/' . $nodeid,
+            ]);
+            $this->assertNotFalse($record, "No edusharing record for the object in $field");
+            $this->assertSame('usage-' . $record->id, $record->usage_id);
+            $elements = $this->get_object_elements($instance->$field);
+            $this->assertCount(1, $elements);
+            $url = $this->get_object_url($elements[0]);
+            $this->assertStringStartsWith($CFG->wwwroot . '/mod/edusharing/preview.php?', $url);
+            parse_str((string)parse_url($url, PHP_URL_QUERY), $params);
+            $this->assertSame((int)$record->id, (int)$params['resourceId']);
+        }
+    }
+
+    /**
      * Function test_convert_inline_options_converts_iframe_embeds
      *
      * @return void

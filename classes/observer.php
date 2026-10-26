@@ -90,11 +90,11 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $text = $module->intro;
-        if ($text === null) {
+        $utils = new UtilityFunctions();
+        $texts = $utils->get_text_fields($module);
+        if (empty($texts)) {
             return;
         }
-        $utils         = new UtilityFunctions();
         $backtrace     = debug_backtrace();
         $isduplication = false;
         foreach ($backtrace as $call) {
@@ -104,7 +104,6 @@ class mod_edusharing_observer {
         }
         if ($isduplication) {
             $createdusages = [];
-            $matches = $utils->get_inline_object_matches($text)['rendermatches'];
             $transaction = $DB->start_delegated_transaction();
             try {
                 $service = new EduSharingService(null, null, $utils);
@@ -113,23 +112,32 @@ class mod_edusharing_observer {
                 return;
             }
             try {
-                foreach ($matches as $match) {
-                    $originalresourceid = $utils->get_resource_id_from_match($match);
-                    $edusharing = $DB->get_record('edusharing', ['id' => $originalresourceid], '*', MUST_EXIST);
-                    unset($edusharing->id);
-                    unset($edusharing->usage_id);
-                    $edusharing->module_id = $data['objectid'];
-                    // Throws on failure, carrying the reason for the rollback below.
-                    $newresourceid = $service->add_instance($edusharing);
-                    if (isset($edusharing->usage_id)) {
-                        $currentusage = new stdClass();
-                        $currentusage->nodeId = $utils->get_object_id_from_url($edusharing->object_url);
-                        $currentusage->usageId = $edusharing->usage_id;
-                        $createdusages[] = $currentusage;
+                foreach ($texts as $field => $text) {
+                    $matches = $utils->get_inline_object_matches($text)['rendermatches'];
+                    if (empty($matches)) {
+                        continue;
                     }
-                    $text = str_replace("resourceId=$originalresourceid", "resourceId=$newresourceid", $text);
+                    foreach ($matches as $match) {
+                        $originalresourceid = $utils->get_resource_id_from_match($match);
+                        $edusharing = $DB->get_record('edusharing', ['id' => $originalresourceid], '*', MUST_EXIST);
+                        unset($edusharing->id);
+                        unset($edusharing->usage_id);
+                        // A text restored before its objects were converted points to the records of the
+                        // course it came from, the copy's usages belong to its own course.
+                        $edusharing->course    = $module->course;
+                        $edusharing->module_id = $data['objectid'];
+                        // Throws on failure, carrying the reason for the rollback below.
+                        $newresourceid = $service->add_instance($edusharing);
+                        if (isset($edusharing->usage_id)) {
+                            $currentusage = new stdClass();
+                            $currentusage->nodeId = $utils->get_object_id_from_url($edusharing->object_url);
+                            $currentusage->usageId = $edusharing->usage_id;
+                            $createdusages[] = $currentusage;
+                        }
+                        $text = str_replace("resourceId=$originalresourceid", "resourceId=$newresourceid", $text);
+                    }
+                    $DB->set_field($data['other']['modulename'], $field, $text, ['id' => $data['other']['instanceid']]);
                 }
-                $DB->set_field($data['other']['modulename'], 'intro', $text, ['id' => $data['other']['instanceid']]);
                 $transaction->allow_commit();
             } catch (Exception $exception) {
                 try {
@@ -145,7 +153,14 @@ class mod_edusharing_observer {
         }
         try {
             $coursemodule = $DB->get_record($data['objecttable'], ['id' => $data['objectid']], '*', MUST_EXIST);
-            $utils->set_moodle_ids_in_edusharing_entries($text, (int)$coursemodule->section, (int)$data['objectid']);
+            foreach ($texts as $text) {
+                $utils->set_moodle_ids_in_edusharing_entries(
+                    $text,
+                    (int)$coursemodule->section,
+                    (int)$data['objectid'],
+                    (int)$coursemodule->course
+                );
+            }
         } catch (Exception $exception) {
             debugging($exception);
         }
@@ -166,14 +181,21 @@ class mod_edusharing_observer {
             debugging($exception->getMessage());
             return;
         }
-        $text = $module->intro;
-        if ($text === null) {
+        $utils = new UtilityFunctions();
+        $texts = $utils->get_text_fields($module);
+        if (empty($texts)) {
             return;
         }
-        $utils = new UtilityFunctions();
         try {
             $coursemodule = $DB->get_record($data['objecttable'], ['id' => $data['objectid']], '*', MUST_EXIST);
-            $utils->set_moodle_ids_in_edusharing_entries($text, (int)$coursemodule->section, (int)$data['objectid']);
+            foreach ($texts as $text) {
+                $utils->set_moodle_ids_in_edusharing_entries(
+                    $text,
+                    (int)$coursemodule->section,
+                    (int)$data['objectid'],
+                    (int)$coursemodule->course
+                );
+            }
         } catch (Exception $exception) {
             debugging($exception->getMessage());
         }

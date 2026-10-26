@@ -184,6 +184,80 @@ final class restore_rights_checker_test extends \advanced_testcase {
     }
 
     /**
+     * Function test_collect_backup_objects_finds_objects_in_page_content
+     *
+     * A page keeps its text in content, beside its description.
+     *
+     * @return void
+     */
+    public function test_collect_backup_objects_finds_objects_in_page_content(): void {
+        $basepath = make_request_directory();
+        mkdir($basepath . '/activities/page_4', 0777, true);
+        file_put_contents(
+            $basepath . '/activities/page_4/page.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><activity id="4" moduleid="4" modulename="page">'
+            . '<page id="4"><name>Page</name><intro>' . s($this->get_embed('node-intro', 'In intro')) . '</intro>'
+            . '<introformat>1</introformat><content>' . s('<p>' . $this->get_embed('node-content', 'In content') . '</p>')
+            . '</content><contentformat>1</contentformat><display>5</display></page></activity>'
+        );
+        $info = new stdClass();
+        $info->activities = [
+            'page_4' => (object)['moduleid' => 4, 'modulename' => 'page', 'title' => 'Page',
+                'directory' => 'activities/page_4'],
+        ];
+
+        $objects = (new RestoreRightsChecker($this->get_service_mock()))->collect_backup_objects($basepath, $info);
+
+        $this->assertSame([
+            ['nodeid' => 'node-intro', 'title' => 'In intro', 'kind' => 'text', 'moduleid' => null],
+            ['nodeid' => 'node-content', 'title' => 'In content', 'kind' => 'text', 'moduleid' => null],
+        ], $objects);
+    }
+
+    /**
+     * Function test_hook_names_an_object_in_several_texts_once
+     *
+     * @return void
+     */
+    public function test_hook_names_an_object_in_several_texts_once(): void {
+        $this->resetAfterTest();
+        $user     = $this->getDataGenerator()->create_user();
+        $basepath = make_request_directory();
+        mkdir($basepath . '/sections/section_1', 0777, true);
+        mkdir($basepath . '/activities/page_4', 0777, true);
+        file_put_contents(
+            $basepath . '/sections/section_1/section.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><section id="1"><summary>'
+            . s($this->get_embed('denied', 'Denied object')) . '</summary></section>'
+        );
+        file_put_contents(
+            $basepath . '/activities/page_4/page.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><activity id="4" moduleid="4" modulename="page">'
+            . '<page id="4"><intro></intro><introformat>1</introformat><content>'
+            . s($this->get_embed('denied', 'Denied object')) . '</content><contentformat>1</contentformat></page></activity>'
+        );
+        $info = (object)[
+            'sections'   => ['section_1' => (object)['sectionid' => 1, 'directory' => 'sections/section_1']],
+            'activities' => ['page_4' => (object)['moduleid' => 4, 'modulename' => 'page', 'title' => 'Page',
+                'directory' => 'activities/page_4']],
+        ];
+        // Prime the checker, as the hook creates its own one.
+        $service = $this->get_service_mock();
+        $service->method('get_node_for_user')->willReturn(['node' => ['access' => []]]);
+        (new RestoreRightsChecker($service))->can_publish('denied', (int)$user->id);
+
+        $task = $this->get_hook_task($basepath, $info, (int)$user->id);
+        $task->expects($this->once())
+            ->method('log')
+            ->with(
+                $this->callback(fn(string $message): bool => substr_count($message, 'Denied object') === 1),
+                backup::LOG_WARNING
+            );
+
+        hook_callbacks::warn_about_missing_rights($task);
+    }
+
+    /**
      * Function test_convert_inline_options_strips_objects_without_publish_rights
      *
      * @return void

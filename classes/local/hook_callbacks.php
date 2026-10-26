@@ -90,14 +90,15 @@ class hook_callbacks {
                 );
             }
         }
-        $items = array_map(
+        // An object embedded in several texts is named once.
+        $items = array_values(array_unique(array_map(
             fn(array $object): string => get_string(
                 'restore_missing_rights_' . $object['kind'],
                 'edusharing',
                 s($object['title'] !== '' ? $object['title'] : $object['nodeid'])
             ),
             $denied
-        );
+        )));
         $task->log(
             get_string('restore_missing_rights_log', 'edusharing', implode(', ', $items)),
             backup::LOG_WARNING

@@ -106,21 +106,25 @@ class RestoreHelper {
                 mtrace($exception->getMessage());
                 continue;
             }
-            if (empty($instance->intro)) {
-                continue;
+            $isconverted = false;
+            foreach ($this->utils->get_text_fields($instance) as $field => $text) {
+                $esmatches = $this->get_inline_objects($text);
+                if (empty($esmatches)) {
+                    continue;
+                }
+                foreach ($esmatches as $match) {
+                    $text = $this->replace_object(
+                        $text,
+                        $match,
+                        $this->convert_object($match, $courseid, $userid, moduleid: (int)$cm->id)
+                    );
+                }
+                $instance->$field = $text;
+                $isconverted      = true;
             }
-            $esmatches = $this->get_inline_objects($instance->intro);
-            if (empty($esmatches)) {
-                continue;
+            if ($isconverted) {
+                $DB->update_record($cm->modname, $instance);
             }
-            foreach ($esmatches as $match) {
-                $instance->intro = $this->replace_object(
-                    $instance->intro,
-                    $match,
-                    $this->convert_object($match, $courseid, $userid, moduleid: (int)$cm->id)
-                );
-            }
-            $DB->update_record($cm->modname, $instance);
         }
         rebuild_course_cache($courseid, true);
     }

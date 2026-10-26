@@ -261,20 +261,53 @@ class UtilityFunctions {
     }
 
     /**
+     * Function get_text_fields
+     *
+     * Returns the texts of a module instance that may embed edu-sharing objects: its description and every other
+     * field stored with a format, like the content of a page. Works on database records as well as on the instance
+     * elements of a backup, converted to an object.
+     *
+     * @param stdClass $instance
+     * @return string[] the texts keyed by field name
+     */
+    public function get_text_fields(stdClass $instance): array {
+        $texts = [];
+        foreach ((array)$instance as $field => $text) {
+            if ($text === null || is_array($text) || is_object($text)) {
+                continue;
+            }
+            if ($field === 'intro' || property_exists($instance, $field . 'format')) {
+                $texts[$field] = (string)$text;
+            }
+        }
+        return $texts;
+    }
+
+    /**
      * Function set_moodle_ids_in_edusharing_entries
      *
      * @param string $text
      * @param int $sectionid
      * @param int $moduleid
+     * @param int|null $courseid if set, records of other courses are left alone: a text restored before its objects
+     *                           were converted still points to the records of the course it came from
      *
      * @throws dml_exception
      */
-    public function set_moodle_ids_in_edusharing_entries(string $text, int $sectionid, int $moduleid = 0): void {
+    public function set_moodle_ids_in_edusharing_entries(
+        string $text,
+        int $sectionid,
+        int $moduleid = 0,
+        ?int $courseid = null
+    ): void {
         global $DB;
         $esmatches = $this->get_inline_object_matches($text)['rendermatches'];
         foreach ($esmatches as $match) {
             $resourceid = $this->get_resource_id_from_match($match);
             $edusharing = $DB->get_record('edusharing', ['id' => $resourceid], '*', MUST_EXIST);
+            if ($courseid !== null && (int)$edusharing->course !== $courseid) {
+                continue;
+            }
             $edusharing->section_id = $sectionid;
             if ($moduleid !== 0) {
                 $edusharing->module_id = $moduleid;
