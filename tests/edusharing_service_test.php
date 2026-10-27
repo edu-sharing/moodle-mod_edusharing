@@ -807,8 +807,44 @@ final class edusharing_service_test extends \advanced_testcase {
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $url                        = 'http://test.de';
         $expectedoptions            = [
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_HEADER         => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_USERAGENT      => 'testAgent',
+        ];
+        $curl                       = new CurlResult('testContent', 0, []);
+        $basemock                   = $this->getMockBuilder(EduSharingHelperBase::class)
+            ->setConstructorArgs(['www.url.de', 'pkey123', 'appid123'])
+            ->onlyMethods(['handleCurlRequest'])
+            ->getMock();
+        $basemock->expects($this->once())
+            ->method('handleCurlRequest')
+            ->with($url, $expectedoptions)
+            ->willReturn($curl);
+        $nodeconfig = new EduSharingNodeHelperConfig(new UrlHandling(true));
+        $authhelper = new EduSharingAuthHelper($basemock);
+        $nodehelper = new EduSharingNodeHelper($basemock, $nodeconfig);
+        $service    = new EduSharingService($authhelper, $nodehelper);
+        $this->assertEquals($curl, $service->import_metadata($url));
+    }
+
+    /**
+     * Function test_import_metadata_skips_the_certificate_check_if_allow_registration_over_http_is_set
+     *
+     * @return void
+     * @throws dml_exception
+     */
+    public function test_import_metadata_skips_the_certificate_check_if_allow_registration_over_http_is_set(): void {
+        $this->resetAfterTest();
+        global $_SERVER;
+        $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
+        set_config('allow_registration_over_http', '1', 'edusharing');
+        $url                        = 'https://test.de';
+        $expectedoptions            = [
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
@@ -846,6 +882,8 @@ final class edusharing_service_test extends \advanced_testcase {
         $expectedoptions = [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ];
         $curl            = new CurlResult('testContent', 0, []);
         $basemock        = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -884,6 +922,8 @@ final class edusharing_service_test extends \advanced_testcase {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_POSTFIELDS     => $body,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ];
         $curl        = new CurlResult('testContent', 0, []);
         $basehelper  = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
@@ -943,8 +983,6 @@ final class edusharing_service_test extends \advanced_testcase {
             appId: 'appid123'
         );
         $curloptions                = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
@@ -977,8 +1015,6 @@ final class edusharing_service_test extends \advanced_testcase {
         $_SERVER['HTTP_USER_AGENT'] = 'testAgent';
         $basehelper                 = new EduSharingHelperBase('www.url.de', 'pkey123', 'appid123');
         $curloptions                = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,

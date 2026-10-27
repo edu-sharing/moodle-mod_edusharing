@@ -578,12 +578,31 @@ class EduSharingService {
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'] ?? '',
-        ];
-        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
-            $curloptions[CURLOPT_SSL_VERIFYPEER] = false;
-            $curloptions[CURLOPT_SSL_VERIFYHOST] = false;
-        }
+        ] + $this->get_registration_tls_options();
         return $this->authhelper->base->handleCurlRequest($url, $curloptions);
+    }
+
+    /**
+     * Function get_registration_tls_options
+     *
+     * The metadata import and the registration check the repository's certificate: the metadata carry the
+     * key Moodle trusts the repository with, and the registration sends the repository admin's password.
+     * The setting allow_registration_over_http skips the check, for development and testing.
+     *
+     * @return array
+     * @throws dml_exception
+     */
+    private function get_registration_tls_options(): array {
+        if ($this->utils->get_config_entry('allow_registration_over_http') == '1') {
+            return [
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 0,
+            ];
+        }
+        return [
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+        ];
     }
 
     /**
@@ -603,7 +622,7 @@ class EduSharingService {
         return $this->authhelper->base->handleCurlRequest($url, [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers,
-        ]);
+        ] + $this->get_registration_tls_options());
     }
 
     /**
@@ -628,7 +647,7 @@ class EduSharingService {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_POSTFIELDS     => $body,
-        ]);
+        ] + $this->get_registration_tls_options());
     }
 
     /**
@@ -656,10 +675,6 @@ class EduSharingService {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_USERAGENT      => $_SERVER['HTTP_USER_AGENT'],
         ];
-        if ($this->utils->get_config_entry('allow_registration_over_http') != '1') {
-            $curloptions[CURLOPT_SSL_VERIFYPEER] = false;
-            $curloptions[CURLOPT_SSL_VERIFYHOST] = false;
-        }
         $result      = $this->authhelper->base->handleCurlRequest($url, $curloptions);
         if ($result->error !== 0) {
             try {
