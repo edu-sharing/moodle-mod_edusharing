@@ -118,6 +118,8 @@ class mod_edusharing_mod_form extends moodleform_mod {
                         get_config('edusharing', 'application_appname')
                     )
                 );
+                // Moodle expands sections with a required field only; the object is one without a rule.
+                $this->_form->setExpanded('object_url_fieldset');
                 $this->_form->addElement(
                     'static',
                     'object_title',
@@ -130,9 +132,8 @@ class mod_edusharing_mod_form extends moodleform_mod {
                     get_string('object_url', Constants::EDUSHARING_MODULE_NAME),
                     ['readonly' => 'true']
                 );
+                // The field is hidden (styles.css), so validation() checks it and reports on object_title.
                 $this->_form->setType('object_url', PARAM_RAW_TRIMMED);
-                $this->_form->addRule('object_url', null, 'required', null, 'client');
-                $this->_form->addRule('object_url', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
                 $this->_form->addHelpButton('object_url', 'object_url', Constants::EDUSHARING_MODULE_NAME);
                 if ($utils->get_config_entry('enable_repo_target_chooser')) {
                     // phpcs:disable -- just messy html and js.
@@ -239,6 +240,7 @@ class mod_edusharing_mod_form extends moodleform_mod {
      * an error page once usage creation fails.
      *
      * The object chooser is only part of the add form, so there is nothing to check on edit.
+     * The errors go to the visible "selected object", as the object url's field is hidden.
      *
      * @param array $data
      * @param array $files
@@ -252,9 +254,11 @@ class mod_edusharing_mod_form extends moodleform_mod {
         }
         $objecturl = trim($data['object_url'] ?? '');
         if ($objecturl === '') {
-            $errors['object_url'] = get_string('required');
+            $errors['object_title'] = get_string('required');
+        } else if (core_text::strlen($objecturl) > 255) {
+            $errors['object_title'] = get_string('maximumchars', '', 255);
         } else if (empty((new UtilityFunctions())->get_object_id_from_url($objecturl))) {
-            $errors['object_url'] = get_string('error_get_object_id_from_url', Constants::EDUSHARING_MODULE_NAME);
+            $errors['object_title'] = get_string('error_get_object_id_from_url', Constants::EDUSHARING_MODULE_NAME);
         }
         return $errors;
     }
