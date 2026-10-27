@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_edusharing;
 
+use core\output\notification;
 use Exception;
 
 /**
@@ -35,6 +36,7 @@ class MetaDataFrontend {
      * @return string|null
      */
     public static function get_repo_form(): ?string {
+        global $OUTPUT;
         try {
             $repourl     = get_config('edusharing', 'application_cc_gui_url') !== false
                 ? get_config('edusharing', 'application_cc_gui_url') : '';
@@ -44,38 +46,17 @@ class MetaDataFrontend {
                 ? get_config('edusharing', 'application_host_aliases') : '';
         } catch (Exception $exception) {
             unset($exception);
-            return '<p style="background: #FF8170">Error<br></p>';
+            return $OUTPUT->notification(get_string('import_metadata_unexpected_error', 'edusharing'), notification::NOTIFY_ERROR);
         }
-        if (!empty($repourl)) {
-            // phpcs:disable -- This is just messy html and inline js
-            return '
-            <form class="repo-reg" action="import_metadata.php" method="post">
-                <h3>Try to register the edu-sharing moodle-plugin with a repository:</h3>
-                <p>If your moodle is behind a proxy-server, this might not work and you have to register the plugin manually.</p>
-                <input type="hidden" name="sesskey" value="' . sesskey() . '">
-                <div class="edu_metadata">
-                    <div class="repo_input">
-                        <p class="repo_input_name">Repo-URL:</p><input type="text" value="'. s($repourl) .'" name="repoUrl" />
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Repo-Admin-User:</p><input class="short_input" type="text" name="repoAdmin">
-                        <p class="repo_input_name">Repo-Admin-Password:</p><input class="short_input" type="password" name="repoPwd">
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Change Moodle-AppID:</p><input type="text" value="'. s($appid) .'" name="appId" />
-                        <p>(optional)</p>
-                    </div>
-                    <div class="repo_input">
-                        <p class="repo_input_name">Add Host-Alias:</p><input type="text" value="'. s($hostaliases) .'" name="host_aliases" />
-                        <p>(optional)</p>
-                    </div>
-                    <input class="btn" type="submit" value="Register Repo" name="repoReg">
-                </div>
-            </form>
-         ';
-            // phpcs:enable
+        if (empty($repourl)) {
+            return null;
         }
-        return null;
+        return $OUTPUT->render_from_template('mod_edusharing/registration_form', [
+            'sesskey'     => sesskey(),
+            'repourl'     => $repourl,
+            'appid'       => $appid,
+            'hostaliases' => $hostaliases,
+        ]);
     }
 
     /**
@@ -86,28 +67,11 @@ class MetaDataFrontend {
      * @return string
      */
     public static function get_meta_data_form(): string {
-        global $CFG;
-        // phpcs:disable -- This is just messy html and inline js
-        return '
-        <form action="import_metadata.php" method="post" name="mdform">
-            <h3>Enter your metadata endpoint here:</h3>
-            <p>Hint: Just click on the example to copy it into the input-field.</p>
-            <input type="hidden" name="sesskey" value="' . sesskey() . '">
-            <div class="edu_metadata">
-                <div class="edu_endpoint">
-                    <p>Metadata-Endpoint:</p>
-                    <input type="text" id="metadata" name="mdataurl" value="">
-                    <input class="btn" type="submit" value="Import">
-                </div>
-                <div class="edu_example">
-                    <p>(Example: <a href="javascript:void();"
-                                   onclick="document.forms[0].mdataurl.value=\'http://your-server-name/edu-sharing/metadata?format=lms&external=true\'">
-                                   http://your-server-name/edu-sharing/metadata?format=lms&external=true</a>)
-                   </p>
-                </div>
-            </div>
-        </form>
-        <p>To export the edu-sharing plugin metadata use the following url: <span class="edu_export">' . $CFG->wwwroot . '/mod/edusharing/metadata.php</span></p>';
-        // phpcs:enable
+        global $CFG, $OUTPUT;
+        return $OUTPUT->render_from_template('mod_edusharing/import_metadata_form', [
+            'sesskey'   => sesskey(),
+            'example'   => 'http://your-server-name/edu-sharing/metadata?format=lms&external=true',
+            'exporturl' => $CFG->wwwroot . '/mod/edusharing/metadata.php',
+        ]);
     }
 }

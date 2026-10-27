@@ -18,7 +18,10 @@ declare(strict_types=1);
 
 namespace mod_edusharing;
 
+use core\output\notification;
 use Exception;
+use html_writer;
+use moodle_url;
 
 /**
  * Class PluginRegistrationFrontend
@@ -38,53 +41,41 @@ class PluginRegistrationFrontend {
      * @return string
      */
     public static function register_plugin(string $repourl, string $login, string $pwd): string {
-        global $CFG;
+        global $OUTPUT;
         $return            = '';
 
         $service           = new EduSharingService();
         $registrationlogic = new PluginRegistration($service);
         $metadatalogic     = new MetadataLogic($service);
         $data              = $metadatalogic->create_xml_metadata();
+        $saferepourl       = clean_param($repourl, PARAM_URL);
+        $saferepourltext   = s($saferepourl);
+        $errormessage      = get_string('registration_error', 'edusharing', $saferepourltext);
+        $backbutton        = html_writer::link(
+            new moodle_url('/admin/settings.php', ['section' => 'modsettingedusharing']),
+            get_string('back'),
+            ['class' => 'btn btn-primary']
+        );
         try {
-            $saferepourl       = clean_param($repourl, PARAM_URL);
-            $saferepourltext   = s($saferepourl);
-            $errormessage      =
-                '<h3 class="edu_error">ERROR: Could not register the edusharing-moodle-plugin at: ' . $saferepourltext . '</h3>';
             $result = $registrationlogic->register_plugin($repourl, $login, $pwd, $data);
         } catch (Exception $exception) {
             $exceptionmessage = $exception instanceof EduSharingUserException
-                ? $exception->getMessage() : 'Unexpected error';
-            $return .= $errormessage . '<p class="edu_error">' . $exceptionmessage . '</p>';
-            $return .= '<a href="' . $CFG->wwwroot
-                . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
-
-            return $return;
+                ? $exception->getMessage() : get_string('import_metadata_unexpected_error', 'edusharing');
+            $return .= $OUTPUT->notification($errormessage . '<br>' . s($exceptionmessage), notification::NOTIFY_ERROR);
+            return $return . $backbutton;
         }
         if (isset($result['id']) || isset($result['appid'])) {
-            return '<h3 class="edu_success">Successfully registered the edusharing-moodle-plugin at: '
-                . $repourl . '</h3>'
-                . '<a href="' . $CFG->wwwroot
-                . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
+            return $OUTPUT->notification(
+                get_string('registration_success', 'edusharing', $saferepourltext),
+                notification::NOTIFY_SUCCESS
+            ) . $backbutton;
         }
-        $return .= $errormessage
-            . (isset($result['message']) ? '<p class="edu_error">' . s($result['message']) . '</p>' : '');
-        $return .= '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
-        // phpcs:disable -- just messy html.
-        $return .= '<p class="edu_metadata"> To register the Moodle-PlugIn manually got to the
-            <a href="' . $repourl
-            . '" target="_blank"> Repository</a> and open the "APPLICATIONS"-tab of the "Admin-Tools" interface.<br>
-            Only the system administrator may use this tool.<br>
-            Enter the URL of the Moodle you want to connect. The URL should look like this:  
-            „[Moodle-install-directory]/mod/edusharing/metadata.php".<br>
-            Click on "CONNECT" to register the LMS. You will be notified with a feedback message and your LMS instance 
-            will appear as an entry in the list of registered applications.<br>
-            If the automatic registration failed due to a connection issue caused by a proxy-server, you also need to 
-            add the proxy-server IP-address as a "host_aliases"-attribute.
-            </p>';
-        // phpcs:enable
-
-        $return .= '<a href="' . $CFG->wwwroot
-            . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
-        return $return;
+        $return .= $OUTPUT->notification(
+            $errormessage . (isset($result['message']) ? '<br>' . s($result['message']) : ''),
+            notification::NOTIFY_ERROR
+        );
+        $return .= $OUTPUT->heading(get_string('registration_manual_heading', 'edusharing'), 3);
+        $return .= html_writer::tag('p', get_string('registration_manual_help', 'edusharing', $saferepourltext));
+        return $return . $backbutton;
     }
 }

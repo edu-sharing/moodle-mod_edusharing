@@ -100,12 +100,12 @@ class MetadataLogic {
             $message = $result->info['message'] ?? 'unknown';
             debugging('cURL Error: ' . $message);
             $this->reloadform = true;
-            $htmlmessage = '<p style="background: #FF8170">cURL Error: ' . $message . '<br></p>';
+            $htmlmessage = get_string('import_metadata_curl_error', 'edusharing', s($message));
             throw new EduSharingUserException(message: $message, htmlmessage: $htmlmessage);
         }
         if (!$xml->loadXML($result->content)) {
             $this->reloadform = true;
-            $htmlmessage = '<p style="background: #FF8170">could not load ' . s($metadataurl) . ' please check url <br></p>';
+            $htmlmessage = get_string('import_metadata_xml_error', 'edusharing', s($metadataurl));
             throw new EduSharingUserException(message: 'xml error', htmlmessage: $htmlmessage);
         }
         $xml->preserveWhiteSpace = false;
@@ -154,7 +154,7 @@ class MetadataLogic {
             $this->utils->set_config_entry('application_public_key', $keypair['publicKey']);
         }
         if (empty($this->utils->get_config_entry('application_private_key'))) {
-            $htmlmessage = '<h3 class="edu_error">Generating of SSL keys failed. Please check your configuration.</h3>';
+            $htmlmessage = get_string('import_metadata_keys_error', 'edusharing');
             throw new EduSharingUserException(message: 'ssl keypair generation error', htmlmessage: $htmlmessage);
         }
         $this->utils->set_config_entry('EDU_AUTH_KEY', 'username');

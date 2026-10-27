@@ -79,11 +79,11 @@ class PluginRegistration {
     private function validate_alfresco_session(string $repourl, string $auth): void {
         $result = $this->service->validate_session($repourl, $auth);
         if ($result->error !== 0) {
-            throw new EduSharingUserException('API connection error');
+            throw new EduSharingUserException(get_string('registration_api_connection_error', 'edusharing'));
         }
         $data = json_decode($result->content, true, 512, JSON_THROW_ON_ERROR);
         if (($data['isAdmin'] ?? false) === false) {
-            throw new EduSharingUserException('Given user / password was not accepted as admin');
+            throw new EduSharingUserException(get_string('registration_admin_not_accepted', 'edusharing'));
         }
     }
 
@@ -102,7 +102,7 @@ class PluginRegistration {
         $body      = $this->get_registration_api_body($delimiter, $data);
         $result    = $this->service->register_plugin($repourl, $delimiter, $body, $auth);
         if ($result->error !== 0) {
-            throw new EduSharingUserException('API connection error');
+            throw new EduSharingUserException(get_string('registration_api_connection_error', 'edusharing'));
         }
         return json_decode($result->content, true, 512, JSON_THROW_ON_ERROR);
     }

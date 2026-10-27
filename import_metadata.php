@@ -20,9 +20,9 @@
  * @package mod_edusharing
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @todo Implement as moustache template
  */
 
+use core\output\notification;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\EduSharingUserException;
 use mod_edusharing\MetaDataFrontend;
@@ -32,7 +32,7 @@ use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__, 3) . '/config.php');
 
-global $CFG;
+global $CFG, $OUTPUT, $PAGE;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 
 try {
@@ -44,23 +44,20 @@ try {
     exit();
 }
 
-echo '<html>
-<head>
-    <title>edu-sharing metadata import</title>
-    <link rel="stylesheet" href="import_metadata_style.css" />
-</head>
-<body>
-<div class="h5p-header">
-    <h1>Import metadata from an edu-sharing repository</h1>
-</div>
-<div class="wrap">';
+$PAGE->set_url(new moodle_url('/mod/edusharing/import_metadata.php'));
+$PAGE->set_context(context_system::instance());
+$PAGE->set_pagelayout('admin');
+$PAGE->set_title(get_string('import_metadata_title', 'edusharing'));
+$PAGE->set_heading(get_string('import_metadata_title', 'edusharing'));
+
+echo $OUTPUT->header();
 if (!is_siteadmin()) {
-    echo '<h3>Access denied!</h3>';
-    echo '<p>Please login with your admin account in moodle.</p>';
+    echo $OUTPUT->notification(get_string('import_metadata_access_denied', 'edusharing'), notification::NOTIFY_ERROR);
+    echo $OUTPUT->footer();
     exit();
 }
 
-$filename = '';
+$metadataurl = '';
 try {
     $reporeg = optional_param('repoReg', '', PARAM_RAW);
     if (!empty($reporeg)) {
@@ -73,6 +70,7 @@ try {
             set_config('application_host_aliases', $hostaliases, 'edusharing');
         }
         echo PluginRegistrationFrontend::register_plugin($_POST['repoUrl'], $_POST['repoAdmin'], $_POST['repoPwd']);
+        echo $OUTPUT->footer();
         exit();
     }
 
@@ -91,13 +89,16 @@ if (!empty($metadataurl)) {
         }
         $service = new MetadataLogic(new EduSharingService());
         $service->import_metadata($metadataurl);
-        echo '<h3 class="edu_success">Import successful.</h3>';
+        echo $OUTPUT->notification(get_string('import_metadata_success', 'edusharing'), notification::NOTIFY_SUCCESS);
     } catch (EduSharingUserException $edusharinguserexception) {
         debugging('Edusharing error importing metatada from repo: ' . $edusharinguserexception->getMessage());
-        echo $edusharinguserexception->get_html_message();
+        echo $OUTPUT->notification(
+            $edusharinguserexception->get_html_message() ?? s($edusharinguserexception->getMessage()),
+            notification::NOTIFY_ERROR
+        );
     } catch (Exception $exception) {
         debugging('General error importing metatada from repo: ' . $exception->getMessage());
-        echo '<p style="background: #FF8170">Unexpected error - please try again later<br></p>';
+        echo $OUTPUT->notification(get_string('import_metadata_unexpected_error', 'edusharing'), notification::NOTIFY_ERROR);
     }
 
     if (isset($service) && $service->reloadform) {
@@ -107,6 +108,7 @@ if (!empty($metadataurl)) {
     if ($repoform !== null) {
         echo $repoform;
     }
+    echo $OUTPUT->footer();
     exit();
 }
 
@@ -115,5 +117,4 @@ $repoform = MetaDataFrontend::get_repo_form();
 if ($repoform !== null) {
     echo $repoform;
 }
-echo '</div></body></html>';
-exit();
+echo $OUTPUT->footer();

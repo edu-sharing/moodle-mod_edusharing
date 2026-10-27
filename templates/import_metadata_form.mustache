@@ -1,0 +1,56 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_edusharing/import_metadata_form
+
+    The form to import the metadata of an edu-sharing repository (import_metadata.php).
+
+    Context variables required for this template:
+    * sesskey - The session key
+    * example - An example of a repository's metadata url
+    * exporturl - The url of this Moodle's metadata
+
+    Example context (json):
+    {
+        "sesskey": "abc123",
+        "example": "http://your-server-name/edu-sharing/metadata?format=lms&external=true",
+        "exporturl": "https://moodle.example.com/mod/edusharing/metadata.php"
+    }
+}}
+<form action="import_metadata.php" method="post" class="mb-4">
+    <h3>{{#str}} import_metadata_form_heading, mod_edusharing {{/str}}</h3>
+    <input type="hidden" name="sesskey" value="{{sesskey}}">
+    <div class="mb-3">
+        <label for="metadata">{{#str}} import_metadata_endpoint, mod_edusharing {{/str}}</label>
+        <input type="text" id="metadata" name="mdataurl" class="form-control" value="">
+        <div class="form-text">
+            {{#str}} import_metadata_example, mod_edusharing {{/str}}
+            <a href="#" id="edusharing_metadata_example">{{example}}</a>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">{{#str}} import_metadata_import, mod_edusharing {{/str}}</button>
+</form>
+<p>
+    {{#str}} import_metadata_export, mod_edusharing {{/str}}
+    <code>{{exporturl}}</code>
+</p>
+{{#js}}
+document.getElementById('edusharing_metadata_example').addEventListener('click', (event) => {
+    event.preventDefault();
+    document.getElementById('metadata').value = event.target.textContent;
+});
+{{/js}}
