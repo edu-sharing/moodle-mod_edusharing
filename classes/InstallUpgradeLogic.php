@@ -74,7 +74,8 @@ class InstallUpgradeLogic {
                     . '://' . getenv('EDUSHARING_REPOSITORY_HOST') . $port . '/edu-sharing',
                 'repoAdmin' => getenv('EDUSHARING_REPOSITORY_USERNAME'),
                 'repoAdminPassword' => getenv('EDUSHARING_REPOSITORY_PASSWORD'),
-                'host' => getenv('EDUSHARING_MOODLE_HOST'),
+                // Optional: import_metadata() discerns the host when it is null (not false).
+                'host' => getenv('EDUSHARING_MOODLE_HOST') ?: null,
                 'hostAliases_optional' => $hostaliases,
                 'autoAppIdFromUrl' => false,
             ];
