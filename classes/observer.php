@@ -340,12 +340,16 @@ class mod_edusharing_observer {
         $utils = new UtilityFunctions();
         $idphelper = new IdpHelper();
 
-        if (isset($SESSION->redirect_to_edusharing) && $idphelper->check_edu_access()) {
+        if (isset($SESSION->redirect_to_edusharing)) {
             unset($SESSION->redirect_to_edusharing);
-            $service = new EduSharingService();
-            $ticket  = $service->get_ticket();
-            $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/') . '/components/login?ticket=' . $ticket;
-            redirect(new moodle_url($repourl));
+            if (! $idphelper->check_edu_access()) {
+                \core\notification::error(get_string('idp_no_access', 'edusharing'));
+            } else {
+                $service = new EduSharingService();
+                $ticket  = $service->get_ticket();
+                $repourl = rtrim($utils->get_config_entry('application_cc_gui_url'), '/') . '/components/login?ticket=' . $ticket;
+                redirect(new moodle_url($repourl));
+            }
         }
 
         $SESSION->edusharing_sso = [];

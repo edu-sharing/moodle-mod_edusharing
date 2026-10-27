@@ -171,7 +171,8 @@ $string['allow_registration_over_http_help'] = 'With this option, repository reg
 $string['use_service_worker'] = 'Use rendering service worker';
 $string['use_service_worker_help'] = 'If activated, a service worker is registered to support Edu-Sharing content rendering. Disabled by default.';
 $string['use_as_idp'] = 'Use Moodle as IDP for Edu-Sharing';
-$string['use_as_idp_help'] = 'If activated, Moodle can be used as an IDP for Edu-Sharing login.';
+$string['use_as_idp_help'] = 'If activated, Moodle can be used as an IDP for Edu-Sharing login. Only members of the cohort with the ID "edu_access" and users whose custom profile field "eduAccess" is 1 are let through.';
+$string['idp_no_access'] = 'Your Moodle account has no access to edu-sharing. Please contact the site administrator.';
 
 $string['error_missing_authwsdl'] = 'No "authenticationwebservice_wsdl" configured.';
 $string['error_authservice_not_reachable'] = 'not reachable. Cannot utilize edu-sharing network.';

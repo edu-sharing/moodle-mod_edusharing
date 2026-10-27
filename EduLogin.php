@@ -31,6 +31,7 @@ global $SESSION, $CFG, $USER, $DB;
 require_once($CFG->dirroot . '/mod/edusharing/eduSharingAutoloader.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
+use core\output\notification;
 use mod_edusharing\EduSharingService;
 use mod_edusharing\IdpHelper;
 use mod_edusharing\UtilityFunctions;
@@ -43,7 +44,7 @@ try {
     }
     if (isloggedin()) {
         if (! $idphelper->check_edu_access()) {
-            redirect(new moodle_url('/login/index.php'));
+            redirect(new moodle_url('/'), get_string('idp_no_access', 'edusharing'), null, notification::NOTIFY_ERROR);
         }
         $service = new EduSharingService();
         $ticket  = $service->get_ticket();
