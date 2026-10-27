@@ -104,6 +104,7 @@ class mod_edusharing_observer {
         }
         if ($isduplication) {
             $createdusages = [];
+            $textsupdated  = false;
             $transaction = $DB->start_delegated_transaction();
             try {
                 $service = new EduSharingService(null, null, $utils);
@@ -137,8 +138,13 @@ class mod_edusharing_observer {
                         $text = str_replace("resourceId=$originalresourceid", "resourceId=$newresourceid", $text);
                     }
                     $DB->set_field($data['other']['modulename'], $field, $text, ['id' => $data['other']['instanceid']]);
+                    $textsupdated = true;
                 }
                 $transaction->allow_commit();
+                if ($textsupdated) {
+                    // The course cache holds the copy's content with the original's resource ids.
+                    rebuild_course_cache((int)$module->course, true);
+                }
             } catch (Exception $exception) {
                 try {
                     foreach ($createdusages as $usagedata) {
