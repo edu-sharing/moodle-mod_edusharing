@@ -126,7 +126,7 @@ class InstallUpgradeLogic {
             debugging($exception->getMessage());
             return;
         }
-        if (! isset($registrationresult['appid']) && ! isset($result['id'])) {
+        if (! isset($registrationresult['appid']) && ! isset($registrationresult['id'])) {
             debugging('Automatic plugin registration could not be performed.');
         }
     }
