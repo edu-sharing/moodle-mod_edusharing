@@ -190,6 +190,11 @@ class MetadataLogic {
             $entry->addAttribute('key', 'subtype');
             $entry = $xml->addChild('entry', parse_url($CFG->wwwroot, PHP_URL_HOST));
             $entry->addAttribute('key', 'domain');
+            // Rendering service 2 allows https://<domain> for CORS, and the origins in allow_origin.
+            $wwwroot = parse_url($CFG->wwwroot);
+            $entry = $xml->addChild('entry', $wwwroot['scheme'] . '://' . $wwwroot['host']
+                . (isset($wwwroot['port']) ? ':' . $wwwroot['port'] : ''));
+            $entry->addAttribute('key', 'allow_origin');
             $entry = $xml->addChild('entry', $this->utils->get_config_entry('application_host') === false
                 ? '' : $this->utils->get_config_entry('application_host'));
             $entry->addAttribute('key', 'host');
