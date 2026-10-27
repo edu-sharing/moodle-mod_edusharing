@@ -66,8 +66,8 @@ class PluginRegistrationFrontend {
                 . '<a href="' . $CFG->wwwroot
                 . '/admin/settings.php?section=modsettingedusharing" class="btn btn-primary">Back</a>';
         }
-        $return .= $errormessage .  isset($result['message']) ? '<p class="edu_error">' . $result['message']
-            . '</p>' : '';
+        $return .= $errormessage
+            . (isset($result['message']) ? '<p class="edu_error">' . s($result['message']) . '</p>' : '');
         $return .= '<h3>Register the Moodle-Plugin in the Repository manually:</h3>';
         // phpcs:disable -- just messy html.
         $return .= '<p class="edu_metadata"> To register the Moodle-PlugIn manually got to the
