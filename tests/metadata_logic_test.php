@@ -500,11 +500,12 @@ final class metadata_logic_test extends advanced_testcase {
         $logic      = new MetadataLogic(new EduSharingService($authhelper, $nodehelper), new UtilityFunctions($fakeconfig));
         $xmlstring  = $logic->create_xml_metadata();
         $xml        = new SimpleXMLElement($xmlstring);
-        $this->assertEquals(11, $xml->count());
+        $this->assertEquals(12, $xml->count());
         $this->assertEquals('testAppId', $xml->xpath('entry[@key="appid"]')[0]);
         $this->assertEquals('testType', $xml->xpath('entry[@key="type"]')[0]);
         $this->assertEquals('moodle', $xml->xpath('entry[@key="subtype"]')[0]);
         $this->assertEquals('www.example.com', $xml->xpath('entry[@key="domain"]')[0]);
+        $this->assertEquals('https://www.example.com', $xml->xpath('entry[@key="allow_origin"]')[0]);
         $this->assertEquals('testHost', $xml->xpath('entry[@key="host"]')[0]);
         $this->assertEquals('testHostAliases', $xml->xpath('entry[@key="host_aliases"]')[0]);
         $this->assertEquals('true', $xml->xpath('entry[@key="trustedclient"]')[0]);

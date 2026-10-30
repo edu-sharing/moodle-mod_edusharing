@@ -18,17 +18,11 @@ declare(strict_types=1);
 
 namespace mod_edusharing\external;
 
-defined('MOODLE_INTERNAL') || die();
-
-// Once Moodle versions < 4.2 are out of LTS, we need to revert this to the proper namespaces.
-global $CFG;
-require_once($CFG->dirroot . '/lib/externallib.php');
-
 use Exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_edusharing\EduSharingService;
 
 /**

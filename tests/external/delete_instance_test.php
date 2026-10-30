@@ -58,7 +58,6 @@ final class delete_instance_test extends \advanced_testcase {
 
         $result = DeleteInstance::execute(['id' => $id, 'courseId' => (int)$course->id]);
 
-        // Loading the class may also report its deprecated external_api alias.
         $messages = array_column($this->getDebuggingMessages(), 'message');
         $this->resetDebugging();
         $this->assertNotEmpty(array_filter($messages, fn(string $message): bool => str_contains($message, 'data record')));
