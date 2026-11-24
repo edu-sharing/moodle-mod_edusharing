@@ -21,6 +21,7 @@
  * @copyright metaVentis GmbH — http://metaventis.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use mod_edusharing\UtilityFunctions;
 
 require_once(dirname(__FILE__) . '/../../config.php');
