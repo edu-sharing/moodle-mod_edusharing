@@ -127,7 +127,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = 'Das Objekt existiert nicht mehr.';
 $string['exc_ACCESS_DENIED'] = 'Zugriff verweigert.';
 $string['exc_NO_PERMISSION'] = 'Zugriffsrechte nicht ausreichend.';
 $string['exc_UNKNOWN_ERROR'] = 'Unbekannter Fehler.';
-$string['exc_NO_PUBLISH_RIGHTS'] = 'Ein edu-sharing-Inhalt konnte aufgrund fehlender Rechte des aktuellen Nutzers nicht eingebunden werden und wird übersprungen';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'Ein edu-sharing-Inhalt (Node-ID: {$a}) konnte aufgrund fehlender Rechte des aktuellen Nutzers nicht eingebunden werden und wird übersprungen';
 
 // Metadata.
 $string['conf_linktext'] = 'Moodle mit dem Heimat-Repositorium verbinden:';
@@ -199,9 +199,9 @@ $string['error_node_deleted'] = 'Dieses edu-sharing Objekt ist nicht mehr verfü
 $string['error_loading_secured_node'] = 'Dieses edu-sharing Objekt konnte nicht geladen werden. Bitte versuchen Sie es später erneut.';
 $string['restore_missing_rights_warning'] = 'Ihnen fehlen im edu-sharing Repository die Veröffentlichungsrechte für die folgenden Elemente dieser Sicherung. Sie können fortfahren, die betroffenen Elemente werden jedoch aus dem Kurs entfernt: {$a}';
 $string['restore_missing_rights_log'] = 'Fehlende edu-sharing Veröffentlichungsrechte, die folgenden Elemente werden aus dem Kurs entfernt: {$a}';
-$string['restore_missing_rights_activity'] = 'Aktivität "{$a}"';
-$string['restore_missing_rights_text'] = 'Eingebettetes Objekt "{$a}"';
-$string['restore_missing_rights_activity_label'] = '{$a} (edu-sharing: fehlende Veröffentlichungsrechte, wird nicht wiederhergestellt)';
+$string['restore_missing_rights_activity'] = 'Aktivität "{$a->title}" (Node-ID: {$a->nodeid})';
+$string['restore_missing_rights_text'] = 'Eingebettetes Objekt "{$a->title}" (Node-ID: {$a->nodeid})';
+$string['restore_missing_rights_activity_label'] = '{$a->name} (edu-sharing: fehlende Veröffentlichungsrechte für Node-ID {$a->nodeid}, wird nicht wiederhergestellt)';
 $string['import_metadata_title'] = 'Metadaten aus einem edu-sharing Repository importieren';
 $string['import_metadata_access_denied'] = 'Zugriff verweigert. Bitte melden Sie sich mit Ihrem Moodle-Administrationskonto an.';
 $string['import_metadata_success'] = 'Import erfolgreich.';

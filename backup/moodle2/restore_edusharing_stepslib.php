@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_edusharing\EduSharingService;
 use mod_edusharing\RestoreHelper;
+use mod_edusharing\UtilityFunctions;
 
 global $CFG;
 
@@ -70,8 +71,11 @@ class restore_edusharing_activity_structure_step extends restore_activity_struct
         } catch (Exception $exception) {
             try {
                 isset($newid) && $DB->delete_records('edusharing', ['id' => $newid]);
-                $message = str_contains($exception->getMessage(), 'NO_CCPUBLISH_PERMISSION')
-                    ? get_string('exc_NO_PUBLISH_RIGHTS', 'edusharing') : $exception->getMessage();
+                $message = $exception->getMessage();
+                if (str_contains($message, 'NO_CCPUBLISH_PERMISSION')) {
+                    $nodeid  = (new UtilityFunctions())->get_object_id_from_url($data->object_url ?? null);
+                    $message = get_string('exc_NO_PUBLISH_RIGHTS', 'edusharing', s($nodeid !== '' ? $nodeid : '-'));
+                }
                 $this->log($message, backup::LOG_ERROR, null, null, true);
             } catch (Exception $stupidexception) {
                 // Well, there is only so much we can do...

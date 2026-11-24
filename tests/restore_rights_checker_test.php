@@ -258,6 +258,45 @@ final class restore_rights_checker_test extends \advanced_testcase {
     }
 
     /**
+     * Function test_hook_names_activity_without_node_id
+     *
+     * An activity without an object url cannot be published, the warning says it lacks a node id.
+     *
+     * @return void
+     */
+    public function test_hook_names_activity_without_node_id(): void {
+        $this->resetAfterTest();
+        $user     = $this->getDataGenerator()->create_user();
+        $basepath = make_request_directory();
+        mkdir($basepath . '/activities/edusharing_5', 0777, true);
+        file_put_contents(
+            $basepath . '/activities/edusharing_5/edusharing.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><activity id="5" moduleid="5" modulename="edusharing">'
+            . '<edusharing id="5"><name>Broken activity</name><intro></intro><introformat>1</introformat>'
+            . '<object_url></object_url></edusharing></activity>'
+        );
+        $info = (object)[
+            'sections'   => [],
+            'activities' => ['edusharing_5' => (object)['moduleid' => 5, 'modulename' => 'edusharing',
+                'title' => 'Broken activity', 'directory' => 'activities/edusharing_5']],
+        ];
+
+        $task = $this->get_hook_task($basepath, $info, (int)$user->id);
+        $task->expects($this->once())
+            ->method('log')
+            ->with(
+                $this->stringContains(get_string(
+                    'restore_missing_rights_activity',
+                    'edusharing',
+                    (object)['title' => 'Broken activity', 'nodeid' => '-']
+                )),
+                backup::LOG_WARNING
+            );
+
+        hook_callbacks::warn_about_missing_rights($task);
+    }
+
+    /**
      * Function test_convert_inline_options_strips_objects_without_publish_rights
      *
      * @return void
@@ -395,7 +434,11 @@ final class restore_rights_checker_test extends \advanced_testcase {
             ->method('log')
             ->with(
                 $this->logicalAnd(
-                    $this->stringContains('Denied object'),
+                    $this->stringContains(get_string(
+                        'restore_missing_rights_text',
+                        'edusharing',
+                        (object)['title' => 'Denied object', 'nodeid' => 'denied']
+                    )),
                     $this->logicalNot($this->stringContains('Allowed object'))
                 ),
                 backup::LOG_WARNING
@@ -557,7 +600,14 @@ final class restore_rights_checker_test extends \advanced_testcase {
         $included = $rc->get_plan()->get_setting('edusharing_' . $cmid . '_included');
         $this->assertFalse((bool)$included->get_value());
         $this->assertSame(\base_setting::LOCKED_BY_CONFIG, $included->get_status());
-        $this->assertStringContainsString('Denied activity', $included->get_ui()->get_label());
+        $this->assertSame(
+            get_string(
+                'restore_missing_rights_activity_label',
+                'edusharing',
+                (object)['name' => 'Denied activity', 'nodeid' => 'denied-activity']
+            ),
+            $included->get_ui()->get_label()
+        );
 
         $rc->execute_precheck();
         $rc->execute_plan();

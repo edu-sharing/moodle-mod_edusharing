@@ -127,7 +127,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = 'L\'objet n\'existe plus.';
 $string['exc_ACCESS_DENIED'] = 'Accès refusé.';
 $string['exc_NO_PERMISSION'] = 'Droits d\'accès insuffisants.';
 $string['exc_UNKNOWN_ERROR'] = 'Erreur inconnue.';
-$string['exc_NO_PUBLISH_RIGHTS'] = 'Un objet edu-sharing n\'a pas pu être intégré en raison de l\'absence de droits de l\'utilisateur actuel et sera ignoré.';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'Un objet edu-sharing (ID du nœud : {$a}) n\'a pas pu être intégré en raison de l\'absence de droits de l\'utilisateur actuel et sera ignoré.';
 
 // Metadata.
 $string['conf_linktext'] = 'Connecter Moodle au repository d\'origine:';

@@ -127,7 +127,7 @@ $string['exc_NODE_DOES_NOT_EXIST'] = 'Node does not exist anymore.';
 $string['exc_ACCESS_DENIED'] = 'Access denied.';
 $string['exc_NO_PERMISSION'] = 'Insufficient permissions.';
 $string['exc_UNKNOWN_ERROR'] = 'Unknown error.';
-$string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object could not be restored due to missing publish rights and will be skipped.';
+$string['exc_NO_PUBLISH_RIGHTS'] = 'An edu-sharing object (node ID: {$a}) could not be restored due to missing publish rights and will be skipped.';
 
 // Metadata.
 $string['currentVersion'] = 'Current plugin version';
@@ -199,9 +199,9 @@ $string['error_node_deleted'] = 'This edu-sharing object is no longer available.
 $string['error_loading_secured_node'] = 'This edu-sharing object could not be loaded. Please try again later.';
 $string['restore_missing_rights_warning'] = 'You do not have publish rights in the edu-sharing repository for the following element(s) of this backup. You can continue, but the element(s) in question will be stripped from the course: {$a}';
 $string['restore_missing_rights_log'] = 'Missing edu-sharing publish rights, the following element(s) will be stripped from the course: {$a}';
-$string['restore_missing_rights_activity'] = 'Activity "{$a}"';
-$string['restore_missing_rights_text'] = 'Embedded object "{$a}"';
-$string['restore_missing_rights_activity_label'] = '{$a} (edu-sharing: missing publish rights, will not be restored)';
+$string['restore_missing_rights_activity'] = 'Activity "{$a->title}" (node ID: {$a->nodeid})';
+$string['restore_missing_rights_text'] = 'Embedded object "{$a->title}" (node ID: {$a->nodeid})';
+$string['restore_missing_rights_activity_label'] = '{$a->name} (edu-sharing: missing publish rights for node ID {$a->nodeid}, will not be restored)';
 $string['import_metadata_title'] = 'Import metadata from an edu-sharing repository';
 $string['import_metadata_access_denied'] = 'Access denied. Please log in with your Moodle administrator account.';
 $string['import_metadata_success'] = 'Import successful.';

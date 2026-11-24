@@ -69,7 +69,10 @@ class restore_edusharing_activity_task extends restore_activity_task {
         }
         $included->set_value(false);
         $included->set_status(base_setting::LOCKED_BY_CONFIG);
-        $included->get_ui()->set_label(get_string('restore_missing_rights_activity_label', 'edusharing', s($this->get_name())));
+        $included->get_ui()->set_label(get_string('restore_missing_rights_activity_label', 'edusharing', (object)[
+            'name'   => s($this->get_name()),
+            'nodeid' => s($nodeid !== '' ? $nodeid : '-'),
+        ]));
     }
 
     /**

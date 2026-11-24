@@ -95,7 +95,10 @@ class hook_callbacks {
             fn(array $object): string => get_string(
                 'restore_missing_rights_' . $object['kind'],
                 'edusharing',
-                s($object['title'] !== '' ? $object['title'] : $object['nodeid'])
+                (object)[
+                    'title'  => s($object['title'] !== '' ? $object['title'] : $object['nodeid']),
+                    'nodeid' => s($object['nodeid'] !== '' ? $object['nodeid'] : '-'),
+                ]
             ),
             $denied
         )));

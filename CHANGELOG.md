@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.8 - 2026-11-24]
+
+### Changed
+
+- The messages about missing publish rights on course restore now name the node id of each
+  affected edu-sharing object, both for activities and for objects embedded in texts. This covers
+  the warning on the restore settings page and in the restore log, the label of a locked activity
+  and the log entry of an activity skipped during the restore. An object without a node id is
+  shown with "-"
+
 ## [11.0.7 - 2026-11-02]
 
 ### Fixed
