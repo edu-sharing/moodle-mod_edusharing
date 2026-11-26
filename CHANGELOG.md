@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.9 - 2026-11-26]
+
+### Fixed
+
+- H5P results between 0 and 1 are no longer rounded on sites that got the attempts table through
+  an upgrade (to 10.3.3 or later) rather than a new installation. The upgrade step created the
+  field for the scaled score without its decimals, so a result of 1 of 2 points was stored as 1
+  and graded as full marks, depending on the grading method. The upgrade gives the field its
+  decimals, computes the stored scores again from their raw and maximum scores and queues a regrade
+  of the activities graded from attempts, which cron runs after the upgrade. Grades overridden or
+  locked in the gradebook stay as they are
+
 ## [11.0.8 - 2026-11-24]
 
 ### Changed

@@ -241,7 +241,7 @@ function xmldb_edusharing_upgrade($oldversion = 0): bool {
                 $table->add_field('attempt', XMLDB_TYPE_INTEGER, '6', null, XMLDB_NOTNULL, null, '1');
                 $table->add_field('rawscore', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
                 $table->add_field('maxscore', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-                $table->add_field('scaled', XMLDB_TYPE_NUMBER, '10', '5', XMLDB_NOTNULL, null, '0');
+                $table->add_field('scaled', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0');
                 $table->add_field('duration', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
                 $table->add_field('completion', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
                 $table->add_field('success', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
@@ -294,6 +294,16 @@ function xmldb_edusharing_upgrade($oldversion = 0): bool {
             } catch (Exception $exception) {
                 trigger_error($exception->getMessage(), E_USER_WARNING);
             }
+        }
+
+        if ($oldversion < 2026112600) {
+            // Up to 11.0.8 the step above created edusharing_attempts.scaled without decimals, so
+            // H5P results were stored and graded rounded to 0 or 1 (see upgradelib.php). Not caught
+            // like the steps above: a failed repair stops the upgrade, and running it again repairs
+            // what is left.
+            require_once($CFG->dirroot . '/mod/edusharing/db/upgradelib.php');
+            mod_edusharing_repair_attempt_scores();
+            upgrade_mod_savepoint(true, 2026112600, 'edusharing');
         }
     }
 
